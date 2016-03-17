@@ -8,7 +8,6 @@
              , b.value AS colour_code
              , c.value AS style_code
              , CASE WHEN d.value = 'thevan' THEN 'TheVan.ca' ELSE 'LiveOutThere.com' END AS storefront
-             , SUM(e.qty) - SUM(e.stock_reserved_qty) AS available_to_sell_units
              , f.value AS carry_over
              , h.value AS colour_name
              , i.value AS image
@@ -27,8 +26,6 @@
           ON a.entity_id = c.entity_id AND c.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_product_id' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_varchar AS d
           ON a.entity_id = d.entity_id AND d.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'custom_storefront' AND entity_type_id = 4)
-        LEFT JOIN magento.cataloginventory_stock_item AS e
-          ON a.entity_id = e.product_id AND e.stock_id IN (1,2)
         LEFT JOIN magento.catalog_product_entity_int AS f
           ON a.entity_id = f.entity_id AND f.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'belongs_to_crossover_style' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_int AS g
@@ -62,7 +59,7 @@
         WHERE a.type_id = 'simple'
         GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value
         UNION ALL
-        SELECT sku, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+        SELECT sku, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
         FROM magento.missing_historical_skus
     indexes: [sku]
     sql_trigger_value: |
@@ -159,7 +156,7 @@
       END
       
   - dimension: long_product_name
-    sql: ISNULL(${brand},'') + ' ' + ISNULL(${department},'') + ' ' + ISNULL(${short_product_name},'')
+    sql: ISNULL(${brand},'') + ' ' + ISNULL(CASE WHEN ${department} NOT LIKE '%^%' THEN ${department} END,'') + ' ' + ISNULL(${short_product_name},'')
     description: "Long product name, like Arc'teryx Men's Gamma Pants"
 
   - dimension: has_image
@@ -195,10 +192,4 @@
     description: "Unique count of the number of SKUs / simple products that we have available for sale"
     type: count_distinct
     sql: CASE WHEN ${TABLE}.available_to_sell_units > 0 THEN ${TABLE}.sku END
-    
-  - measure: available_to_sell_units
-    description: "Sum of the units that we have available for sale"
-    type: sum
-    sql: ${TABLE}.available_to_sell_units
-    
     

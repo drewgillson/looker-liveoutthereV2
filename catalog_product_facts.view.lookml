@@ -102,21 +102,13 @@
     type: time
     sql: ${TABLE}.reached_minimum_desired_quantity
 
-  - measure: max_last_receipt
-    sql: MAX(${TABLE}.last_receipt)
-    hidden: true
-
   - dimension_group: last_receipt
     type: time
-    sql: ${max_last_receipt}
-
-  - measure: max_last_sold
-    sql: MAX(${TABLE}.last_sold)
-    hidden: true
+    sql: ${TABLE}.last_receipt
 
   - dimension_group: last_sold
     type: time
-    sql: ${max_last_sold}
+    sql: ${TABLE}.last_sold
     
   - dimension: ideal_desired_quantity
     type: number

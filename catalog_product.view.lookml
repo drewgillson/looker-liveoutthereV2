@@ -70,7 +70,8 @@
       
   fields:
 
-  - filter: chosen_brands
+  - filter: choose_brands_to_compare_to_all_other_brands
+    description: "Will show the brands you specify in the filter along with another row called 'All Other Brands' which represents all the brands that you did not choose grouped together."
 
   - dimension: entity_id
     hidden: true
@@ -149,17 +150,12 @@
     sql: ${TABLE}.department
 
   - dimension: brand
-    description: "Brand/manufacturer for a product"
-    type: string
-    sql: ${TABLE}.brand
-
-  - dimension: filtered_brands_compared_to_other_brands
-    label: "Brands from the 'Chosen Brands' filter compared to all other brands"
+    description: "Brand/manufacturer for a product. Will show brands from the 'Choose Brands' filter compared to all other brands if desired."
     sql: |
       CASE
-        WHEN {% condition chosen_brands %} ${brand} {% endcondition %}
-        THEN ${brand}
-        ELSE 'Other Brands'
+        WHEN {% condition choose_brands_to_compare_to_all_other_brands %} ${TABLE}.brand {% endcondition %}
+        THEN ${TABLE}.brand
+        ELSE 'All Other Brands'
       END
       
   - dimension: long_product_name

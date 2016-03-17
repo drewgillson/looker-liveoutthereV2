@@ -96,82 +96,100 @@
     sql: ${TABLE}.product_id
 
   - dimension: minimum_desired_quantity
+    description: "Minimum quantity we want to keep in stock"
     type: number
     sql: ${TABLE}.minimum_desired_quantity
 
   - dimension: is_in_stock
+    description: "Is 'Yes' if the total quantity available to sell is greater than 0"
     type: yesno
     sql: ${quantity_available_to_sell} > 0
 
   - dimension_group: reached_minimum_desired_quantity
+    description: "Date we reached the minimum desired quantity for a product"
     type: time
     sql: ${TABLE}.reached_minimum_desired_quantity
 
   - dimension_group: last_receipt
+    description: "Date we last received a product"
     type: time
     sql: ${TABLE}.last_receipt
 
   - dimension_group: last_sold
+    description: "Date we lost sold a product"
     type: time
     sql: ${TABLE}.last_sold
     
   - dimension: ideal_desired_quantity
+    description: "Ideal quantity we want to keep in stock"
     type: number
     sql: ${TABLE}.ideal_desired_quantity
 
   - measure: quantity_on_hand
+    description: "Quantity currently on hand / in stock"
     type: sum
     sql: ${TABLE}.quantity_on_hand
 
   - measure: total_cost
+    description: "Total cost of the inventory we have on hand before discounts"
     label: "Total Cost $"
     type: sum
     value_format: '$#,##0.00'
     sql: ${TABLE}.total_cost
 
   - measure: total_sales_opportunity
+    description: "Total sales opportunity of the inventory we have on hand"
     label: "Total Sales Opportunity $"
     type: sum
     value_format: '$#,##0.00'
     sql: ${TABLE}.total_sales_opportunity
 
   - measure: percent_of_total_sales_opportunity
+    description: "Percentage of sales opportunity compared to total"
     label: "% of Total Sales Opportunity"
     type: percent_of_total
     value_format: '0.00\%'
     sql: ${total_sales_opportunity}
 
   - measure: quantity_reserved
+    description: "Reserved quantity / units"
     type: sum
     hidden: true
     sql: ${TABLE}.quantity_reserved
 
   - measure: "quantity_on_hand_30_days_ago"
+    description: "Quantity we had on hand 30 days ago (used for days in inventory calculation)"
     type: sum
     hidden: true
     sql: ${TABLE}.quantity_on_hand_30_days_ago
 
   - measure: "average_quantity_on_hand_over_30_days"
+    description: "Average inventory quantity during the past 30 days"
     type: number
     sql: (${quantity_on_hand} + ${quantity_on_hand_30_days_ago}) / 2
 
   - measure: "quantity_sold_last_30_days"
+    description: "Quantity sold during the past 30 days"
     type: sum
     sql: ${TABLE}.quantity_sold_last_30_days
 
   - measure: quantity_returned_all_time
+    description: "All-time quantity returned"
     type: sum
     sql: ${TABLE}.quantity_returned_all_time
 
   - measure: quantity_sold_all_time
+    description: "All-time quantity sold"
     type: sum
     sql: ${TABLE}.quantity_sold_all_time
 
   - measure: net_sold_quantity_all_time
+    description: "Total quantity sold minus the total quantity returned (all-time), used for calculating sell through rate"
     type: number
     sql: ${quantity_sold_all_time} - ${quantity_returned_all_time}
 
   - measure: average_quantity_sold_per_day
+    description: "Quantity of units sold per day based on 30-day sales history"
     type: number
     value_format_name: decimal_2
     sql: ${quantity_sold_last_30_days} / 30.0
@@ -182,6 +200,7 @@
     sql: ${quantity_on_hand} / NULLIF((${quantity_sold_last_30_days} / 30.0),0)
 
   - measure: days_of_inventory_remaining
+    description: "Based on 30-day sales history, the number of days that will elapse before we run out of inventory"
     type: number
     sql: |
       CASE WHEN ${quantity_available_to_sell} > 0 AND ${days_of_inventory_calculation} IS NULL THEN 9999 ELSE ${days_of_inventory_calculation} END
@@ -193,10 +212,12 @@
     sql: (${net_sold_quantity_all_time} / NULLIF(${quantity_on_hand} + ${net_sold_quantity_all_time},0))
 
   - measure: quantity_available_to_sell
+    description: "Quantity on hand minus quantity reserved for orders that haven't shipped"
     type: number
     sql: ${quantity_on_hand} - ${quantity_reserved}
     
   - measure: return_rate
+    description: "Percentage of units sold that were returned (warning: this measure seems to return results that are suspiciously low)"
     type: number
     value_format: '0%'
     sql: ${quantity_returned_all_time} / NULLIF(CAST(${quantity_sold_all_time} AS float),0)

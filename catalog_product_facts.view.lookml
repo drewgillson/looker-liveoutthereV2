@@ -126,14 +126,20 @@
   - measure: total_cost
     label: "Total Cost $"
     type: sum
-    value_format: "$#,##0.00"
+    value_format: '$#,##0.00'
     sql: ${TABLE}.total_cost
 
   - measure: total_sales_opportunity
     label: "Total Sales Opportunity $"
     type: sum
-    value_format: "$#,##0.00"
+    value_format: '$#,##0.00'
     sql: ${TABLE}.total_sales_opportunity
+
+  - measure: percent_of_total_sales_opportunity
+    label: "% of Total Sales Opportunity"
+    type: percent_of_total
+    value_format: '0.00\%'
+    sql: ${total_sales_opportunity}
 
   - measure: quantity_reserved
     type: sum
@@ -183,7 +189,7 @@
   - measure: sell_through_rate
     description: "Net sold quantity divided by (quantity on hand plus net sold quantity)"
     type: number
-    value_format: "0%"
+    value_format: '0%'
     sql: (${net_sold_quantity_all_time} / NULLIF(${quantity_on_hand} + ${net_sold_quantity_all_time},0))
 
   - measure: quantity_available_to_sell
@@ -192,6 +198,6 @@
     
   - measure: return_rate
     type: number
-    value_format: "0%"
+    value_format: '0%'
     sql: ${quantity_returned_all_time} / NULLIF(CAST(${quantity_sold_all_time} AS float),0)
     

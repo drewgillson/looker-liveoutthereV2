@@ -4,15 +4,19 @@
       SELECT a.product_id
         , SUM(qty) AS quantity_on_hand
         , MAX(historic_30_days_ago.quantity_on_hand) AS quantity_on_hand_30_days_ago
+        , MAX(quantity_sold_last_30_days) AS quantity_sold_last_30_days
         , MAX(min_qty) AS minimum_desired_quantity
         , MAX(is_in_stock) AS is_in_stock
         , MAX(low_stock_date) AS reached_minimum_desired_quantity
         , SUM(stock_reserved_qty) AS quantity_reserved
         , MAX(ideal_stock_level) AS ideal_desired_quantity
+        , MAX(last_receipt) AS last_receipt
+        , MAX(last_sold) AS last_sold
       FROM magento.cataloginventory_stock_item AS a
+      
       LEFT JOIN (
         SELECT sm_product_id AS product_id
-           , SUM(CASE WHEN sm_target_stock = 0 THEN -sm_qty ELSE sm_qty END) AS quantity_on_hand
+             , SUM(CASE WHEN sm_target_stock = 0 THEN -sm_qty ELSE sm_qty END) AS quantity_on_hand
         FROM magento.stock_movement
         WHERE sm_date <= DATEADD(d,-30,GETDATE())
         AND ((sm_type != 'transfer' OR (
@@ -24,6 +28,35 @@
         GROUP BY sm_product_id
       ) AS historic_30_days_ago
       ON a.product_id = historic_30_days_ago.product_id
+
+      LEFT JOIN (
+        SELECT sm_product_id AS product_id
+             , SUM(sm_qty) AS quantity_sold_last_30_days
+        FROM magento.stock_movement
+        WHERE sm_date >= DATEADD(d,-30,GETDATE())
+        AND sm_type = 'order'
+        GROUP BY sm_product_id
+      ) AS sales_30_days
+      ON a.product_id = sales_30_days.product_id
+      
+      LEFT JOIN (
+        SELECT sm_product_id AS product_id
+             , MAX(sm_date) AS last_receipt
+        FROM magento.stock_movement
+        WHERE sm_type = 'supply'
+        GROUP BY sm_product_id
+      ) AS last_received
+      ON a.product_id = last_received.product_id
+      
+      LEFT JOIN (
+        SELECT sm_product_id AS product_id
+             , MAX(sm_date) AS last_sold
+        FROM magento.stock_movement
+        WHERE sm_type = 'order'
+        GROUP BY sm_product_id
+      ) AS last_sold
+      ON a.product_id = last_sold.product_id
+
       GROUP BY a.product_id
     indexes: [product_id]
     sql_trigger_value: |
@@ -43,11 +76,27 @@
 
   - dimension: is_in_stock
     type: yesno
-    sql: ${TABLE}.is_in_stock = 1
+    sql: ${quantity_available_to_sell} > 0
 
   - dimension_group: reached_minimum_desired_quantity
     type: time
     sql: ${TABLE}.reached_minimum_desired_quantity
+
+  - measure: max_last_receipt
+    sql: MAX(${TABLE}.last_receipt)
+    hidden: true
+
+  - dimension_group: last_receipt
+    type: time
+    sql: ${max_last_receipt}
+
+  - measure: max_last_sold
+    sql: MAX(${TABLE}.last_sold)
+    hidden: true
+
+  - dimension_group: last_sold
+    type: time
+    sql: ${max_last_sold}
     
   - dimension: ideal_desired_quantity
     type: number
@@ -68,33 +117,23 @@
     sql: ${TABLE}.quantity_on_hand_30_days_ago
 
   - measure: "average_quantity_on_hand_over_30_days"
-    type: average
-    hidden: true
+    type: number
     sql: (${quantity_on_hand} + ${quantity_on_hand_30_days_ago}) / 2
 
   - measure: "quantity_sold_last_30_days"
     type: sum
-    sql: ${quantity_on_hand} - ${quantity_on_hand_30_days_ago}
+    sql: ${TABLE}.quantity_sold_last_30_days
 
   - measure: average_quantity_sold_per_day
-    type: average
-    hidden: true
-    sql: ${quantity_sold_last_30_days} / 30
+    type: number
+    decimals: 2
+    sql: ${quantity_sold_last_30_days} / 30.0
 
   - measure: days_in_inventory
-    type: average
-    sql: ${quantity_on_hand} / (${quantity_sold_last_30_days} / 30)
+    type: number
+    sql: ${quantity_on_hand} / NULLIF((${quantity_sold_last_30_days} / 30.0),0)
 
   - measure: quantity_available_to_sell
-    type: sum
+    type: number
     sql: ${quantity_on_hand} - ${quantity_reserved}
-
-  sets:
-    detail:
-      - is_in_stock
-      - quantity_on_hand
-      - quantity_available_to_sell
-      - days_in_inventory
-      - quantity_sold_last_30_days
-      
-      
+    

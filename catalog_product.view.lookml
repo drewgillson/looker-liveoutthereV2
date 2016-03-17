@@ -136,11 +136,6 @@
     type: string
     sql: ${TABLE}.size
 
-  - dimension: short_product_name
-    description: "Name of a product"
-    type: string
-    sql: ${TABLE}.product
-
   - dimension: department
     description: "Department/gender for a product"
     type: string
@@ -158,6 +153,13 @@
   - dimension: long_product_name
     sql: ISNULL(${brand},'') + ' ' + ISNULL(CASE WHEN ${department} NOT LIKE '%^%' THEN ${department} END,'') + ' ' + ISNULL(${short_product_name},'')
     description: "Long product name, like Arc'teryx Men's Gamma Pants"
+    drill_fields: [sku, colour_name, size]
+
+  - dimension: short_product_name
+    description: "Name of a product"
+    type: string
+    sql: ${TABLE}.product
+    drill_fields: [sku, colour_name, size]
 
   - dimension: has_image
     description: "Will be 'Yes' if a product has an image"

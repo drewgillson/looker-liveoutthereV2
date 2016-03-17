@@ -85,7 +85,7 @@
     sql: ${TABLE}.sku
     description: "SKU for a product with a specific colour and size - what we call a 'simple SKU'. It is one of the core fields that join most of our models."
     html: |
-      <a target="_new" href="https://admin.liveoutthere.com/index.php/AdvancedStock/Products/Edit/product_id/{{ row['all_simple_skus.entity_id'] }}/"><img title="Magento" src="https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico"/></a> {{ value }}
+      <a target="_new" href="https://admin.liveoutthere.com/index.php/inspire/advancedstock_products/edit/product_id/{{ row['inventory.entity_id'] }}"><img title="Magento" src="https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico"/> {{ value }}</a>
 
   - dimension_group: created_at
     description: "Time a product was created in Magento"
@@ -108,6 +108,7 @@
   - dimension: colour_family
     description: "Colour family for a product (i.e. Pink)"
     sql: ${TABLE}.colour_family
+    drill_fields: [colour]
     
   - dimension: style_code
     description: "Style code for a product"
@@ -116,10 +117,12 @@
   - dimension: style_color_code
     description: "Concatenated style code and colour code for a product"
     sql: ${TABLE}.style_code + ${TABLE}.colour_code
+    drill_fields: [style_code]
     
   - dimension: storefront
     description: "Assigned storefront for a product (either LiveOutThere.com or TheVan.ca)"
     sql: ${TABLE}.storefront
+    drill_fields: [brand]
 
   - dimension: image_url
     label: "Image URL"
@@ -149,6 +152,7 @@
     description: "Department/gender for a product"
     type: string
     sql: ${TABLE}.department
+    drill_fields: [brand]
 
   - dimension: brand
     description: "Brand/manufacturer for a product. Will show brands from the 'Choose Brands' filter compared to all other brands if desired."
@@ -158,6 +162,7 @@
         THEN ${TABLE}.brand
         ELSE 'All Other Brands'
       END
+    drill_fields: [short_product_name, long_product_name, department, colour, colour_family]
       
   - dimension: long_product_name
     sql: ISNULL(${brand},'') + ' ' + ISNULL(CASE WHEN ${department} NOT LIKE '%^%' THEN ${department} END,'') + ' ' + ISNULL(${short_product_name},'')

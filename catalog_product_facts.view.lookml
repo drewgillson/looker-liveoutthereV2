@@ -3,6 +3,8 @@
     sql: |
       SELECT a.product_id
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) END AS quantity_on_hand
+        , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) * MAX(catalog_product.cost) END AS total_cost
+        , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) * MAX(catalog_product.price) END AS total_sales_opportunity
         , MAX(historic_30_days_ago.quantity_on_hand) AS quantity_on_hand_30_days_ago
         , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_last_30_days) - ABS(SUM(qty)) ELSE MAX(quantity_sold_last_30_days) END AS quantity_sold_last_30_days
         , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_all_time) - ABS(SUM(qty)) ELSE MAX(quantity_sold_all_time) END AS quantity_sold_all_time
@@ -77,6 +79,9 @@
       ) AS returns_all_time
       ON a.product_id = returns_all_time.product_id
 
+      LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS catalog_product
+      ON a.product_id = catalog_product.entity_id
+
       GROUP BY a.product_id
     indexes: [product_id]
     sql_trigger_value: |
@@ -117,6 +122,18 @@
   - measure: quantity_on_hand
     type: sum
     sql: ${TABLE}.quantity_on_hand
+
+  - measure: total_cost
+    label: "Total Cost $"
+    type: sum
+    value_format: "$#,##0.00"
+    sql: ${TABLE}.total_cost
+
+  - measure: total_sales_opportunity
+    label: "Total Sales Opportunity $"
+    type: sum
+    value_format: "$#,##0.00"
+    sql: ${TABLE}.total_sales_opportunity
 
   - measure: quantity_reserved
     type: sum

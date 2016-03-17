@@ -2,10 +2,10 @@
   derived_table:
     sql: |
       SELECT a.product_id
-        , SUM(qty) AS quantity_on_hand
+        , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) END AS quantity_on_hand
         , MAX(historic_30_days_ago.quantity_on_hand) AS quantity_on_hand_30_days_ago
-        , MAX(quantity_sold_last_30_days) AS quantity_sold_last_30_days
-        , MAX(quantity_sold_all_time) AS quantity_sold_all_time
+        , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_last_30_days) - ABS(SUM(qty)) ELSE MAX(quantity_sold_last_30_days) END AS quantity_sold_last_30_days
+        , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_all_time) - ABS(SUM(qty)) ELSE MAX(quantity_sold_all_time) END AS quantity_sold_all_time
         , MAX(min_qty) AS minimum_desired_quantity
         , MAX(is_in_stock) AS is_in_stock
         , MAX(low_stock_date) AS reached_minimum_desired_quantity
@@ -36,7 +36,7 @@
              , SUM(sm_qty) AS quantity_sold_last_30_days
         FROM magento.stock_movement
         WHERE sm_date >= DATEADD(d,-30,GETDATE())
-        AND sm_type = 'order'
+        AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_30_days
       ON a.product_id = sales_30_days.product_id
@@ -45,7 +45,7 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold_all_time
         FROM magento.stock_movement
-        WHERE sm_type = 'order'
+        WHERE (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_all_time
       ON a.product_id = sales_all_time.product_id
@@ -63,7 +63,7 @@
         SELECT sm_product_id AS product_id
              , MAX(sm_date) AS last_sold
         FROM magento.stock_movement
-        WHERE sm_type = 'order'
+        WHERE (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS last_sold
       ON a.product_id = last_sold.product_id

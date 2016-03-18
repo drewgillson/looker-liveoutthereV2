@@ -32,7 +32,6 @@
         ON a.category_name = b.category
     indexes: [product_id, inventory_type, reporting_category_level1, reporting_category_level2]
     sql_trigger_value: |
-      SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
 
   fields:
 

@@ -69,7 +69,7 @@
         GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value
     indexes: [sku]
     sql_trigger_value: |
-      SELECT CAST(GETDATE() AS date)
+      SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       
   fields:
 

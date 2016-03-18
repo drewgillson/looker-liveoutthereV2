@@ -85,7 +85,7 @@
       GROUP BY a.product_id
     indexes: [product_id]
     sql_trigger_value: |
-      SELECT CAST(GETDATE() AS date)
+      SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
 
   fields:
 

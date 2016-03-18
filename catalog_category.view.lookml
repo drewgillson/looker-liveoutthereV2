@@ -3,8 +3,8 @@
     # the magic number in the WHERE clause (entity_id = 2261) is for the Root category,
     # and NOT IN (11358,2237,8779) excludes eGift Cards, Uncategorized, Campaigns, and Door Crashers
     sql: |
-      SELECT DISTINCT 
-           a.product_id
+      SELECT DISTINCT
+         a.product_id
          , a.category_name AS raw_category_path
          , b.inventory_type
          , b.reporting_category_level1

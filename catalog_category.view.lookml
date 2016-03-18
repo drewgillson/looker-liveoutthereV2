@@ -86,9 +86,9 @@
   - dimension: long_category
     description: "i.e. Accessories/Mitts/Waterproof Mitts"
     sql: ${category_1} + ISNULL('/' + NULLIF(${category_2},''),'') + ISNULL('/' + NULLIF(${category_3},''),'') + ISNULL('/' + NULLIF(${category_4},''),'') + ISNULL('/' + NULLIF(${category_5},''),'')
-    drill_fields: [inventory.brand]
+    drill_fields: [inventory.brand, inventory.short_product_name, inventory.long_product_name]
 
   - dimension: short_category
     description: "i.e. Accessories/Mitts"
     sql: ${category_1} + ISNULL('/' + NULLIF(${category_2},''),'') 
-    drill_fields: [long_category, inventory.brand]
+    drill_fields: [long_category, inventory.brand, inventory.short_product_name, inventory.long_product_name]

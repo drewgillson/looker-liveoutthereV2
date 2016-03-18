@@ -89,6 +89,8 @@
 
   fields:
 
+  - filter: last_receipt_date_filter
+
   - dimension: product_id
     type: number
     primary_key: true
@@ -113,7 +115,14 @@
   - dimension_group: last_receipt
     description: "Date we last received a product"
     type: time
-    sql: ${TABLE}.last_receipt
+    sql: |
+      CASE
+        WHEN {% condition last_receipt_date_filter %} LEFT(CONVERT(VARCHAR, ${TABLE}.last_receipt, 120), 10) {% endcondition %}
+        THEN ${TABLE}.last_receipt
+        ELSE '9999-01-01'
+      END
+    
+#    sql: ${TABLE}.last_receipt
 
   - dimension_group: last_sold
     description: "Date we lost sold a product"

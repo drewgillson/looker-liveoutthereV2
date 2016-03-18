@@ -74,7 +74,7 @@
       
   fields:
 
-  - filter: choose_brands_to_compare_to_all_other_brands
+  - filter: brand_filter
     description: "Will show the brands you specify in the filter along with another row called 'All Other Brands' which represents all the brands that you did not choose grouped together."
 
   - dimension: entity_id
@@ -164,14 +164,14 @@
     drill_fields: [brand]
 
   - dimension: brand
-    description: "Brand/manufacturer for a product. Will show brands from the 'Choose Brands' filter compared to all other brands if desired."
+    description: "Brand/manufacturer for a product. Will also show brands selected in the 'Brand Filter' compared to all other brands if desired."
     sql: |
       CASE
-        WHEN {% condition choose_brands_to_compare_to_all_other_brands %} ${TABLE}.brand {% endcondition %}
+        WHEN {% condition brand_filter %} ${TABLE}.brand {% endcondition %}
         THEN ${TABLE}.brand
         ELSE 'All Other Brands'
       END
-    drill_fields: [short_product_name, long_product_name, department, colour, colour_family]
+    drill_fields: [short_product_name, long_product_name, department, colour, colour_family, categories.long_category, categories.short_category]
       
   - dimension: long_product_name
     sql: ISNULL(${brand},'') + ' ' + ISNULL(CASE WHEN ${department} NOT LIKE '%^%' THEN ${department} END,'') + ' ' + ISNULL(${short_product_name},'')

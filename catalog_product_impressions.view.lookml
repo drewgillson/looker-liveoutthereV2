@@ -16,6 +16,7 @@
     sql: ${TABLE}.row
 
   - dimension_group: impression
+    description: "Date that impressions were recorded for a product"
     type: time
     sql: ${TABLE}.period
 
@@ -25,5 +26,6 @@
     sql: ${TABLE}.product_id
 
   - measure: impressions
+    description: "Number of times a Magento product was loaded on the frontend of the website, this includes carousels, PLP, PDP, etc. - anywhere the product is displayed."
     type: sum
     sql: ${TABLE}.views

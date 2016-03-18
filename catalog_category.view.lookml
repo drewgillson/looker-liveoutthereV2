@@ -42,44 +42,54 @@
     sql: ${TABLE}.product_id
 
   - dimension: is_categorized
+    description: "Does the product belong to a category in our master list of categories?"
     type: yesno
     sql: ${short_category} IS NOT NULL
 
   - dimension: inventory_type
+    description: "Either Apparel, Gear, or Footwear"
     sql: ${TABLE}.inventory_type
     drill_fields: [short_category, long_category, inventory.brand]
 
   - dimension: raw_category_path
+    description: "The raw category value from Magento, this may or may not match to a category in our master list, so if this has a value but the other dimensions are NULL, a row needs to be added to lut_Messy_Category_Data."
     sql: ${TABLE}.raw_category_path
 
   - dimension: category_1
+    description: "i.e. Gear"
     label: "1st-Level Category"
     sql: ${TABLE}.reporting_category_level1
     drill_fields: [short_category, long_category, category_2, inventory.brand]
 
   - dimension: category_2
+    description: "i.e. Equipment"
     label: "2nd-Level Category"
     sql: ${TABLE}.reporting_category_level2
     drill_fields: [category_3, inventory.brand]
 
   - dimension: category_3
+    description: "i.e. Poles"
     label: "3rd-Level Category"
     sql: ${TABLE}.reporting_category_level3
     drill_fields: [category_4, inventory.brand]
 
   - dimension: category_4
+    description: "i.e. Ski Poles"
     label: "4th-Level Category"
     sql: ${TABLE}.reporting_category_level4
     drill_fields: [category_5, inventory.brand]
 
   - dimension: category_5
+    description: "i.e. Collapsible Ski Poles"
     label: "5th-Level Category"
     sql: ${TABLE}.reporting_category_level5
     
   - dimension: long_category
+    description: "i.e. Accessories/Mitts/Waterproof Mitts"
     sql: ${category_1} + ISNULL('/' + NULLIF(${category_2},''),'') + ISNULL('/' + NULLIF(${category_3},''),'') + ISNULL('/' + NULLIF(${category_4},''),'') + ISNULL('/' + NULLIF(${category_5},''),'')
     drill_fields: [inventory.brand]
 
   - dimension: short_category
+    description: "i.e. Accessories/Mitts"
     sql: ${category_1} + ISNULL('/' + NULLIF(${category_2},''),'') 
     drill_fields: [long_category, inventory.brand]

@@ -3,7 +3,7 @@
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY period) AS row, * FROM (
         SELECT * FROM magento.cgperformance_report_product_views
-      )
+      ) AS a
     indexes: [product_id, period]
     sql_trigger_value: |
         SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

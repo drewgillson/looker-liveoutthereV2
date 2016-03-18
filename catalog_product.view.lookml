@@ -65,7 +65,8 @@
           ON CASE WHEN u.value LIKE '%,%' THEN LEFT(u.value,CHARINDEX(',',u.value)-1) ELSE u.value END = v.option_id AND v.store_id = 0
         LEFT JOIN magento.catalog_product_super_link AS w
           ON a.entity_id = w.product_id
-        WHERE a.type_id = 'simple' AND p.value != 'LiveOutThere.com'
+        WHERE a.type_id = 'simple'
+        AND p.value != 'LiveOutThere.com'
         GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value
     indexes: [sku]
     sql_trigger_value: |

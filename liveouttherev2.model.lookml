@@ -5,6 +5,7 @@
 
 - explore: inventory
   symmetric_aggregates: true
+  persist_for: 1 hour
   from: catalog_product
   joins:
     - join: inventory_facts

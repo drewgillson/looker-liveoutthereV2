@@ -1,10 +1,11 @@
 - view: catalog_category
   derived_table:
     # the magic number in the WHERE clause (entity_id = 2261) is for the Root category,
-    # and NOT IN (11358,2237,8779) excludes eGift Cards, Uncategorized, and Campaigns
+    # and NOT IN (11358,2237,8779) excludes eGift Cards, Uncategorized, Campaigns, and Door Crashers
     sql: |
       SELECT DISTINCT 
            a.product_id
+         , a.category_name AS raw_category_path
          , b.inventory_type
          , b.reporting_category_level1
          , b.reporting_category_level2
@@ -16,9 +17,9 @@
            , f.entity_id AS product_id
         FROM magento.catalog_category_flat_store_1 AS a
         LEFT JOIN magento.catalog_category_flat_store_1 AS b
-          ON b.parent_id = a.entity_id AND b.entity_id NOT IN (11358,2237,8779)
+          ON b.parent_id = a.entity_id AND b.entity_id NOT IN (11358,2237,8779,11425)
         LEFT JOIN magento.catalog_category_flat_store_1 AS c
-          ON c.parent_id = b.entity_id AND c.entity_id NOT IN (11358,2237,8779)
+          ON c.parent_id = b.entity_id AND c.entity_id NOT IN (11358,2237,8779,11425)
         LEFT JOIN magento.catalog_category_flat_store_1 AS d
           ON d.parent_id = COALESCE(c.entity_id,b.entity_id)
         LEFT JOIN magento.catalog_category_product AS e
@@ -49,28 +50,31 @@
     sql: ${TABLE}.inventory_type
     drill_fields: [short_category, long_category, inventory.brand]
 
+  - dimension: raw_category_path
+    sql: ${TABLE}.raw_category_path
+
   - dimension: category_1
-    label: "Top-Level Category"
+    label: "1st-Level Category"
     sql: ${TABLE}.reporting_category_level1
-    drill_fields: [category_2, inventory.brand]
+    drill_fields: [short_category, long_category, category_2, inventory.brand]
 
   - dimension: category_2
-    label: "Subcategory"
+    label: "2nd-Level Category"
     sql: ${TABLE}.reporting_category_level2
     drill_fields: [category_3, inventory.brand]
 
   - dimension: category_3
-    label: "Subcategory (3rd-Level)"
+    label: "3rd-Level Category"
     sql: ${TABLE}.reporting_category_level3
     drill_fields: [category_4, inventory.brand]
 
   - dimension: category_4
-    label: "Subcategory (4th-Level)"
+    label: "4th-Level Category"
     sql: ${TABLE}.reporting_category_level4
     drill_fields: [category_5, inventory.brand]
 
   - dimension: category_5
-    label: "Subcategory (5th-Level)"
+    label: "5th-Level Category"
     sql: ${TABLE}.reporting_category_level5
     
   - dimension: long_category

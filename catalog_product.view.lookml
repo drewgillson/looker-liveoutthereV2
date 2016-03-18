@@ -20,6 +20,8 @@
            , r.value AS price
            , t.value AS season
            , v.value AS colour_family
+           , MAX(w.parent_id) AS parent_id
+           , COUNT(DISTINCT w.parent_id) AS parent_count
         FROM magento.catalog_product_entity AS a
         LEFT JOIN magento.catalog_product_entity_varchar AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
@@ -61,11 +63,10 @@
           ON a.entity_id = u.entity_id AND u.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'color_family' AND entity_type_id = 4) AND u.store_id = 0
         LEFT JOIN magento.eav_attribute_option_value AS v
           ON CASE WHEN u.value LIKE '%,%' THEN LEFT(u.value,CHARINDEX(',',u.value)-1) ELSE u.value END = v.option_id AND v.store_id = 0
+        LEFT JOIN magento.catalog_product_super_link AS w
+          ON a.entity_id = w.product_id
         WHERE a.type_id = 'simple' AND p.value != 'LiveOutThere.com'
         GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value
-        UNION ALL
-        SELECT sku, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        FROM magento.missing_historical_skus
     indexes: [sku]
     sql_trigger_value: |
       SELECT CAST(GETDATE() AS date)
@@ -78,15 +79,26 @@
   - dimension: entity_id
     hidden: true
     primary_key: true
+    value_format: '0'
     sql: ${TABLE}.entity_id
+
+  - dimension: parent_id
+    hidden: true
+    value_format: '0'
+    sql: ${TABLE}.parent_id
 
   - dimension: sku
     required_fields: entity_id
     sql: ${TABLE}.sku
     description: "SKU for a product with a specific colour and size - what we call a 'simple SKU'. It is one of the core fields that join most of our models."
-    html: |
-      <a target="_new" href="https://admin.liveoutthere.com/index.php/inspire/advancedstock_products/edit/product_id/{{ row['inventory.entity_id'] }}"><img title="Magento" src="https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico"/> {{ value }}</a>
-
+    links:
+      - label: 'Simple Product'
+        url: "https://admin.liveoutthere.com/index.php/inspire/advancedstock_products/edit/product_id/{{ inventory.entity_id._value }}"
+        icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
+      - label: 'Photo'
+        url: "https://www.liveoutthere.com/media/catalog/product/{{ inventory.image._value }}"
+        icon_url: 'http://icons.iconarchive.com/icons/rade8/minium-2/16/Sidebar-Pictures-icon.png'
+        
   - dimension_group: created_at
     description: "Time a product was created in Magento"
     type: time
@@ -114,6 +126,10 @@
     description: "Style code for a product"
     sql: ${TABLE}.style_code
     
+  - dimension: image
+    hidden: true
+    sql: ${TABLE}.image
+    
   - dimension: style_color_code
     description: "Concatenated style code and colour code for a product"
     sql: ${TABLE}.style_code + ${TABLE}.colour_code
@@ -124,14 +140,6 @@
     sql: ${TABLE}.storefront
     drill_fields: [brand]
 
-  - dimension: image_url
-    label: "Image URL"
-    description: "URL to the full-sized image/photo for a product"
-    type: string
-    sql: ${TABLE}.image
-    html: |
-      <a target="_new" href="https://www.liveoutthere.com/media/catalog/product/{{ value }}">{{ value }}</a>
-    
   - dimension: barcode
     description: "Barcode value for a product (even fake barcodes that start with 000000)"
     type: string
@@ -168,17 +176,33 @@
     sql: ISNULL(${brand},'') + ' ' + ISNULL(CASE WHEN ${department} NOT LIKE '%^%' THEN ${department} END,'') + ' ' + ISNULL(${short_product_name},'')
     description: "Long product name, like Arc'teryx Men's Gamma Pants"
     drill_fields: [sku, colour, colour_family, size]
+    links:
+      - label: 'Configurable Product'
+        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ inventory.parent_id._value }}"
+        icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: short_product_name
     description: "Name of a product"
     type: string
     sql: ${TABLE}.product
     drill_fields: [sku, colour, colour_family, size]
+    links:
+      - label: 'Configurable Product'
+        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ inventory.parent_id._value }}"
+        icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: has_image
     description: "Will be 'Yes' if a product has an image"
     type: yesno
     sql: ${TABLE}.image != 'no_selection' AND ${TABLE}.image IS NOT NULL
+    
+  - dimension: has_multiple_configurables
+    type: yesno
+    sql: ${TABLE}.parent_count > 1
+
+  - dimension: not_associated_to_configurable
+    type: yesno
+    sql: ${TABLE}.parent_count = 0
 
   - dimension: cost
     description: "Wholesale cost for a product"

@@ -16,4 +16,3 @@
       from: catalog_category
       sql_on: inventory.entity_id = categories.product_id
       relationship: one_to_many
-

@@ -4,10 +4,15 @@
 - include: "*.dashboard.lookml"  # include all the dashboards
 
 - explore: inventory
+  symmetric_aggregates: true
   from: catalog_product
   joins:
     - join: inventory_facts
       from: catalog_product_facts
       sql_on: inventory.entity_id = inventory_facts.product_id
       relationship: one_to_one
+    - join: categories
+      from: catalog_category
+      sql_on: inventory.entity_id = categories.product_id
+      relationship: one_to_many
 

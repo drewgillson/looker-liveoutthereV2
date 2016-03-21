@@ -20,3 +20,7 @@
       from: catalog_product_impressions
       sql_on: inventory.entity_id = impressions.product_id
       relationship: one_to_many
+    - join: price_rules
+      from: catalog_price_rule
+      sql_on: inventory.entity_id = price_rules.product_id
+      relationship: one_to_many

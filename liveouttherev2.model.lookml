@@ -30,6 +30,10 @@
       from: catalog_price_rules
       sql_on: all_inventory.entity_id = applied_catalog_price_rules.product_id
       relationship: one_to_many
+    - join: effective_discounts
+      from: catalog_effective_discounts
+      sql_on: all_inventory.entity_id = effective_discounts.entity_id
+      relationship: one_to_many
     - join: reviews
       from: catalog_product_reviews
       sql_on: associations.parent_id = reviews.entity_id

@@ -1,7 +1,10 @@
 - view: catalog_price_rules
+  suggestions: false
+  # OPENQUERY is used in this view because we always want recent prices from the Magento catalog price index
   derived_table:
     sql: |
-      SELECT 'Production' AS environment
+      SELECT * FROM OPENQUERY(MAGENTO,'
+      SELECT ''Production'' AS environment
            , a.rule_product_id
            , a.product_id
            , b.name
@@ -14,10 +17,10 @@
            , a.action_amount
            , a.action_stop
            , a.sort_order
-      FROM magento.catalogrule_product AS a
-      INNER JOIN magento.catalogrule AS b
+      FROM catalogrule_product AS a
+      INNER JOIN catalogrule AS b
         ON a.rule_id = b.rule_id
-      WHERE a.customer_group_id = 0
+      WHERE a.customer_group_id = 0')
       UNION ALL
       SELECT * FROM OPENQUERY(STAGING,'
       SELECT ''Staging'' AS environment
@@ -38,14 +41,14 @@
         ON a.rule_id = b.rule_id
       WHERE a.customer_group_id = 0')
     indexes: [product_id]
-    sql_trigger_value: |
-      SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
+    persist_for: 8 hours
 
   fields:
   
   - dimension: environment
     description: "Either 'Production' or 'Staging'. This dimension needs to be filtered when you use dimensions or measures from this view, otherwise you will get duplicate results."
     sql: ${TABLE}.environment
+    suggestions: ['Production','Staging']
   
   - dimension: rule_product_id
     primary_key: true

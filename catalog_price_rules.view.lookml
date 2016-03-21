@@ -79,7 +79,6 @@
 
   - dimension: rule_id
     description: "ID of the Catalog Price Rule in Magento"
-    type: int
     sql: ${TABLE}.rule_id
 
   - dimension: action_operator
@@ -88,7 +87,6 @@
 
   - dimension: action_amount
     description: "Used in combination with Action Operator to determine the discount"
-    type: int
     sql: ${TABLE}.action_amount
 
   - dimension: action_stop
@@ -98,7 +96,6 @@
 
   - dimension: sort_order
     description: "Sort order / priority that this Catalog Price Rule is evaluated in Magento"
-    type: int
     sql: ${TABLE}.sort_order
 
 

@@ -38,3 +38,7 @@
       from: purchase_order_products
       sql_on: inventory.entity_id = purchase_orders.pop_product_id
       relationship: one_to_many
+    - join: purchase_order_invoices
+      sql_on: purchase_orders.pop_order_num = purchase_order_invoices.poi_order_num
+      relationship: one_to_many
+      required_joins: [purchase_orders]

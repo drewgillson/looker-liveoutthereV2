@@ -42,6 +42,10 @@
   - dimension: pop_product_id
     hidden: true
     sql: ${TABLE}.pop_product_id
+    
+  - dimension: supplier
+    description: "Supplier name for purchase order in Magento"
+    sql: ${TABLE}.supplier
 
   - dimension: order_number
     description: "Purchase order number in Magento"

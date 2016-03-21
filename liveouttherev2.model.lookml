@@ -3,7 +3,7 @@
 - include: "*.view.lookml"       # include all the views
 - include: "*.dashboard.lookml"  # include all the dashboards
 
-- explore: all_inventory
+- explore: inventory
   description: "Use this explore to create supply-side looks (i.e. how many units do we have available to sell and from what categories?)"
   symmetric_aggregates: true
   persist_for: 1 hour
@@ -11,15 +11,15 @@
   joins:
     - join: associations
       from: catalog_product_associations
-      sql_on: all_inventory.entity_id = associations.product_id
+      sql_on: inventory.entity_id = associations.product_id
       relationship: one_to_many
     - join: facts
       from: catalog_product_facts
-      sql_on: all_inventory.entity_id = facts.product_id
+      sql_on: inventory.entity_id = facts.product_id
       relationship: one_to_one
     - join: categories
       from: catalog_categories
-      sql_on: all_inventory.entity_id = categories.product_id
+      sql_on: inventory.entity_id = categories.product_id
       relationship: one_to_many
     - join: impressions
       from: catalog_product_impressions
@@ -28,11 +28,11 @@
       relationship: one_to_many
     - join: applied_catalog_price_rules
       from: catalog_price_rules
-      sql_on: all_inventory.entity_id = applied_catalog_price_rules.product_id
+      sql_on: inventory.entity_id = applied_catalog_price_rules.product_id
       relationship: one_to_many
     - join: effective_discounts
       from: catalog_effective_discounts
-      sql_on: all_inventory.entity_id = effective_discounts.entity_id
+      sql_on: inventory.entity_id = effective_discounts.entity_id
       relationship: one_to_many
       required_joins: [associations]
     - join: reviews
@@ -42,7 +42,7 @@
       required_joins: [associations]
     - join: purchase_orders
       from: purchase_order_products
-      sql_on: all_inventory.entity_id = purchase_orders.pop_product_id
+      sql_on: inventory.entity_id = purchase_orders.pop_product_id
       relationship: one_to_many
     - join: supplier_invoices
       from: purchase_order_invoices
@@ -50,10 +50,14 @@
       relationship: one_to_many
       required_joins: [purchase_orders]
     - join: stock_movements
-      sql_on: all_inventory.entity_id = stock_movements.sm_product_id
+      sql_on: inventory.entity_id = stock_movements.sm_product_id
       relationship: one_to_many
     - join: enriched_attributes
       from: akeneo_option_values
       sql_on: associations.parent_id = enriched_attributes.parent_id
       relationship: one_to_one
       required_joins: [associations]
+#  conditionally_filter:
+#    facts.is_in_stock: '%'
+#    unless:
+#      - facts.is_in_stock

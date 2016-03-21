@@ -43,35 +43,40 @@
     sql: ${TABLE}.environment
     suggestions: ['Production','Staging']
 
-  - measure: count_of_discounted_products
-    description: "Unique count of the number of products that are discounted in the Magento catalog"
+  - dimension: long_product_name_discount_value
+    hidden: true
+    sql: ${all_inventory.long_product_name} + CAST(${value} AS varchar(10))
+
+  - measure: count_distinct_long_product_name_discount_value
+    hidden: true
     type: count_distinct
-    sql: CASE WHEN ${discount_in_catalog} IS NOT NULL THEN ${TABLE}.entity_id END
-    
-  - dimension: has_ranged_pricing
+    sql: ${long_product_name_discount_value}
+
+  - dimension: has_multiple_discount_values
     type: yesno
-    sql: ${all_inventory.count_of_available_simple_products} <> ${count_of_discounted_products} AND ${count_of_discounted_products} != 0
-    
-  - dimension: discount_in_catalog
+    sql: ${count_distinct_long_product_name_discount_value} > 1
+
+  - dimension: value
     description: "Discount in Magento catalog for normal customers"
     sql: ${TABLE}.discount
+    type: number
     value_format: '#%'
     description: "This is the current discount in the catalog for normal customers"
     
-  - measure: minimum_discount_in_catalog
+  - measure: minimum_value
     description: "Minimum discount in Magento catalog for normal customers"
     type: min
-    sql: ${discount_in_catalog}
+    sql: ${value}
     value_format: '#%'
     
-  - measure: maximum_discount_in_catalog
+  - measure: maximum_value
     description: "Maximum discount in Magento catalog for normal customers"
     type: max
-    sql: ${discount_in_catalog}
+    sql: ${value}
     value_format: '#%'
 
-  - measure: average_discount_in_catalog
+  - measure: average_value
     description: "Average percentage discount from Magento catalog price index"
     type: avg
-    sql: ${discount_in_catalog}
+    sql: ${value}
     value_format: '#%'

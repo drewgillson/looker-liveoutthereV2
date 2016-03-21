@@ -134,6 +134,11 @@
     type: number
     sql: ${TABLE}.ideal_desired_quantity
 
+  - measure: skus_on_hand
+    hidden: true
+    type: sum
+    sql: CASE WHEN ${TABLE}.quantity_on_hand > 0 THEN 1 END
+
   - measure: quantity_on_hand
     description: "Quantity currently on hand / in stock"
     type: sum
@@ -159,6 +164,11 @@
     type: percent_of_total
     value_format: '0.00\%'
     sql: ${total_sales_opportunity}
+
+  - measure: skus_reserved
+    hidden: true
+    type: sum
+    sql: CASE WHEN ${TABLE}.quantity_reserved > 0 THEN 1 END
 
   - measure: quantity_reserved
     description: "Reserved quantity / units"
@@ -224,10 +234,15 @@
     description: "Quantity on hand minus quantity reserved for orders that haven't shipped"
     type: number
     sql: ${quantity_on_hand} - ${quantity_reserved}
+
+  - measure: skus_available_to_sell
+    label: "SKUs Available to Sell"
+    description: "Unique count of SKUs / simple products that we have available for sale"
+    type: number
+    sql: ${skus_on_hand} - ${skus_reserved}
     
   - measure: return_rate
     description: "Percentage of units sold that were returned (warning: this measure seems to return results that are suspiciously low)"
     type: number
     value_format: '0%'
     sql: ${quantity_returned_all_time} / NULLIF(CAST(${quantity_sold_all_time} AS float),0)
-    

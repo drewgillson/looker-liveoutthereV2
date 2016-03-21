@@ -223,9 +223,3 @@
     label: "Count of GTIN/UPC"
     type: count_distinct
     sql: ${gtin}
-
-  - measure: count_of_available_simple_products
-    description: "Unique count of the number of SKUs / simple products that we have available for sale"
-    type: count_distinct
-    sql: CASE WHEN ${TABLE}.available_to_sell_units > 0 THEN ${TABLE}.sku END
-    

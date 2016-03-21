@@ -1,4 +1,4 @@
-- view: catalog_product
+- view: catalog_products
   derived_table:
     sql: |
       SELECT a.sku

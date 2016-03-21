@@ -1,4 +1,4 @@
-- view: catalog_price_rule
+- view: catalog_price_rules
   derived_table:
     sql: |
       SELECT 'Production' AS environment

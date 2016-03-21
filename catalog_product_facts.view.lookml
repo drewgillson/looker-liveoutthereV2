@@ -79,7 +79,7 @@
       ) AS returns_all_time
       ON a.product_id = returns_all_time.product_id
 
-      LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS catalog_product
+      LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS catalog_product
       ON a.product_id = catalog_product.entity_id
 
       GROUP BY a.product_id

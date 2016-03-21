@@ -1,4 +1,4 @@
-- view: catalog_category
+- view: catalog_categories
   derived_table:
     # the magic number in the WHERE clause (entity_id = 2261) is for the Root category,
     # and NOT IN (11358,2237,8779) excludes eGift Cards, Uncategorized, Campaigns, and Door Crashers

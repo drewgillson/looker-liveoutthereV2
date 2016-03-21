@@ -52,4 +52,8 @@
     - join: stock_movements
       sql_on: all_inventory.entity_id = stock_movements.sm_product_id
       relationship: one_to_many
-
+    - join: enriched_attributes
+      from: akeneo_option_values
+      sql_on: associations.parent_id = enriched_attributes.parent_id
+      relationship: one_to_one
+      required_joins: [associations]

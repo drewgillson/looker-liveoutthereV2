@@ -22,6 +22,7 @@
            , v.value AS colour_family
            , MAX(w.parent_id) AS parent_id
            , COUNT(DISTINCT w.parent_id) AS parent_count
+           , MIN(CAST(y.value AS int)) AS merchandise_priority
         FROM magento.catalog_product_entity AS a
         LEFT JOIN magento.catalog_product_entity_varchar AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
@@ -65,6 +66,10 @@
           ON CASE WHEN u.value LIKE '%,%' THEN LEFT(u.value,CHARINDEX(',',u.value)-1) ELSE u.value END = v.option_id AND v.store_id = 0
         LEFT JOIN magento.catalog_product_super_link AS w
           ON a.entity_id = w.product_id
+        LEFT JOIN magento.catalog_product_entity AS x
+          ON w.parent_id = x.entity_id
+        LEFT JOIN magento.catalog_product_entity_varchar AS y
+          ON x.entity_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
         WHERE a.type_id = 'simple'
         AND p.value != 'LiveOutThere.com'
         GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value
@@ -217,6 +222,11 @@
     type: number
     value_format: '$#,##0.00'
     sql: ${TABLE}.price
+
+  - dimension: sort_order
+    description: "This value is what we use to sort the website PLPs by default"
+    type: number
+    sql: ${TABLE}.merchandise_priority
 
   - measure: count_gtin
     description: "Unique count of GTIN/UPCs"

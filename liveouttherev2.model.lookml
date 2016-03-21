@@ -34,3 +34,7 @@
       sql_on: associations.parent_id = reviews.entity_id
       relationship: one_to_many
       required_joins: [associations]
+    - join: purchase_orders
+      from: purchase_order_products
+      sql_on: inventory.entity_id = purchase_orders.pop_product_id
+      relationship: one_to_many

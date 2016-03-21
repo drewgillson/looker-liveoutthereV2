@@ -11,16 +11,16 @@
          , d.percent AS rating_percent
          , d.value AS rating
          , f.email AS customer_email
-      FROM catalog_product_entity AS a
-      LEFT JOIN review AS b
+      FROM magento.catalog_product_entity AS a
+      LEFT JOIN magento.review AS b
         ON a.entity_id = b.entity_pk_value
-      LEFT JOIN review_detail AS c
+      LEFT JOIN magento.review_detail AS c
         ON b.review_id = c.review_id
-      LEFT JOIN rating_option_vote AS d
+      LEFT JOIN magento.rating_option_vote AS d
         ON b.review_id = d.review_id AND d.rating_id = 1
-      LEFT JOIN review_status AS e
+      LEFT JOIN magento.review_status AS e
         ON b.status_id = e.status_id
-      LEFT JOIN customer_entity AS f
+      LEFT JOIN magento.customer_entity AS f
         ON c.customer_id = f.entity_id 
       WHERE a.type_id = 'configurable'
     indexes: [entity_id, rating]

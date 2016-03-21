@@ -48,3 +48,7 @@
       sql_on: purchase_orders.pop_order_num = purchase_order_invoices.poi_order_num
       relationship: one_to_many
       required_joins: [purchase_orders]
+    - join: stock_movements
+      sql_on: all_inventory.entity_id = stock_movements.sm_product_id
+      relationship: one_to_many
+

@@ -4,6 +4,7 @@
       SELECT a.product_id
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) END AS quantity_on_hand
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) * MAX(catalog_product.cost) END AS total_cost
+        , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) * MAX(average_cost.value) END AS total_discounted_cost
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) * MAX(catalog_product.price) END AS total_sales_opportunity
         , MAX(historic_30_days_ago.quantity_on_hand) AS quantity_on_hand_30_days_ago
         , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_last_30_days) - ABS(SUM(qty)) ELSE MAX(quantity_sold_last_30_days) END AS quantity_sold_last_30_days
@@ -81,6 +82,17 @@
 
       LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS catalog_product
       ON a.product_id = catalog_product.entity_id
+      
+      LEFT JOIN (
+        SELECT pop_product_id
+           , ROUND(AVG((pop_price_ht * (1-(CASE WHEN pop_discount > 0 THEN pop_discount ELSE 0 END / 100)))), 2) AS value 
+        FROM magento.purchase_order_product
+        WHERE pop_price_ht <> 0 
+        AND pop_supplied_qty > 0 
+        AND pop_discount <> 100 
+        GROUP BY pop_product_id
+      ) AS average_cost
+      ON a.product_id = average_cost.pop_product_id
 
       GROUP BY a.product_id
     indexes: [product_id]
@@ -144,9 +156,16 @@
     type: sum
     sql: ${TABLE}.quantity_on_hand
 
+  - measure: total_discounted_cost
+    description: "Total cost of the inventory we have on hand (at average cost after discounts)"
+    label: "Total Discounted Cost $"
+    type: sum
+    value_format: '$#,##0.00'
+    sql: ${TABLE}.total_discounted_cost
+
   - measure: total_cost
-    description: "Total cost of the inventory we have on hand before discounts"
-    label: "Total Cost $"
+    description: "Total cost of the inventory we have on hand (at wholesale cost before discounts)"
+    label: "Total Wholesale Cost $"
     type: sum
     value_format: '$#,##0.00'
     sql: ${TABLE}.total_cost

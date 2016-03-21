@@ -43,9 +43,10 @@
     type: time
     sql: ${TABLE}.created_at
 
-  - dimension: status
+  - dimension: is_approved
     description: "Whether the review has been approved or not"
-    sql: ${TABLE}.status_code
+    type: yesno
+    sql: ${TABLE}.status_code = 'Approved'
 
   - dimension: title
     description: "Title (headline) of the review"

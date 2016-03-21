@@ -120,13 +120,13 @@
   - measure: number_of_styles
     description: "Unique number of styles based on the Long Product Name"
     type: count_distinct
-    sql: ${inventory.long_product_name}
+    sql: ${all_inventory.long_product_name}
     
   - measure: number_of_skus
     description: "Unique number of SKUs"
     label: "Number of SKUs"
     type: count_distinct
-    sql: ${inventory.sku}
+    sql: ${all_inventory.sku}
 
   - measure: pop_discount
     description: "(Average) discount from Wholesale Cost from purchase order line item"

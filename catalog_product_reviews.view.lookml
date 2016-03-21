@@ -8,7 +8,7 @@
          , c.title
          , c.detail
          , c.nickname
-         , d.percent AS rating_percent
+         , d.[percent] AS rating_percent
          , d.value AS rating
          , f.email AS customer_email
       FROM magento.catalog_product_entity AS a

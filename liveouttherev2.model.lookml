@@ -13,9 +13,9 @@
       from: catalog_product_associations
       sql_on: all_inventory.entity_id = associations.product_id
       relationship: one_to_many
-    - join: inventory_facts
+    - join: facts
       from: catalog_product_facts
-      sql_on: all_inventory.entity_id = inventory_facts.product_id
+      sql_on: all_inventory.entity_id = facts.product_id
       relationship: one_to_one
     - join: categories
       from: catalog_categories

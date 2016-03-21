@@ -46,7 +46,7 @@
   - measure: count_of_discounted_products
     description: "Unique count of the number of products that are discounted in the Magento catalog"
     type: count_distinct
-    sql: CASE WHEN ${TABLE}.discount IS NOT NULL THEN ${TABLE}.sku END
+    sql: CASE WHEN ${discount_in_catalog} IS NOT NULL THEN ${TABLE}.entity_id END
     
   - dimension: has_ranged_pricing
     type: yesno

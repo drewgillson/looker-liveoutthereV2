@@ -28,8 +28,6 @@
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
 
   fields:
-  - measure: count_of_reviews
-    type: count
 
   - dimension: review_id
     primary_key: true
@@ -37,37 +35,51 @@
     sql: ${TABLE}.review_id
 
   - dimension: customer_email
+    description: "Email address of the customer who left the review"
     sql: ${TABLE}.customer_email
 
   - dimension_group: review_created
+    description: "Date the review was created"
     type: time
     sql: ${TABLE}.created_at
 
   - dimension: status
+    description: "Whether the review has been approved or not"
     sql: ${TABLE}.status_code
 
   - dimension: title
+    description: "Title (headline) of the review"
     sql: ${TABLE}.title
 
   - dimension: detail
+    description: "Body copy of the review"
     sql: CAST(${TABLE}.detail AS varchar(max))
 
   - dimension: nickname
+    description: "Name of the customer who left the review"
     sql: ${TABLE}.nickname
 
   - dimension: rating_percent
+    description: "Percentage value of the rating the customer left, relative to the scale 1-5. A rating of 5 is a 100%, 4 is 80%, etc."
     type: number
     sql: ${TABLE}.rating_percent
 
   - dimension: rating
+    description: "Number value of the rating the customer left, from 1-5"
     type: number
     sql: ${TABLE}.rating
 
+  - measure: count_of_reviews
+    description: "Number of reviews in Magento"
+    type: count
+
   - measure: average_rating_percent
+    description: "Average percentage rating of reviews"
     type: avg
     sql: ${TABLE}.rating_percent
 
   - measure: average_rating
+    description: "Average numeric rating of reviews"
     type: avg
     value_format: '#.00' 
     sql: ${TABLE}.rating

@@ -17,7 +17,7 @@
             , [order-payment_method]
             , [order-status]
       FROM shopify.transactions
-      WHERE [order-status] != 'cancelled' AND [order-transactions-status] = 'success'
+      WHERE [order-transactions-status] = 'success'
     indexes: [authorization_number, order_number]
     sql_trigger_value: |
         SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

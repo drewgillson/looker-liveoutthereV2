@@ -9,12 +9,16 @@
         SELECT DISTINCT 'sale', 'TheVan.ca', [order-order_number], [order-created_at], [order-order_number], NULL
         FROM shopify.order_items
         UNION ALL
-        SELECT 'sale', 'Amazon' AS storefront, entity_id, created_at, increment_id, NULL
+        SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL
         FROM magento.sales_flat_order
         WHERE marketplace_order_id IS NOT NULL
         UNION ALL
-        SELECT 'credit' AS type, 'LiveOutThere.com' AS storefront, order_id, created_at, increment_id, entity_id
+        SELECT 'credit', 'LiveOutThere.com', order_id, created_at, increment_id, entity_id
         FROM magento.sales_flat_creditmemo
+        UNION ALL
+        SELECT 'credit', 'TheVan.ca', CAST([order-order_number] AS varchar(10)), [order-transactions-created_at], CAST([order-order_number] AS varchar(10)), NULL
+        FROM shopify.transactions
+        WHERE [order-transactions-kind] = 'refund' AND [order-transactions-status] = 'success'
       ) AS a
     indexes: [storefront, entity_id]
     sql_trigger_value: |

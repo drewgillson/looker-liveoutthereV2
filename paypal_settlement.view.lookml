@@ -2,7 +2,10 @@
   derived_table: 
     sql: | 
       SELECT ROW_NUMBER() OVER (ORDER BY [Transaction Initiation Date]) AS row, [Transaction ID] AS transaction_id, * FROM (
-        SELECT * FROM tbl_RawData_PayPal_Settlement
+        SELECT *
+            , DATEADD(hh,2,[Transaction Completion Date]) AS completion_mst
+            , DATEADD(hh,2,[Transaction Initiation Date]) AS initiation_mst
+        FROM tbl_RawData_PayPal_Settlement
       ) AS a
     indexes: [transaction_id]
     sql_trigger_value: |
@@ -45,8 +48,7 @@
 
   - dimension_group: transaction_completion
     type: time
-    timeframes: [time, date, week, month]
-    sql: ${TABLE}."Transaction Completion Date"
+    sql: ${TABLE}.completion_mst
 
   - dimension: transaction_event_code
     type: string
@@ -54,8 +56,7 @@
 
   - dimension_group: transaction_initiation
     type: time
-    timeframes: [time, date, week, month]
-    sql: ${TABLE}."Transaction Initiation Date"
+    sql: ${TABLE}.initiation_mst
 
   - measure: fee_amount
     type: sum

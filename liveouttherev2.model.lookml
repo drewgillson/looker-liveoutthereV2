@@ -38,7 +38,7 @@
                  WHEN transaction_reconciliation.type = 'sale' THEN 'T0006'
             END = paypal_settlement.[Transaction Event Code]
       relationship: one_to_many
-      required_joins: [payment_transaction]
+      required_joins: [payment, payment_transaction]
 
 - explore: inventory
   description: "Use to answer supply-side questions (i.e. how many units do we have available to sell and from what categories?)"

@@ -24,27 +24,27 @@
       
   fields:
 
-  - dimension: orderemail
+  - dimension: email
     type: string
     sql: ${TABLE}."order-email"
 
-  - dimension_group: ordertransactionscreated_at
+  - dimension_group: created
     type: time
     sql: ${TABLE}."order-transactions-created_at"
 
-  - dimension: ordertransactionsgateway
+  - dimension: gateway
     type: string
     sql: ${TABLE}."order-transactions-gateway"
 
-  - dimension: ordertransactionsamount
+  - dimension: amount
     type: number
     sql: ${TABLE}."order-transactions-amount"
 
-  - dimension: ordertransactionscurrency
+  - dimension: currency
     type: string
     sql: ${TABLE}."order-transactions-currency"
 
-  - dimension: ordertransactionssource_name
+  - dimension: source
     type: string
     sql: ${TABLE}."order-transactions-source_name"
 
@@ -52,11 +52,11 @@
     type: string
     sql: ${TABLE}.authorization_number
 
-  - dimension: ordertransactionsfee
+  - dimension: fee
     type: number
     sql: ${TABLE}."order-transactions-fee"
 
-  - dimension: ordertransactionskind
+  - dimension: type
     type: string
     sql: ${TABLE}."order-transactions-kind"
 
@@ -64,42 +64,23 @@
     type: number
     sql: ${TABLE}.order_number
 
-  - dimension: ordertax_linesprice
+  - dimension: tax_amount
     type: number
     sql: ${TABLE}."order-tax_lines-price"
 
-  - dimension: ordertax_linesrate
+  - dimension: tax_rate
     type: number
     sql: ${TABLE}."order-tax_lines-rate"
 
-  - dimension: ordertax_linestitle
+  - dimension: tax_title
     type: string
     sql: ${TABLE}."order-tax_lines-title"
 
-  - dimension: orderpayment_method
+  - dimension: payment_method
     type: string
     sql: ${TABLE}."order-payment_method"
 
-  - dimension: orderstatus
+  - dimension: status
     type: string
     sql: ${TABLE}."order-status"
-
-  sets:
-    detail:
-      - orderemail
-      - ordertransactionscreated_at_time
-      - ordertransactionsgateway
-      - ordertransactionsamount
-      - ordertransactionscurrency
-      - ordertransactionssource_name
-      - ordertransactionsauthorization
-      - ordertransactionsfee
-      - ordertransactionskind
-      - ordertransactionsstatus
-      - orderorder_number
-      - ordertax_linesprice
-      - ordertax_linesrate
-      - ordertax_linestitle
-      - orderpayment_method
-      - orderstatus
 

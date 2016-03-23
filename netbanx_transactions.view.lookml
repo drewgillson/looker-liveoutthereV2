@@ -60,6 +60,10 @@
     type: string
     sql: ${TABLE}.TXN_NUM
 
+  - dimension: confirmation_number
+    type: string
+    sql: ${TABLE}.CONF_NUM
+
   - measure: amount
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'

@@ -17,15 +17,19 @@
       from: sales_payment_transaction
       sql_on: payment.parent_id = payment_transaction.order_id
       relationship: one_to_many
+    - join: shopify_map
+      from: sales_shopify_transactions
+      sql_on: transaction_reconciliation.entity_id = shopify_map.order_number
+      relationship: one_to_many
     - join: netbanx_transactions
       type: full_outer
       sql_on: |
-        payment.netbanx_transaction_id = netbanx_transactions.TXN_NUM
+        (payment.netbanx_transaction_id = netbanx_transactions.TXN_NUM OR shopify_map.authorization_number = netbanx_transactions.CONF_NUM)
         AND CASE WHEN transaction_reconciliation.type = 'credit' THEN 'Credits'
                  WHEN transaction_reconciliation.type = 'sale' THEN 'Settles'
             END = netbanx_transactions.tran_type
       relationship: one_to_many
-      required_joins: [payment]
+      required_joins: [payment, shopify_map]
     - join: paypal_settlement
       type: full_outer
       sql_on: |

@@ -3,8 +3,41 @@
 - include: "*.view.lookml"       # include all the views
 - include: "*.dashboard.lookml"  # include all the dashboards
 
+- explore: transaction_reconciliation
+  description: "Use to assist with transaction & account reconciliation"
+  symmetric_aggregates: true
+  persist_for: 1 hour
+  from: sales_transactions
+  joins:
+    - join: payment
+      from: sales_flat_order_payment
+      sql_on: transaction_reconciliation.entity_id = payment.parent_id
+      relationship: one_to_one
+    - join: payment_transaction
+      from: sales_payment_transaction
+      sql_on: payment.parent_id = payment_transaction.order_id
+      relationship: one_to_many
+    - join: netbanx_transactions
+      type: full_outer
+      sql_on: |
+        payment.netbanx_transaction_id = netbanx_transactions.TXN_NUM
+        AND CASE WHEN transaction_reconciliation.type = 'credit' THEN 'Credits'
+                 WHEN transaction_reconciliation.type = 'sale' THEN 'Settles'
+            END = netbanx_transactions.tran_type
+      relationship: one_to_many
+      required_joins: [payment]
+    - join: paypal_settlement
+      type: full_outer
+      sql_on: |
+        payment_transaction.txn_id = paypal_settlement.[Transaction ID]
+        AND CASE WHEN transaction_reconciliation.type = 'credit' THEN 'T1107'
+                 WHEN transaction_reconciliation.type = 'sale' THEN 'T0006'
+            END = paypal_settlement.[Transaction Event Code]
+      relationship: one_to_many
+      required_joins: [payment_transaction]
+
 - explore: inventory
-  description: "Use this explore to create supply-side looks (i.e. how many units do we have available to sell and from what categories?)"
+  description: "Use to answer supply-side questions (i.e. how many units do we have available to sell and from what categories?)"
   symmetric_aggregates: true
   persist_for: 1 hour
   from: catalog_products

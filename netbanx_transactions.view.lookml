@@ -1,48 +1,33 @@
-- view: tbl_raw_data_netbanx_transactions
-  sql_table_name: tbl_RawData_Netbanx_Transactions
+- view: netbanx_transactions
+  derived_table: 
+    sql: | 
+      SELECT ROW_NUMBER() OVER (ORDER BY [TRANSACTION_DATE]) AS row, * FROM (
+        SELECT * FROM tbl_RawData_Netbanx_Transactions
+      ) AS a
+    indexes: [TXN_NUM, TRANSACTION_DATE]
+    sql_trigger_value: |
+      SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
+
   fields:
 
-  - dimension: amount
-    type: string
-    sql: ${TABLE}.AMOUNT
+  - dimension: row
+    primary_key: true
+    hidden: true
+    sql: ${TABLE}.row
 
-  - dimension: arn
+  - dimension: card_brand
     type: string
-    sql: ${TABLE}.ARN
-
-  - dimension: auth_code
-    type: string
-    sql: ${TABLE}.AUTH_CODE
-
-  - dimension: auth_mode
-    type: string
-    sql: ${TABLE}.AUTH_MODE
-
-  - dimension: bank_name
-    type: string
-    sql: ${TABLE}.BANK_NAME
-
-  - dimension: brand_code
-    type: string
-    sql: ${TABLE}.BRAND_CODE
-
-  - dimension: card_ending
+    sql_case:
+      'American Express': ${TABLE}.BRAND_CODE = 'AM'
+      'Visa': ${TABLE}.BRAND_CODE = 'VI'
+      'MasterCard': ${TABLE}.BRAND_CODE = 'MC'
+      else: unknown
+      
+  - dimension: last_4_card_digits
     type: string
     sql: ${TABLE}.CARD_ENDING
 
-  - dimension: city
-    type: string
-    sql: ${TABLE}.CITY
-
-  - dimension: conf_num
-    type: string
-    sql: ${TABLE}.CONF_NUM
-
-  - dimension: country
-    type: string
-    sql: ${TABLE}.COUNTRY
-
-  - dimension: currency_cde
+  - dimension: currency
     type: string
     sql: ${TABLE}.CURRENCY_CDE
 
@@ -50,47 +35,19 @@
     type: string
     sql: ${TABLE}.EMAIL
 
-  - dimension: enroll_status_type
-    type: string
-    sql: ${TABLE}.ENROLL_STATUS_TYPE
-
-  - dimension: error_code
-    type: string
-    sql: ${TABLE}.ERROR_CODE
-
   - dimension: first_name
     type: string
     sql: ${TABLE}.FIRST_NAME
-
-  - dimension: fma
-    type: string
-    sql: ${TABLE}.FMA
 
   - dimension: last_name
     type: string
     sql: ${TABLE}.LAST_NAME
 
-  - dimension: phone
-    type: string
-    sql: ${TABLE}.PHONE
-
-  - dimension: province
-    type: string
-    sql: ${TABLE}.PROVINCE
-
-  - dimension: street
-    type: string
-    sql: ${TABLE}.STREET
-
-  - dimension: street2
-    type: string
-    sql: ${TABLE}.STREET2
-
-  - dimension: tran_status
+  - dimension: transaction_status
     type: string
     sql: ${TABLE}.TRAN_STATUS
 
-  - dimension: tran_type
+  - dimension: transaction_type
     type: string
     sql: ${TABLE}.TRAN_TYPE
 
@@ -99,15 +56,28 @@
     timeframes: [time, date, week, month]
     sql: ${TABLE}.TRANSACTION_DATE
 
-  - dimension: txn_num
+  - dimension: transaction_number
     type: string
     sql: ${TABLE}.TXN_NUM
 
-  - dimension: zip
-    type: string
-    sql: ${TABLE}.ZIP
+  - measure: amount
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: |
+      CASE WHEN ${transaction_type} = 'Credits' THEN -${TABLE}.AMOUNT ELSE ${TABLE}.AMOUNT END
+    drill_fields: [transaction_details]
 
   - measure: count
     type: count
-    drill_fields: [first_name, last_name, bank_name]
+    drill_fields: []
 
+    
+  sets:
+    transaction_details:
+      - transaction_reconciliation.storefront
+      - transaction_reconciliation.created_time
+      - transaction_reconciliation.id
+      - transaction_type
+      - transaction_number
+      - card_brand
+      - amount

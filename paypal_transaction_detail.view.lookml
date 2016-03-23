@@ -1,4 +1,4 @@
-- view: tbl_raw_data_pay_pal_transaction_detail
+- view: paypal_transaction_detail
   sql_table_name: tbl_RawData_PayPal_Transaction_Detail
   fields:
 

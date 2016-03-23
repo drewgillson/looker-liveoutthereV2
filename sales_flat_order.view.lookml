@@ -2,6 +2,12 @@
   sql_table_name: magento.sales_flat_order
   fields:
 
+  - dimension: entity_id
+    primary_key: true
+    hidden: true
+    type: number
+    sql: ${TABLE}.entity_id
+
   - dimension: adjustment_negative
     type: number
     sql: ${TABLE}.adjustment_negative
@@ -348,10 +354,6 @@
   - dimension: email_sent
     type: number
     sql: ${TABLE}.email_sent
-
-  - dimension: entity_id
-    type: number
-    sql: ${TABLE}.entity_id
 
   - dimension_group: estimated_shipping
     type: time

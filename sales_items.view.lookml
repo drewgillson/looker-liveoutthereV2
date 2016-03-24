@@ -64,7 +64,6 @@
     sql: ${TABLE}.row
 
   - dimension: product_id
-    hidden: true
     type: number
     sql: ${TABLE}.product_id
     

@@ -3,6 +3,11 @@
 - include: "*.view.lookml"       # include all the views
 - include: "*.dashboard.lookml"  # include all the dashboards
 
+- explore: sales
+  from: sales_items
+  symmetric_aggregates: true
+  persist_for: 1 hour
+
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels
   description: "Use to assist with transaction & account reconciliation"

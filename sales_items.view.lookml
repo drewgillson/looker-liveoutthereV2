@@ -1,7 +1,7 @@
 - view: sales_items
   derived_table:
     sql: |
-      SELECT ROW_NUMBER() OVER (ORDER BY created_at) AS row, *  FROM (
+      SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row, *  FROM (
         SELECT c.created_at AS order_created
           , c.entity_id AS order_entity_id
           , c.increment_id AS order_increment_id
@@ -62,48 +62,52 @@
     primary_key: true
     hidden: true
     sql: ${TABLE}.row
+
+  - dimension: product_id
+    hidden: true
+    type: number
+    sql: ${TABLE}.product_id
     
+  - dimension: order_entity_id
+    hidden: true
+    type: number
+    sql: ${TABLE}.order_entity_id
+
   - dimension_group: order_created
     type: time
     sql: ${TABLE}.order_created
 
-  - dimension: order_entity_id
-    type: number
-    sql: ${TABLE}.order_entity_id
-
-  - dimension: order_increment_id
+  - dimension: order_id
     type: string
     sql: ${TABLE}.order_increment_id
-
-  - dimension: row_total_incl_tax
-    type: number
-    sql: ${TABLE}.row_total_incl_tax
-
-  - dimension: row_total
-    type: number
-    sql: ${TABLE}.row_total
-
-  - dimension: tax_amount
-    type: number
-    sql: ${TABLE}.tax_amount
-
-  - dimension: discount_amount
-    type: number
-    sql: ${TABLE}.discount_amount
-
-  - dimension: quantity
-    type: number
-    sql: ${TABLE}.qty
-
-  - dimension: deferred_revenue
-    type: number
-    sql: ${TABLE}.deferred_revenue
-
-  - dimension: product_id
-    type: number
-    sql: ${TABLE}.product_id
 
   - dimension: storefront
     type: string
     sql: ${TABLE}.storefront
+    
+  - measure: row_total
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${TABLE}.row_total
+
+  - measure: tax_amount
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${TABLE}.tax_amount
+
+  - measure: discount_amount
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${TABLE}.discount_amount
+
+  - measure: quantity
+    type: sum
+    value_format: '0' 
+    sql: ${TABLE}.qty
+
+  - measure: deferred_revenue
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${TABLE}.deferred_revenue
+
 

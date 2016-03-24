@@ -59,7 +59,11 @@
 #   used to map Magento invoices and credit memos to PayPal transactions (the view above would have been unnecessary had Demac built the Optimal Payments extension properly)
     - join: payment_transaction
       from: transactions_magento_payment
-      sql_on: reconciliation.entity_id = payment_transaction.order_id
+      sql_on: |
+        reconciliation.entity_id = payment_transaction.order_id AND
+        CASE WHEN reconciliation.type = 'sale' THEN 'capture'
+             WHEN reconciliation.type = 'credit' THEN 'refund'
+        END = payment_transaction.txn_type
       relationship: one_to_many
       required_joins: [magento_map]
 #   used to pull Shopify transactions into the explore

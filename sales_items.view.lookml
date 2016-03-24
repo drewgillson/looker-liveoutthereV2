@@ -89,12 +89,20 @@
     type: string
     sql: ${TABLE}.storefront
     
-  - measure: row_total
+  - measure: total_collected
+    label: "Gross Collected $"
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${TABLE}.row_total_incl_tax
+
+  - measure: subtotal
+    label: "Gross Sold $"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.row_total
 
-  - measure: tax_amount
+  - measure: tax_collected
+    label: "Tax Collected $"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.tax_amount

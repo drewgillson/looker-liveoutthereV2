@@ -113,5 +113,9 @@
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.deferred_revenue
+    
+  - measure: orders
+    type: count_distinct
+    sql: ${order_entity_id}
 
 

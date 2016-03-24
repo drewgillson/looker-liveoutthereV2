@@ -12,6 +12,28 @@
       from: catalog_products
       sql_on: sales.product_id = products.entity_id
       relationship: one_to_one
+    - join: product_facts
+      from: catalog_product_facts
+      sql_on: sales.product_id = product_facts.product_id
+      relationship: one_to_one
+    - join: categories
+      from: catalog_categories
+      sql_on: products.entity_id = categories.product_id
+      relationship: one_to_many
+    - join: associations
+      from: catalog_product_associations
+      sql_on: products.entity_id = associations.product_id
+      relationship: one_to_many
+    - join: impressions
+      from: catalog_product_impressions
+      sql_on: associations.parent_id = impressions.product_id
+      required_joins: [associations]
+      relationship: one_to_many
+    - join: product_attributes
+      from: akeneo_option_values
+      sql_on: associations.parent_id = product_attributes.parent_id
+      relationship: one_to_one
+      required_joins: [associations]
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels
@@ -119,9 +141,9 @@
     - join: stock_movements
       sql_on: products.entity_id = stock_movements.sm_product_id
       relationship: one_to_many
-    - join: enriched_attributes
+    - join: product_attributes
       from: akeneo_option_values
-      sql_on: associations.parent_id = enriched_attributes.parent_id
+      sql_on: associations.parent_id = product_attributes.parent_id
       relationship: one_to_one
       required_joins: [associations]
 #  conditionally_filter:

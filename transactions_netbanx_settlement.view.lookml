@@ -75,11 +75,20 @@
     sql: ${TABLE}.CONF_NUM
 
   - measure: amount
+    label: "Total"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: |
       CASE WHEN ${transaction_type} = 'Credits' THEN -${TABLE}.AMOUNT ELSE ${TABLE}.AMOUNT END
     drill_fields: [transaction_details]
+
+  - measure: tax
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: |
+      CASE WHEN ${transaction_type} = 'Credits' THEN -(${TABLE}.AMOUNT - (${TABLE}.AMOUNT / (1 + (${tax.percent} / 100))))
+           ELSE ${TABLE}.AMOUNT - (${TABLE}.AMOUNT / (1 + (${tax.percent} / 100)))
+      END
 
   - measure: count
     type: count

@@ -70,6 +70,7 @@
 
   - dimension: tax_rate
     type: number
+    value_format: '0%'
     sql: ${TABLE}."order-tax_lines-rate"
 
   - dimension: tax_title

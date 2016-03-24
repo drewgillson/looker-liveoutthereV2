@@ -84,6 +84,14 @@
     sql: |
       CASE WHEN ${transaction_debit_or_credit} = 'CR' THEN ${TABLE}."Gross Transaction Amount" WHEN ${transaction_debit_or_credit} = 'DR' THEN -${TABLE}."Gross Transaction Amount" END
 
+  - measure: tax_amount
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: |
+      CASE WHEN ${transaction_debit_or_credit} = 'CR' THEN -(${TABLE}."Gross Transaction Amount" - (${TABLE}."Gross Transaction Amount" / (1 + (${tax.percent} / 100))))
+           WHEN ${transaction_debit_or_credit} = 'DR' THEN ${TABLE}."Gross Transaction Amount" - (${TABLE}."Gross Transaction Amount" / (1 + (${tax.percent} / 100)))
+      END
+      
   - measure: count
     type: count
     drill_fields: []

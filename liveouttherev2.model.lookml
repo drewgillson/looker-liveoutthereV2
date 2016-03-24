@@ -17,6 +17,12 @@
         AND reconciliation.type = magento_map.type
         AND (reconciliation.credit_memo_id = magento_map.credit_memo_id OR reconciliation.credit_memo_id IS NULL)
       relationship: one_to_one
+    - join: tax
+      from: transactions_tax
+      sql_on: |
+        magento_map.parent_id = tax.order_id OR payment_transaction.order_id = tax.order_id
+      relationship: many_to_one
+      required_joins: [magento_map, payment_transaction]
 #   used to map Magento invoices and credit memos to PayPal transactions (the view above would have been unnecessary had Demac built the Optimal Payments extension properly)
     - join: payment_transaction
       from: transactions_magento_payment

@@ -2,18 +2,18 @@
   derived_table:
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, * FROM (
-        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, entity_id, created_at, increment_id, NULL AS credit_memo_id, NULL AS authorization_number, giftcert_amount, customer_credit_amount
+        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, entity_id, created_at, increment_id, NULL AS credit_memo_id, NULL AS authorization_number, giftcert_amount, customer_credit_amount, grand_total, subtotal, tax_amount, shipping_amount
         FROM magento.sales_flat_order
         WHERE marketplace_order_id IS NULL
         UNION ALL
-        SELECT 'credit', 'LiveOutThere.com', order_id, created_at, increment_id, entity_id, NULL, -giftcert_amount, -customer_credit_amount
+        SELECT 'credit', 'LiveOutThere.com', order_id, created_at, increment_id, entity_id, NULL, -giftcert_amount, -customer_credit_amount, -grand_total, -subtotal, -tax_amount, -shipping_amount
         FROM magento.sales_flat_creditmemo
         UNION ALL
-        SELECT CASE WHEN [order-transactions-kind] = 'refund' THEN 'credit' ELSE [order-transactions-kind] END, 'TheVan.ca', CAST([order-order_number] AS nvarchar(10)), [order-transactions-created_at], CAST([order-order_number] AS nvarchar(10)), NULL, [order-transactions-authorization], NULL, NULL
+        SELECT CASE WHEN [order-transactions-kind] = 'refund' THEN 'credit' ELSE [order-transactions-kind] END, 'TheVan.ca', CAST([order-order_number] AS nvarchar(10)), [order-transactions-created_at], CAST([order-order_number] AS nvarchar(10)), NULL, [order-transactions-authorization], NULL, NULL, NULL, NULL, NULL, NULL
         FROM shopify.transactions
         WHERE [order-transactions-status] = 'success'
         UNION ALL
-        SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL, NULL, NULL, NULL
+        SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL, NULL, NULL, NULL, grand_total, subtotal, tax_amount, shipping_amount
         FROM magento.sales_flat_order
         WHERE marketplace_order_id IS NOT NULL
       ) AS a
@@ -68,6 +68,29 @@
            WHEN ${paypal_settlement.transaction_id} IS NOT NULL THEN ${paypal_settlement.transaction_id}
       END
       
+  - measure: total_expected
+    label: "Total Expected $"
+    type: number
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${grand_total} + ${redeemed_amount}
+
+  - measure: grand_total
+    hidden: true
+    type: sum
+    sql: ${TABLE}.grand_total
+
+  - measure: tax_expected
+    label: "Tax Expected $"
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${TABLE}.tax_amount
+    
+  - measure: shipping_collected
+    label: "Shipping Expected $"
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${TABLE}.shipping_amount
+    
   - measure: redeemed_amount
     label: "Redeemed Gift Certs & Credit"
     type: number

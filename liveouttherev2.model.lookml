@@ -16,6 +16,7 @@
       from: catalog_product_facts
       sql_on: sales.product_id = product_facts.product_id
       relationship: one_to_one
+      required_joins: [products]
     - join: categories
       from: catalog_categories
       sql_on: products.entity_id = categories.product_id

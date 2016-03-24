@@ -65,6 +65,7 @@
 
   - dimension: product_id
     type: number
+    hidden: true
     sql: ${TABLE}.product_id
     
   - dimension: order_entity_id
@@ -79,6 +80,10 @@
   - dimension: order_id
     type: string
     sql: ${TABLE}.order_increment_id
+    links:
+      - label: 'Magento Sales Order'
+        url: "https://admin.liveoutthere.com/index.php/inspire/sales_order/view/order_id/{{ sales.order_entity_id._value }}"
+        icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: storefront
     type: string

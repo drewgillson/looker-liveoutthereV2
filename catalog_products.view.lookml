@@ -71,9 +71,8 @@
         LEFT JOIN magento.catalog_product_entity_varchar AS y
           ON x.entity_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
         WHERE a.type_id = 'simple'
-        AND p.value != 'LiveOutThere.com'
         GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value
-    indexes: [sku]
+    indexes: [sku, entity_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       
@@ -99,10 +98,10 @@
     description: "SKU for a product with a specific colour and size - what we call a 'simple SKU'. It is one of the core fields that join most of our models."
     links:
       - label: 'Simple Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/advancedstock_products/edit/product_id/{{ inventory.entity_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/advancedstock_products/edit/product_id/{{ products.entity_id._value }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
       - label: 'Photo'
-        url: "https://www.liveoutthere.com/media/catalog/product/{{ inventory.image._value }}"
+        url: "https://www.liveoutthere.com/media/catalog/product/{{ products.image._value }}"
         icon_url: 'http://icons.iconarchive.com/icons/rade8/minium-2/16/Sidebar-Pictures-icon.png'
         
   - dimension_group: created_at
@@ -168,6 +167,11 @@
     sql: ${TABLE}.department
     drill_fields: [brand]
 
+  - dimension: is_virtual_product
+    description: "Is 'Yes' if the product has a brand value of LiveOutThere.com, which we use for gift cards, promo items, etc."
+    type: yesno
+    sql: ${TABLE}.brand = 'LiveOutThere.com'
+
   - dimension: brand
     description: "Brand/manufacturer for a product. Will also show brands selected in the 'Brand Filter' compared to all other brands if desired."
     sql: |
@@ -184,7 +188,7 @@
     drill_fields: [sku, colour, colour_family, size]
     links:
       - label: 'Configurable Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ inventory.parent_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: short_product_name
@@ -194,7 +198,7 @@
     drill_fields: [sku, colour, colour_family, size]
     links:
       - label: 'Configurable Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ inventory.parent_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: has_image

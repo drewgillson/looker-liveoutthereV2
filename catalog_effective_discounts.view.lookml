@@ -45,7 +45,7 @@
 
   - dimension: long_product_name_discount_value
     hidden: true
-    sql: ${inventory.long_product_name} + CAST(${value} AS varchar(10))
+    sql: ${products.long_product_name} + CAST(${value} AS varchar(10))
 
   - measure: count_distinct_long_product_name_discount_value
     hidden: true

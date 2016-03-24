@@ -7,6 +7,11 @@
   from: sales_items
   symmetric_aggregates: true
   persist_for: 1 hour
+  joins:
+    - join: products
+      from: catalog_products
+      sql_on: sales.product_id = products.entity_id
+      relationship: one_to_one
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels
@@ -65,7 +70,7 @@
       relationship: one_to_many
       required_joins: [payment_transaction]
 
-- explore: inventory
+- explore: products
   description: "Use to answer supply-side questions (i.e. how many units do we have available to sell and from what categories?)"
   symmetric_aggregates: true
   persist_for: 1 hour
@@ -73,15 +78,15 @@
   joins:
     - join: associations
       from: catalog_product_associations
-      sql_on: inventory.entity_id = associations.product_id
+      sql_on: products.entity_id = associations.product_id
       relationship: one_to_many
     - join: facts
       from: catalog_product_facts
-      sql_on: inventory.entity_id = facts.product_id
+      sql_on: products.entity_id = facts.product_id
       relationship: one_to_one
     - join: categories
       from: catalog_categories
-      sql_on: inventory.entity_id = categories.product_id
+      sql_on: products.entity_id = categories.product_id
       relationship: one_to_many
     - join: impressions
       from: catalog_product_impressions
@@ -90,11 +95,11 @@
       relationship: one_to_many
     - join: applied_catalog_price_rules
       from: catalog_price_rules
-      sql_on: inventory.entity_id = applied_catalog_price_rules.product_id
+      sql_on: products.entity_id = applied_catalog_price_rules.product_id
       relationship: one_to_many
     - join: effective_discounts
       from: catalog_effective_discounts
-      sql_on: inventory.entity_id = effective_discounts.entity_id
+      sql_on: products.entity_id = effective_discounts.entity_id
       relationship: one_to_many
       required_joins: [associations]
     - join: reviews
@@ -104,7 +109,7 @@
       required_joins: [associations]
     - join: purchase_orders
       from: purchase_order_products
-      sql_on: inventory.entity_id = purchase_orders.pop_product_id
+      sql_on: products.entity_id = purchase_orders.pop_product_id
       relationship: one_to_many
     - join: supplier_invoices
       from: purchase_order_invoices
@@ -112,7 +117,7 @@
       relationship: one_to_many
       required_joins: [purchase_orders]
     - join: stock_movements
-      sql_on: inventory.entity_id = stock_movements.sm_product_id
+      sql_on: products.entity_id = stock_movements.sm_product_id
       relationship: one_to_many
     - join: enriched_attributes
       from: akeneo_option_values

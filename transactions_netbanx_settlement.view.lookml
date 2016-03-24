@@ -2,7 +2,7 @@
   derived_table: 
     sql: | 
       SELECT ROW_NUMBER() OVER (ORDER BY [TRANSACTION_DATE]) AS row, * FROM (
-        SELECT * FROM tbl_RawData_Netbanx_Transactions
+        SELECT DISTINCT * FROM tbl_RawData_Netbanx_Transactions
       ) AS a
     indexes: [TXN_NUM, TRANSACTION_DATE]
     sql_trigger_value: |

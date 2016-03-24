@@ -2,23 +2,20 @@
   derived_table:
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, * FROM (
-        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, entity_id, created_at, increment_id, NULL AS credit_memo_id
+        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, entity_id, created_at, increment_id, NULL AS credit_memo_id, NULL AS authorization_number
         FROM magento.sales_flat_order
         WHERE marketplace_order_id IS NULL
         UNION ALL
-        SELECT DISTINCT 'sale', 'TheVan.ca', [order-order_number], [order-created_at], [order-order_number], NULL
-        FROM shopify.order_items
-        UNION ALL
-        SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL
-        FROM magento.sales_flat_order
-        WHERE marketplace_order_id IS NOT NULL
-        UNION ALL
-        SELECT 'credit', 'LiveOutThere.com', order_id, created_at, increment_id, entity_id
+        SELECT 'credit', 'LiveOutThere.com', order_id, created_at, increment_id, entity_id, NULL
         FROM magento.sales_flat_creditmemo
         UNION ALL
-        SELECT 'credit', 'TheVan.ca', CAST([order-order_number] AS varchar(10)), [order-transactions-created_at], CAST([order-order_number] AS varchar(10)), NULL
+        SELECT CASE WHEN [order-transactions-kind] = 'refund' THEN 'credit' ELSE [order-transactions-kind] END, 'TheVan.ca', CAST([order-order_number] AS nvarchar(10)), [order-transactions-created_at], CAST([order-order_number] AS nvarchar(10)), NULL, [order-transactions-authorization]
         FROM shopify.transactions
-        WHERE [order-transactions-kind] = 'refund' AND [order-transactions-status] = 'success'
+        WHERE [order-transactions-status] = 'success'
+        UNION ALL
+        SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL, NULL
+        FROM magento.sales_flat_order
+        WHERE marketplace_order_id IS NOT NULL
       ) AS a
     indexes: [storefront, entity_id]
     sql_trigger_value: |

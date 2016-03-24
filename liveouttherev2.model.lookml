@@ -26,7 +26,8 @@
 #   used to pull Shopify transactions into the explore
     - join: shopify_map
       from: transactions_shopify_map
-      sql_on: reconciliation.entity_id = shopify_map.order_number
+      sql_on: |
+        reconciliation.entity_id = shopify_map.order_number AND reconciliation.authorization_number = shopify_map.authorization_number
       relationship: one_to_many
 #   used to pull Netbanx transactions into the explore
     - join: netbanx_transactions

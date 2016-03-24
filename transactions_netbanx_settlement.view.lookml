@@ -59,6 +59,16 @@
   - dimension: transaction_number
     type: string
     sql: ${TABLE}.TXN_NUM
+    
+  - dimension: is_thevan
+    label: "Is TheVan.ca"
+    type: yesno
+    sql: ${transaction_number} LIKE 'c%'
+
+  - dimension: is_lot
+    label: "Is LiveOutThere.com"
+    type: yesno
+    sql: ${transaction_number} NOT LIKE 'c%'
 
   - dimension: confirmation_number
     type: string

@@ -1,4 +1,4 @@
-- view: sales_payment_transaction
+- view: transactions_magento_payment
   sql_table_name: magento.sales_payment_transaction
 
   fields:

@@ -1,4 +1,4 @@
-- view: sales_transactions
+- view: transactions
   derived_table:
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, * FROM (
@@ -54,10 +54,10 @@
     sql: ${TABLE}.increment_id
     links:
       - label: 'Magento Sales Order'
-        url: "https://admin.liveoutthere.com/index.php/inspire/sales_order/view/order_id/{{ transaction_reconciliation.entity_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/sales_order/view/order_id/{{ reconciliation.entity_id._value }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
       - label: 'Magento Credit Memo'
-        url: "https://admin.liveoutthere.com/index.php/inspire/sales_creditmemo/view/creditmemo_id/{{ transaction_reconciliation.credit_memo_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/sales_creditmemo/view/creditmemo_id/{{ reconciliation.credit_memo_id._value }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
   
   - dimension: storefront

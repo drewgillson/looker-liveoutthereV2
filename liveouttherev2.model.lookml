@@ -3,42 +3,55 @@
 - include: "*.view.lookml"       # include all the views
 - include: "*.dashboard.lookml"  # include all the dashboards
 
-- explore: transaction_reconciliation
+- explore: reconciliation
+  from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels
   description: "Use to assist with transaction & account reconciliation"
   symmetric_aggregates: true
   persist_for: 1 hour
-  from: sales_transactions
   joins:
-    - join: payment
-      from: sales_flat_order_payment
-      sql_on: transaction_reconciliation.entity_id = payment.parent_id
+#   used to map Magento invoices and credit memos to Netbanx transactions
+    - join: magento_map
+      from: transactions_magento_map
+      sql_on: |
+        reconciliation.entity_id = magento_map.parent_id
+        AND reconciliation.type = magento_map.type
+        AND (reconciliation.credit_memo_id = magento_map.credit_memo_id OR reconciliation.credit_memo_id IS NULL)
       relationship: one_to_one
+#   used to map Magento invoices and credit memos to PayPal transactions (the view above would have been unnecessary had Demac built the Optimal Payments extension properly)
     - join: payment_transaction
-      from: sales_payment_transaction
-      sql_on: payment.parent_id = payment_transaction.order_id
+      from: transactions_magento_payment
+      sql_on: reconciliation.entity_id = payment_transaction.order_id
       relationship: one_to_many
+      required_joins: [magento_map]
+#   used to pull Shopify transactions into the explore
     - join: shopify_map
-      from: sales_shopify_transactions
-      sql_on: transaction_reconciliation.entity_id = shopify_map.order_number
+      from: transactions_shopify_map
+      sql_on: reconciliation.entity_id = shopify_map.order_number
       relationship: one_to_many
+#   used to pull Netbanx transactions into the explore
     - join: netbanx_transactions
+      from: transactions_netbanx_settlement
       type: full_outer
       sql_on: |
-        (payment.netbanx_transaction_id = netbanx_transactions.TXN_NUM OR shopify_map.authorization_number = netbanx_transactions.CONF_NUM)
-        AND CASE WHEN transaction_reconciliation.type = 'credit' THEN 'Credits'
-                 WHEN transaction_reconciliation.type = 'sale' THEN 'Settles'
+        ((magento_map.netbanx_transaction_id = netbanx_transactions.TXN_NUM AND magento_map.netbanx_confirmation_number = netbanx_transactions.CONF_NUM)
+          OR shopify_map.authorization_number = netbanx_transactions.CONF_NUM
+        )
+        AND CASE WHEN reconciliation.type = 'credit' THEN 'Credits'
+                 WHEN reconciliation.type = 'sale' THEN 'Settles'
             END = netbanx_transactions.tran_type
       relationship: one_to_many
-      required_joins: [payment, shopify_map]
+      required_joins: [magento_map, shopify_map]
+#   used to pull PayPal transactions into the explore
     - join: paypal_settlement
+      from: transactions_paypal_settlement
       type: full_outer
       sql_on: |
         payment_transaction.txn_id = paypal_settlement.[Transaction ID]
-        AND CASE WHEN transaction_reconciliation.type = 'credit' THEN 'T1107'
-                 WHEN transaction_reconciliation.type = 'sale' THEN 'T0006'
+        AND CASE WHEN reconciliation.type = 'credit' THEN 'T1107'
+                 WHEN reconciliation.type = 'sale' THEN 'T0006'
             END = paypal_settlement.[Transaction Event Code]
       relationship: one_to_many
-      required_joins: [payment, payment_transaction]
+      required_joins: [payment_transaction]
 
 - explore: inventory
   description: "Use to answer supply-side questions (i.e. how many units do we have available to sell and from what categories?)"

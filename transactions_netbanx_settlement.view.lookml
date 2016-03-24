@@ -1,4 +1,4 @@
-- view: netbanx_transactions
+- view: transactions_netbanx_settlement
   derived_table: 
     sql: | 
       SELECT ROW_NUMBER() OVER (ORDER BY [TRANSACTION_DATE]) AS row, * FROM (
@@ -83,5 +83,6 @@
       - transaction_reconciliation.id
       - transaction_type
       - transaction_number
+      - confirmation_number
       - card_brand
       - amount

@@ -1,4 +1,4 @@
-- view: sales_shopify_transactions
+- view: transactions_shopify_map
   derived_table:
     sql: |
       SELECT [order-email]

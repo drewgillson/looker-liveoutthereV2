@@ -3,18 +3,19 @@
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY parent_id) AS row, * FROM (
         SELECT 'sale' AS type
-          , magento.extractValueFromSerializedPhpString('merchantRefNum',additional_information) AS netbanx_transaction_id
-          , magento.extractValueFromSerializedPhpString('confirmationNumber',additional_information) AS netbanx_confirmation_number
+          , CASE WHEN method = 'optimal_hosted' THEN magento.extractValueFromSerializedPhpString('merchantRefNum',additional_information) END AS netbanx_transaction_id
+          , CASE WHEN method = 'optimal_hosted' THEN magento.extractValueFromSerializedPhpString('confirmationNumber',additional_information) END AS netbanx_confirmation_number
           , parent_id
           , NULL AS credit_memo_id
+          , method
         FROM magento.sales_flat_order_payment
-        WHERE magento.extractValueFromSerializedPhpString('merchantRefNum',additional_information) IS NOT NULL
         UNION ALL
         SELECT 'credit'
           , magento.extractValueFromSerializedPhpString('merchantRefNum',b.additional_information)
           , SUBSTRING(a.comment,45,CHARINDEX('<',SUBSTRING(a.comment,45,100))-1)
           , a.parent_id
           , c.entity_id
+          , b.method
         FROM magento.sales_flat_order_status_history AS a
         INNER JOIN magento.sales_flat_order_payment AS b
           ON a.parent_id = b.parent_id
@@ -50,3 +51,7 @@
   - dimension: type
     type: string
     sql: ${TABLE}.type
+
+  - dimension: payment_method
+    type: string
+    sql: ${TABLE}.method

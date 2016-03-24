@@ -79,6 +79,7 @@
       CASE WHEN ${fee_debit_or_credit} = 'CR' THEN ${TABLE}."Fee Amount" WHEN ${fee_debit_or_credit} = 'DR' THEN -${TABLE}."Fee Amount" END
 
   - measure: gross_transaction_amount
+    label: "Total"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: |

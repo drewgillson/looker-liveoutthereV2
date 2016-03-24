@@ -12,7 +12,7 @@
           , qty
           , CASE WHEN a.name LIKE '%Gift Card%' OR a.name LIKE '%Donation%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS deferred_revenue
           , a.product_id
-          , 'LiveOutThere.com' AS storefront
+          , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' ELSE 'LiveOutThere.com' END AS storefront
         FROM magento.sales_flat_invoice_item AS a
         INNER JOIN magento.sales_flat_invoice AS b
           ON a.parent_id = b.entity_id
@@ -30,7 +30,7 @@
           , 1 AS qty
           , NULL AS deferred_revenue
           , NULL AS product_id
-          , 'LiveOutThere.com' AS storefront
+          , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' ELSE 'LiveOutThere.com' END AS storefront
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id

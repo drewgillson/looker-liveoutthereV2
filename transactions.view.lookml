@@ -69,7 +69,8 @@
       END
       
   - measure: total_expected
-    label: "Total Expected $"
+    description: "Total amount charged to customer, including taxes, shipping, redeemed gift cards, and customer credit"
+    label: "Total Charged $"
     type: number
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${grand_total} + ${redeemed_amount}
@@ -80,18 +81,21 @@
     sql: ${TABLE}.grand_total
 
   - measure: tax_expected
-    label: "Tax Expected $"
+    description: "Tax charged to customer"
+    label: "Tax Charged $"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.tax_amount
     
   - measure: shipping_collected
-    label: "Shipping Expected $"
+    description: "Shipping charged to customer"
+    label: "Shipping Charged $"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.shipping_amount
     
   - measure: redeemed_amount
+    description: "Amount of redeemed gift cards or customer credit"
     label: "Redeemed Gift Certs & Credit"
     type: number
     description: "Total amount of gift certificates and customer credit redeemed"
@@ -99,11 +103,13 @@
     sql: ${gift_certificate_amount} + ${customer_credit_amount}
     
   - measure: gift_certificate_amount
+    description: "Amount of redeemed gift cards"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.giftcert_amount
       
   - measure: customer_credit_amount
+    description: "Amount of redeemed customer credit"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.customer_credit_amount

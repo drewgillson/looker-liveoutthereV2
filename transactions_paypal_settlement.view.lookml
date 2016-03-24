@@ -74,12 +74,14 @@
 
   - measure: fee_amount
     type: sum
+    description: "PayPal fee amount"
     value_format: '$#,##0.00;($#,##0.00)'
     sql: |
       CASE WHEN ${fee_debit_or_credit} = 'CR' THEN ${TABLE}."Fee Amount" WHEN ${fee_debit_or_credit} = 'DR' THEN -${TABLE}."Fee Amount" END
 
   - measure: gross_transaction_amount
-    label: "Total"
+    description: "Total amount collected by PayPal, including taxes"
+    label: "Total Collected $"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: |
@@ -87,6 +89,7 @@
 
   - measure: tax_amount
     type: sum
+    description: "Tax amount collected by PayPal"
     value_format: '$#,##0.00;($#,##0.00)'
     sql: |
       CASE WHEN ${transaction_debit_or_credit} = 'CR' THEN -(${TABLE}."Gross Transaction Amount" - (${TABLE}."Gross Transaction Amount" / (1 + (${tax.percent} / 100))))

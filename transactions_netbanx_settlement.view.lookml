@@ -75,7 +75,8 @@
     sql: ${TABLE}.CONF_NUM
 
   - measure: amount
-    label: "Total"
+    label: "Total Collected $"
+    description: "Total amount collected by Netbanx, including taxes"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: |
@@ -83,6 +84,8 @@
     drill_fields: [transaction_details]
 
   - measure: tax
+    label: "Tax Collected $"
+    description: "Tax amount collected by Netbanx"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: |

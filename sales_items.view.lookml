@@ -140,7 +140,7 @@
     label: "Net Sold $"
     type: number
     value_format: '$#,##0.00'
-    sql: CAST(${subtotal} - ${credits.refunded_subtotal} AS money)
+    sql: CAST(${subtotal} - ${credits.refunded_subtotal} AS decimal(38,2))
     
   - measure: gross_cost
     label: "Gross Cost $"
@@ -152,7 +152,8 @@
     label: "Net Cost $"
     type: number
     value_format: '$#,##0.00'
-    sql: ${gross_cost} - ${credits.extended_cost}
+    sql: |
+      CASE WHEN ${net_sold} > 0 THEN ${gross_cost} - ${credits.extended_cost} END
 
   - measure: gross_margin
     label: "Gross Margin $"

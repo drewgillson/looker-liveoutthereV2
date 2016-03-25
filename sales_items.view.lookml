@@ -3,6 +3,7 @@
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row, a.*, (qty * average_cost.value) AS extended_cost FROM (
         SELECT c.created_at AS order_created
+          , b.created_at AS invoice_created
           , c.entity_id AS order_entity_id
           , c.increment_id AS order_increment_id
           , CASE WHEN a.name NOT LIKE '%Gift Card%' AND a.name NOT LIKE '%Donation%' THEN a.row_total + ISNULL(a.tax_amount,0) - ISNULL(a.discount_amount,0) END AS row_total_incl_tax
@@ -24,6 +25,7 @@
         WHERE row_total > 0
         UNION ALL
         SELECT b.created_at AS order_created
+          , a.created_at AS invoice_created
           , b.entity_id AS order_entity_id
           , b.increment_id AS order_increment_id
           , a.shipping_incl_tax AS row_total_incl_tax
@@ -40,6 +42,7 @@
         WHERE a.shipping_amount > 0
         UNION ALL
         SELECT a.created_at AS order_created
+          , NULL AS invoice_created
           , a.entity_id AS order_entity_id
           , a.increment_id AS order_increment_id
           , NULL AS row_total_incl_tax
@@ -58,6 +61,7 @@
         WHERE c.entity_id IS NULL AND a.marketplace_order_id IS NULL
         UNION ALL
         SELECT CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
+            , CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS invoice_created
             , c.[order-id] AS [order_entity_id]
             , a.[order-order_number] AS [order_increment_id]
             , [order-line_items-charged_price]  AS [row_total_incl_tax]
@@ -105,6 +109,11 @@
     hidden: true
     type: number
     sql: ${TABLE}.order_entity_id
+
+  - dimension_group: invoice_created
+    description: "Date/time an order was invoiced"
+    type: time
+    sql: ${TABLE}.invoice_created
 
   - dimension_group: order_created
     description: "Date/time an order was placed"

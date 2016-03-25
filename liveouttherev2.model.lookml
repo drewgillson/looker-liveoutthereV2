@@ -7,6 +7,7 @@
   from: sales_items
   symmetric_aggregates: true
   persist_for: 1 hour
+  always_join: [credits]
   joins:
     - join: products
       from: catalog_products
@@ -35,6 +36,12 @@
       sql_on: associations.parent_id = product_attributes.parent_id
       relationship: one_to_one
       required_joins: [associations]
+    - join: credits
+      from: credit_items
+      sql_on: |
+        sales.order_entity_id = credits.order_entity_id
+        AND (sales.product_id = credits.product_id OR credits.product_id IS NULL)
+      relationship: one_to_many
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

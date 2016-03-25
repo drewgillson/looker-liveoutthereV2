@@ -1,7 +1,7 @@
 - view: sales_items
   derived_table:
     sql: |
-      SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row, *  FROM (
+      SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row, a.*, (qty * average_cost.value) AS extended_cost FROM (
         SELECT c.created_at AS order_created
           , c.entity_id AS order_entity_id
           , c.increment_id AS order_increment_id
@@ -37,8 +37,8 @@
         WHERE a.shipping_amount > 0
         UNION ALL
         SELECT CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
-            , [order-order_number] AS [order_entity_id]
-            , [order-order_number] AS [order_increment_id]
+            , c.[order-id] AS [order_entity_id]
+            , a.[order-order_number] AS [order_increment_id]
             , [order-line_items-charged_price]  AS [row_total_incl_tax]
             , [order-line_items-charged_price] - ([order-line_items-total_tax] + ([order-line_items-total_shipping] * ([order-line_items-total_tax] / [order-line_items-total_price]))) AS [row_total]
             , [order-line_items-total_tax] + ([order-line_items-total_shipping] * ([order-line_items-total_tax] / [order-line_items-total_price])) AS tax_amount
@@ -50,8 +50,20 @@
         FROM shopify.order_items AS a
         LEFT JOIN magento.catalog_product_entity AS b
           ON a.[order-line_items-sku] = b.sku
-        WHERE [order-status] IN ('open', 'closed') AND [order-line_items-sku] != ''
+        LEFT JOIN shopify.transactions AS c
+          ON a.[order-order_number] = c.[order-order_number] AND c.[order-transactions-kind] = 'sale' AND c.[order-transactions-status] = 'success'
+        WHERE a.[order-status] IN ('open', 'closed') AND [order-line_items-sku] != ''
       ) AS a
+      LEFT JOIN (
+        SELECT pop_product_id
+           , ROUND(AVG((pop_price_ht * (1-(CASE WHEN pop_discount > 0 THEN pop_discount ELSE 0 END / 100)))), 2) AS value 
+        FROM magento.purchase_order_product
+        WHERE pop_price_ht <> 0 
+        AND pop_supplied_qty > 0 
+        AND pop_discount <> 100 
+        GROUP BY pop_product_id
+      ) AS average_cost
+      ON a.product_id = average_cost.pop_product_id
     indexes: [order_entity_id, order_increment_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -86,6 +98,9 @@
       - label: 'Magento Sales Order'
         url: "https://admin.liveoutthere.com/index.php/inspire/sales_order/view/order_id/{{ sales.order_entity_id._value }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
+      - label: 'Shopify Sales Order'
+        url: "https://thevan.myshopify.com/admin/orders/{{ sales.order_entity_id._value }}"
+        icon_url: 'https://cdn.shopify.com/shopify-marketing_assets/static/shopify-favicon.png'
 
   - dimension: storefront
     description: "Either LiveOutThere.com, TheVan.ca, or Amazon"
@@ -105,6 +120,25 @@
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.row_total
+
+  - measure: net_sold
+    description: "Total charged less total refunded (does not include tax)"
+    label: "Net Sold $"
+    type: number
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${subtotal} - ${credits.refunded_subtotal}
+    
+  - measure: gross_cost
+    label: "Gross Cost $"
+    type: sum
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${TABLE}.extended_cost
+
+  - measure: net_cost
+    label: "Net Cost $"
+    type: number
+    value_format: '$#,##0.00;($#,##0.00)'
+    sql: ${gross_cost} - ${credits.extended_cost}
 
   - measure: tax_collected
     description: "Total tax collected"
@@ -135,5 +169,9 @@
     description: "Number of orders placed"
     type: count_distinct
     sql: ${order_entity_id}
+    
+  - measure: unique_products_ordered
+    type: count_distinct
+    sql: ${TABLE}.product_id
 
 

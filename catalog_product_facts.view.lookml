@@ -17,6 +17,8 @@
         , MAX(last_receipt) AS last_receipt
         , MAX(last_sold) AS last_sold
         , MAX(quantity_returned_all_time) AS quantity_returned_all_time
+        , MAX(average_cost.value) AS average_cost
+        
       FROM magento.cataloginventory_stock_item AS a
       
       LEFT JOIN (
@@ -145,6 +147,11 @@
     description: "Ideal quantity we want to keep in stock"
     type: number
     sql: ${TABLE}.ideal_desired_quantity
+    
+  - dimension: average_cost
+    description: "Average landed cost per unit, after discounts"
+    value_format: '$#,##0.00'
+    sql: ${TABLE}.average_cost
 
   - measure: skus_on_hand
     hidden: true
@@ -158,28 +165,28 @@
 
   - measure: total_discounted_cost
     description: "Total cost of the inventory we have on hand (at average cost after discounts)"
-    label: "Total Discounted Cost $"
+    label: "Discounted Cost On Hand $"
     type: sum
     value_format: '$#,##0.00'
     sql: ${TABLE}.total_discounted_cost
 
   - measure: total_cost
     description: "Total cost of the inventory we have on hand (at wholesale cost before discounts)"
-    label: "Total Wholesale Cost $"
+    label: "Wholesale Cost On Hand $"
     type: sum
     value_format: '$#,##0.00'
     sql: ${TABLE}.total_cost
 
   - measure: total_sales_opportunity
     description: "Total sales opportunity of the inventory we have on hand"
-    label: "Total Sales Opportunity $"
+    label: "Sales Opportunity On Hand $"
     type: sum
     value_format: '$#,##0.00'
     sql: ${TABLE}.total_sales_opportunity
 
   - measure: percent_of_total_sales_opportunity
     description: "Percentage of sales opportunity compared to total"
-    label: "% of Total Sales Opportunity"
+    label: "% of Sales Opportunity"
     type: percent_of_total
     value_format: '0.00\%'
     sql: ${total_sales_opportunity}

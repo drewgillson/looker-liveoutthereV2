@@ -40,7 +40,7 @@
       from: credit_items
       sql_on: |
         sales.order_entity_id = credits.order_entity_id
-        AND (sales.product_id = credits.product_id OR credits.product_id IS NULL)
+        AND sales.product_id = credits.product_id
       relationship: one_to_many
 
 - explore: reconciliation

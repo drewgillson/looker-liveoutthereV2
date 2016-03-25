@@ -36,6 +36,20 @@
           ON a.order_id = b.entity_id
         WHERE a.shipping_amount > 0
         UNION ALL
+        SELECT created_at AS order_created
+          , entity_id AS order_entity_id
+          , increment_id AS order_increment_id
+          , NULL AS row_total_incl_tax
+          , NULL AS row_total
+          , NULL AS tax_amount
+          , NULL AS discount_amount
+          , NULL AS qty
+          , NULL AS deferred_revenue
+          , -1 AS product_id
+          , 'LiveOutThere.com' AS storefront
+        FROM magento.sales_flat_order
+        WHERE marketplace_order_id IS NULL
+        UNION ALL
         SELECT CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
             , c.[order-id] AS [order_entity_id]
             , a.[order-order_number] AS [order_increment_id]
@@ -126,7 +140,7 @@
     label: "Net Sold $"
     type: number
     value_format: '$#,##0.00'
-    sql: ${subtotal} - ${credits.refunded_subtotal}
+    sql: CAST(${subtotal} - ${credits.refunded_subtotal} AS money)
     
   - measure: gross_cost
     label: "Gross Cost $"
@@ -140,6 +154,24 @@
     value_format: '$#,##0.00'
     sql: ${gross_cost} - ${credits.extended_cost}
 
+  - measure: gross_margin
+    label: "Gross Margin $"
+    description: "Gross margin dollars collected on net sales"
+    type: number
+    value_format: '$#,##0.00' 
+    sql: CAST(${net_sold} - ${net_cost} AS money)
+
+  - measure: gross_margin_percent
+    label: "Gross Margin %"
+    description: "Gross margin percentage on net sales"
+    type: number
+    value_format: '0.0%' 
+    sql: |
+      CASE
+        WHEN ${net_sold} = 0 AND ${gross_margin} = 0 THEN NULL
+        WHEN ${net_sold} > 0 THEN ${gross_margin} / ${net_sold}
+      END
+      
   - measure: tax_collected
     description: "Total tax collected"
     label: "Tax Collected $"

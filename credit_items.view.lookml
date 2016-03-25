@@ -10,8 +10,8 @@
           , a.increment_id AS creditmemo_increment_id
           , a.entity_id AS creditmemo_entity_id
           , COALESCE(CAST(d.comment AS varchar(255)),MAX(CAST(e.comment AS varchar(255)))) AS request_type
-          , NULL AS product_id
-          , NULL AS refunded_qty
+          , ISNULL(MAX(g.product_id), -1) AS product_id
+          , CASE WHEN MAX(g.product_id) IS NOT NULL THEN 1 END AS refunded_qty
           , CASE WHEN CAST(d.comment AS varchar(255)) IS NOT NULL THEN a.adjustment_positive END AS refund_for_return
           , CASE WHEN MAX(CAST(e.comment AS varchar(255))) IS NOT NULL THEN a.adjustment_positive END AS refund_for_other_reason
           , a.shipping_amount AS refund_for_shipping
@@ -28,6 +28,8 @@
             ON a.entity_id = e.parent_id AND CAST(e.comment AS varchar(255)) <> 'Return'
           LEFT JOIN magento.sales_order_tax AS f
             ON a.order_id = f.order_id AND f.position = 1
+          LEFT JOIN magento.sales_flat_order_item AS g
+            ON a.order_id = g.order_id AND a.adjustment_positive = (g.row_total - ISNULL(g.discount_amount,0) + g.tax_amount)
           WHERE (a.adjustment_positive > 0 OR a.shipping_amount > 0) AND a.created_at > '2014-02-01'
           GROUP BY a.created_at, a.increment_id, a.entity_id, a.adjustment_positive, a.shipping_amount, c.entity_id, CAST(d.comment AS varchar(255)), f.[percent]
         ) AS a

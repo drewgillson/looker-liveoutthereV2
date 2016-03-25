@@ -150,43 +150,43 @@
   - measure: extended_cost
     label: "Extended Cost $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.extended_cost
 
   - measure: refund_for_return
     label: "Refund for Return $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.refund_for_return
 
   - measure: refund_for_other_reason
     label: "Refund for Other Reason $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.refund_for_other_reason
 
   - measure: refund_for_shipping
     label: "Refund for Shipping $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.refund_for_shipping
 
   - measure: refunded_tax
     label: "Refunded Tax $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.refunded_tax
 
   - measure: refunded_total
     label: "Refunded Total $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.refunded_total
 
   - measure: refunded_subtotal
     label: "Refunded Subtotal $"
     type: number
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${refunded_total} - ${refunded_tax}
     
   - measure: unique_products_refunded

@@ -42,7 +42,7 @@
         WHERE a.shipping_amount > 0
         UNION ALL
         SELECT a.created_at AS order_created
-          , NULL AS invoice_created
+          , MAX(d.created_at) AS invoice_created
           , a.entity_id AS order_entity_id
           , a.increment_id AS order_increment_id
           , NULL AS row_total_incl_tax
@@ -58,7 +58,10 @@
           ON a.entity_id = b.order_id
         LEFT JOIN magento.sales_flat_creditmemo_item AS c
           ON b.entity_id = c.parent_id
+        LEFT JOIN magento.sales_flat_invoice AS d
+          ON a.entity_id = d.order_id
         WHERE c.entity_id IS NULL AND a.marketplace_order_id IS NULL
+        GROUP BY a.created_at, a.entity_id, a.increment_id, a.marketplace_order_id, a.custom_storefront
         UNION ALL
         SELECT CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
             , CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS invoice_created

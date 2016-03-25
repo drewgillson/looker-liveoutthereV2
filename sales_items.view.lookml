@@ -74,10 +74,12 @@
     sql: ${TABLE}.order_entity_id
 
   - dimension_group: order_created
+    description: "Date/time an order was placed"
     type: time
     sql: ${TABLE}.order_created
 
   - dimension: order_id
+    description: "Order ID from Magento or Shopify (includes links to backends)"
     type: string
     sql: ${TABLE}.order_increment_id
     links:
@@ -86,43 +88,51 @@
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: storefront
+    description: "Either LiveOutThere.com, TheVan.ca, or Amazon"
     type: string
     sql: ${TABLE}.storefront
     
   - measure: total_collected
+    description: "Total charged to the customer, including taxes"
     label: "Gross Collected $"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.row_total_incl_tax
 
   - measure: subtotal
+    description: "Total charged (does not include tax)"
     label: "Gross Sold $"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.row_total
 
   - measure: tax_collected
+    description: "Total tax collected"
     label: "Tax Collected $"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.tax_amount
 
-  - measure: discount_amount
+  - measure: cart_discount_amount
+    description: "Discount amount due to Shopping Cart Price Rules"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.discount_amount
 
   - measure: quantity
+    description: "Number of units ordered"
     type: sum
     value_format: '0' 
     sql: ${TABLE}.qty
 
   - measure: deferred_revenue
+    description: "Total amount of gift cards sold or donations accepted"
     type: sum
     value_format: '$#,##0.00;($#,##0.00)'
     sql: ${TABLE}.deferred_revenue
     
   - measure: orders
+    description: "Number of orders placed"
     type: count_distinct
     sql: ${order_entity_id}
 

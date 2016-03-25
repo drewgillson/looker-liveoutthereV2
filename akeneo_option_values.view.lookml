@@ -30,4 +30,6 @@
     sql: ${TABLE}.row
 
   - dimension: best_use
+    type: string
+    description: "Activity / best use values for products collected by Suntec from REI and saved in Akeneo"
     sql: ${TABLE}.best_use

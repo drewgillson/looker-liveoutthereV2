@@ -11,13 +11,16 @@
           , a.discount_amount
           , qty
           , CASE WHEN a.name LIKE '%Gift Card%' OR a.name LIKE '%Donation%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS deferred_revenue
-          , a.product_id
+          -- fix an issue where some sales_invoice_items are actually configurable products, and won't have a match in the Products view
+          , COALESCE(d.entity_id, a.product_id) AS product_id
           , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' ELSE 'LiveOutThere.com' END AS storefront
         FROM magento.sales_flat_invoice_item AS a
         INNER JOIN magento.sales_flat_invoice AS b
           ON a.parent_id = b.entity_id
         INNER JOIN magento.sales_flat_order AS c
           ON b.order_id = c.entity_id
+        LEFT JOIN magento.catalog_product_entity AS d
+          ON a.sku = d.sku
         WHERE row_total > 0
         UNION ALL
         SELECT b.created_at AS order_created
@@ -36,9 +39,9 @@
           ON a.order_id = b.entity_id
         WHERE a.shipping_amount > 0
         UNION ALL
-        SELECT created_at AS order_created
-          , entity_id AS order_entity_id
-          , increment_id AS order_increment_id
+        SELECT a.created_at AS order_created
+          , a.entity_id AS order_entity_id
+          , a.increment_id AS order_increment_id
           , NULL AS row_total_incl_tax
           , NULL AS row_total
           , NULL AS tax_amount
@@ -47,8 +50,12 @@
           , NULL AS deferred_revenue
           , -1 AS product_id
           , 'LiveOutThere.com' AS storefront
-        FROM magento.sales_flat_order
-        WHERE marketplace_order_id IS NULL
+        FROM magento.sales_flat_order AS a
+        INNER JOIN magento.sales_flat_creditmemo AS b
+          ON a.entity_id = b.order_id
+        LEFT JOIN magento.sales_flat_creditmemo_item AS c
+          ON b.entity_id = c.parent_id
+        WHERE c.entity_id IS NULL AND a.marketplace_order_id IS NULL
         UNION ALL
         SELECT CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
             , c.[order-id] AS [order_entity_id]

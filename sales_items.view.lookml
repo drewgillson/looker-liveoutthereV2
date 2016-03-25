@@ -14,7 +14,7 @@
           , CASE WHEN a.name LIKE '%Gift Card%' OR a.name LIKE '%Donation%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS deferred_revenue
           -- fix an issue where some sales_invoice_items are actually configurable products, and won't have a match in the Products view
           , COALESCE(d.entity_id, a.product_id) AS product_id
-          , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' ELSE 'LiveOutThere.com' END AS storefront
+          , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
         FROM magento.sales_flat_invoice_item AS a
         INNER JOIN magento.sales_flat_invoice AS b
           ON a.parent_id = b.entity_id
@@ -35,7 +35,7 @@
           , 1 AS qty
           , NULL AS deferred_revenue
           , NULL AS product_id
-          , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' ELSE 'LiveOutThere.com' END AS storefront
+          , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id
@@ -52,7 +52,7 @@
           , NULL AS qty
           , NULL AS deferred_revenue
           , -1 AS product_id
-          , 'LiveOutThere.com' AS storefront
+          , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
         FROM magento.sales_flat_order AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.entity_id = b.order_id
@@ -62,16 +62,16 @@
         UNION ALL
         SELECT CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
             , CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS invoice_created
-            , c.[order-id] AS [order_entity_id]
-            , a.[order-order_number] AS [order_increment_id]
-            , [order-line_items-charged_price]  AS [row_total_incl_tax]
-            , [order-line_items-charged_price] - ([order-line_items-total_tax] + ([order-line_items-total_shipping] * ([order-line_items-total_tax] / [order-line_items-total_price]))) AS [row_total]
+            , c.[order-id] AS order_entity_id
+            , a.[order-order_number] AS order_increment_id
+            , [order-line_items-charged_price]  AS row_total_incl_tax
+            , [order-line_items-charged_price] - ([order-line_items-total_tax] + ([order-line_items-total_shipping] * ([order-line_items-total_tax] / [order-line_items-total_price]))) AS row_total
             , [order-line_items-total_tax] + ([order-line_items-total_shipping] * ([order-line_items-total_tax] / [order-line_items-total_price])) AS tax_amount
-            , 0 AS [discount_amount]
-            , [order-line_items-quantity] AS [qty]
+            , 0 AS discount_amount
+            , [order-line_items-quantity] AS qty
             , NULL AS deferred_revenue
-            , b.entity_id AS [product_id]
-            , 'TheVan.ca' AS [custom_storefront]
+            , b.entity_id AS product_id
+            , 'TheVan.ca' AS storefront
         FROM shopify.order_items AS a
         LEFT JOIN magento.catalog_product_entity AS b
           ON a.[order-line_items-sku] = b.sku

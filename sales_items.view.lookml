@@ -111,46 +111,46 @@
     description: "Total charged to the customer, including taxes"
     label: "Gross Collected $"
     type: sum
-    value_format: '$#,##0.00;($#,##0.00)'
+    value_format: '$#,##0.00'
     sql: ${TABLE}.row_total_incl_tax
 
   - measure: subtotal
     description: "Total charged (does not include tax)"
     label: "Gross Sold $"
     type: sum
-    value_format: '$#,##0.00;($#,##0.00)'
+    value_format: '$#,##0.00'
     sql: ${TABLE}.row_total
 
   - measure: net_sold
     description: "Total charged less total refunded (does not include tax)"
     label: "Net Sold $"
     type: number
-    value_format: '$#,##0.00;($#,##0.00)'
+    value_format: '$#,##0.00'
     sql: ${subtotal} - ${credits.refunded_subtotal}
     
   - measure: gross_cost
     label: "Gross Cost $"
     type: sum
-    value_format: '$#,##0.00;($#,##0.00)'
+    value_format: '$#,##0.00'
     sql: ${TABLE}.extended_cost
 
   - measure: net_cost
     label: "Net Cost $"
     type: number
-    value_format: '$#,##0.00;($#,##0.00)'
+    value_format: '$#,##0.00'
     sql: ${gross_cost} - ${credits.extended_cost}
 
   - measure: tax_collected
     description: "Total tax collected"
     label: "Tax Collected $"
     type: sum
-    value_format: '$#,##0.00;($#,##0.00)'
+    value_format: '$#,##0.00'
     sql: ${TABLE}.tax_amount
 
   - measure: cart_discount_amount
     description: "Discount amount due to Shopping Cart Price Rules"
     type: sum
-    value_format: '$#,##0.00;($#,##0.00)'
+    value_format: '$#,##0.00'
     sql: ${TABLE}.discount_amount
 
   - measure: quantity
@@ -162,7 +162,7 @@
   - measure: deferred_revenue
     description: "Total amount of gift cards sold or donations accepted"
     type: sum
-    value_format: '$#,##0.00;($#,##0.00)'
+    value_format: '$#,##0.00'
     sql: ${TABLE}.deferred_revenue
     
   - measure: orders

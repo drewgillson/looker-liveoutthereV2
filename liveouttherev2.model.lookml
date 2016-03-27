@@ -3,6 +3,10 @@
 - include: "*.view.lookml"       # include all the views
 - include: "*.dashboard.lookml"  # include all the dashboards
 
+- explore: customers
+  symmetric_aggregates: true
+  persist_for: 1 hour
+
 - explore: sales
   from: sales_items
   symmetric_aggregates: true

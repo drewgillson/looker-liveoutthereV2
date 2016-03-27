@@ -66,7 +66,7 @@
     type: string
     sql: ${TABLE}.customer_group_code
 
-  - dimension_group: date_of_birth
+  - dimension_group: birth
     type: time
     timeframes: [date]
     sql: ${TABLE}.date_of_birth

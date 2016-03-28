@@ -43,7 +43,7 @@
       relationship: one_to_one
       required_joins: [associations]
     - join: credits
-      from: credit_items
+      from: sales_credit_items
       sql_on: |
         sales.order_entity_id = credits.order_entity_id
         AND sales.product_id = credits.product_id

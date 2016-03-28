@@ -1,6 +1,11 @@
-- view: sales_flat_quote_item
+- view: carts_items
   sql_table_name: magento.sales_flat_quote_item
   fields:
+
+  - dimension: item_id
+    primary_key: true
+    type: number
+    sql: ${TABLE}.item_id
 
   - dimension: additional_data
     type: string
@@ -107,10 +112,6 @@
     type: number
     sql: ${TABLE}.is_virtual
 
-  - dimension: item_id
-    type: number
-    sql: ${TABLE}.item_id
-
   - dimension: name
     type: string
     sql: ${TABLE}.name
@@ -143,8 +144,8 @@
     type: string
     sql: ${TABLE}.product_type
 
-  - dimension: qty
-    type: number
+  - measure: qty
+    type: sum
     sql: ${TABLE}.qty
 
   - dimension: quote_id

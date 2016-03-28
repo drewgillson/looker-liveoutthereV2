@@ -1,6 +1,11 @@
-- view: sales_flat_quote
+- view: carts
   sql_table_name: magento.sales_flat_quote
   fields:
+
+  - dimension: entity_id
+    primary_key: true
+    type: number
+    sql: ${TABLE}.entity_id
 
   - dimension_group: anounced
     type: time
@@ -144,10 +149,6 @@
   - dimension: ebizmarts_abandonedcart_token
     type: string
     sql: ${TABLE}.ebizmarts_abandonedcart_token
-
-  - dimension: entity_id
-    type: number
-    sql: ${TABLE}.entity_id
 
   - dimension: ext_shipping_info
     type: string

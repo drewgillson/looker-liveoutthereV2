@@ -6,6 +6,20 @@
 - explore: customers
   symmetric_aggregates: true
   persist_for: 1 hour
+  joins:
+    - join: carts
+      sql_on: customers.email = carts.customer_email
+      relationship: one_to_many
+    - join: cart_items
+      from: carts_items
+      sql_on: carts.entity_id = cart_items.quote_id
+      relationship: one_to_many
+      required_joins: [carts]
+    - join: products
+      from: catalog_products
+      sql_on: cart_items.product_id = products.entity_id
+      relationship: one_to_one
+      required_joins: [cart_items]
 
 - explore: sales
   from: sales_items

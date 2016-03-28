@@ -46,6 +46,10 @@
         sales.order_entity_id = credits.order_entity_id
         AND sales.product_id = credits.product_id
       relationship: one_to_many
+    - join: shipping_charges
+      from: sales_shipping_charges
+      sql_on: sales.order_entity_id = shipping_charges.order_id
+      relationship: one_to_one
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

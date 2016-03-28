@@ -7,14 +7,16 @@
            , order_entity_id
            , order_increment_id
            , row_total_incl_tax
-           -- treat customer credit portion of invoice item as a discount:
-           , row_total - ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS row_total
+           -- treat customer credit portion of invoice item as a discount, and if the row_total is less than zero (this happens when customer credit covers the entire order, because credit is applied to the AFTER tax total) just treat it as a zero
+           , CASE WHEN row_total - ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) < 0 THEN 0 ELSE row_total - ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) END AS row_total
            , tax_amount
-           , discount_amount + ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS discount_amount
+           -- fix for the same damn edge case with taxes and totals when customer credit has covered the whole order
+           , CASE WHEN discount_amount + ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) > row_total_incl_tax THEN row_total ELSE discount_amount + ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) END AS discount_amount
            , qty
            , deferred_revenue
            , product_id
            , storefront
+           , ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS customer_credit_amount
         FROM (
           SELECT c.created_at AS order_created
             , b.created_at AS invoice_created
@@ -41,6 +43,7 @@
           WHERE row_total > 0
         ) AS a
         UNION ALL
+        -- insert rows for shipping charges
         SELECT b.created_at AS order_created
           , a.created_at AS invoice_created
           , b.entity_id AS order_entity_id
@@ -53,11 +56,13 @@
           , NULL AS deferred_revenue
           , NULL AS product_id
           , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
+          , NULL
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id
         WHERE a.shipping_amount > 0
         UNION ALL
+        -- insert an additional row in the result set that can be used to join independent refunds for orders that aren't associated to order items
         SELECT a.created_at AS order_created
           , MAX(d.created_at) AS invoice_created
           , a.entity_id AS order_entity_id
@@ -70,6 +75,7 @@
           , NULL AS deferred_revenue
           , -1 AS product_id
           , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
+          , NULL
         FROM magento.sales_flat_order AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.entity_id = b.order_id
@@ -80,6 +86,7 @@
         WHERE c.entity_id IS NULL AND a.marketplace_order_id IS NULL
         GROUP BY a.created_at, a.entity_id, a.increment_id, a.marketplace_order_id, a.custom_storefront
         UNION ALL
+        -- Shopify sales
         SELECT CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
             , CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS invoice_created
             , c.[order-id] AS order_entity_id
@@ -92,6 +99,7 @@
             , NULL AS deferred_revenue
             , b.entity_id AS product_id
             , 'TheVan.ca' AS storefront
+            , NULL
         FROM shopify.order_items AS a
         LEFT JOIN magento.catalog_product_entity AS b
           ON a.[order-line_items-sku] = b.sku
@@ -217,6 +225,13 @@
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.tax_amount
+
+  - measure: customer_credit_amount
+    description: "Redeemed customer credit (we treat customer credit like a discount so gross margin is not over-stated)"
+    label: "Redeemed Credit $"
+    type: sum
+    value_format: '$#,##0'
+    sql: ${TABLE}.customer_credit_amount
 
   - measure: cart_discount_amount
     label: "Cart Discount Amount $"

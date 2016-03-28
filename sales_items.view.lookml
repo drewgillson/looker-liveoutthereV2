@@ -104,13 +104,15 @@
     sql: ${TABLE}.row
 
   - dimension: product_id
-    type: number
     hidden: true
+    type: string
+    value_format: '0' 
     sql: ${TABLE}.product_id
     
   - dimension: order_entity_id
     hidden: true
     type: number
+    value_format: '0' 
     sql: ${TABLE}.order_entity_id
 
   - dimension_group: invoice_created

@@ -56,18 +56,29 @@
     sql: ${TABLE}.order_id
 
   - measure: outbound_shipping_charge
+    label: "Outbound Shipping Charge $"
+    description: "Cost of shipping to the customer"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.outbound_shipping_charge
 
   - measure: return_shipping_charge
+    label: "Return Shipping Charge $"
+    description: "Cost of return shipping back to us"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.return_shipping_charge
 
   - measure: total_shipping_charge
+    label: "Total Shipping Charge $"
+    description: "Total cost of shipping including adjustments"
     type: number
     value_format: '$#,##0'
     sql: ${outbound_shipping_charge} + ${return_shipping_charge}
-
+    
+  - measure: percent_of_total
+    label: "Percent of Total %"
+    description: "Percent of the total shipping charge column this row accounts for"
+    type: percent_of_total
+    sql: ${total_shipping_charge}
 

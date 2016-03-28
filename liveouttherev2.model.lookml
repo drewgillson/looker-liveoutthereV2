@@ -26,10 +26,12 @@
       from: catalog_categories
       sql_on: products.entity_id = categories.product_id
       relationship: one_to_many
+      required_joins: [products]
     - join: associations
       from: catalog_product_associations
       sql_on: products.entity_id = associations.product_id
       relationship: one_to_many
+      required_joins: [products]
     - join: impressions
       from: catalog_product_impressions
       sql_on: associations.parent_id = impressions.product_id

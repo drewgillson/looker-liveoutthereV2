@@ -1,4 +1,4 @@
-- view: akeneo_option_values
+- view: catalog_akeneo_option_values
   derived_table: 
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY sku) AS row, a.best_use, b.parent_id

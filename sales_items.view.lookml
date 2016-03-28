@@ -2,27 +2,44 @@
   derived_table:
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row, a.*, (qty * average_cost.value) AS extended_cost FROM (
-        SELECT c.created_at AS order_created
-          , b.created_at AS invoice_created
-          , c.entity_id AS order_entity_id
-          , c.increment_id AS order_increment_id
-          , CASE WHEN a.name NOT LIKE '%Gift Card%' AND a.name NOT LIKE '%Donation%' THEN a.row_total + ISNULL(a.tax_amount,0) - ISNULL(a.discount_amount,0) END AS row_total_incl_tax
-          , CASE WHEN a.name NOT LIKE '%Gift Card%' AND a.name NOT LIKE '%Donation%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS row_total
-          , a.tax_amount
-          , a.discount_amount
-          , qty
-          , CASE WHEN a.name LIKE '%Gift Card%' OR a.name LIKE '%Donation%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS deferred_revenue
-          -- fix an issue where some sales_invoice_items are actually configurable products, and won't have a match in the Products view
-          , COALESCE(d.entity_id, a.product_id) AS product_id
-          , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
-        FROM magento.sales_flat_invoice_item AS a
-        INNER JOIN magento.sales_flat_invoice AS b
-          ON a.parent_id = b.entity_id
-        INNER JOIN magento.sales_flat_order AS c
-          ON b.order_id = c.entity_id
-        LEFT JOIN magento.catalog_product_entity AS d
-          ON a.sku = d.sku
-        WHERE row_total > 0
+        SELECT order_created
+           , invoice_created
+           , order_entity_id
+           , order_increment_id
+           , row_total_incl_tax
+           -- treat customer credit portion of invoice item as a discount:
+           , row_total - ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS row_total
+           , tax_amount
+           , discount_amount + ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS discount_amount
+           , qty
+           , deferred_revenue
+           , product_id
+           , storefront
+        FROM (
+          SELECT c.created_at AS order_created
+            , b.created_at AS invoice_created
+            , c.entity_id AS order_entity_id
+            , c.increment_id AS order_increment_id
+            , CASE WHEN d.type_id NOT LIKE '%gift%' THEN a.row_total + ISNULL(a.tax_amount,0) - ISNULL(a.discount_amount,0) END AS row_total_incl_tax
+            , CASE WHEN d.type_id NOT LIKE '%gift%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS row_total
+            , a.tax_amount
+            , a.discount_amount
+            , qty
+            , CASE WHEN d.type_id LIKE '%gift%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS deferred_revenue
+            -- fix an issue where some sales_invoice_items are actually configurable products, and won't have a match in the Products view
+            , COALESCE(d.entity_id, a.product_id) AS product_id
+            , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
+            , b.subtotal_incl_tax - ISNULL(b.discount_amount,0) AS invoice_total
+            , b.customer_credit_amount AS customer_credit_total
+          FROM magento.sales_flat_invoice_item AS a
+          INNER JOIN magento.sales_flat_invoice AS b
+            ON a.parent_id = b.entity_id
+          INNER JOIN magento.sales_flat_order AS c
+            ON b.order_id = c.entity_id
+          LEFT JOIN magento.catalog_product_entity AS d
+            ON a.sku = d.sku
+          WHERE row_total > 0
+        ) AS a
         UNION ALL
         SELECT b.created_at AS order_created
           , a.created_at AS invoice_created
@@ -150,7 +167,7 @@
     sql: ${TABLE}.row_total_incl_tax
 
   - measure: subtotal
-    description: "Total charged (does not include tax)"
+    description: "Total sold (does not include tax or redeemed customer credit)"
     label: "Gross Sold $"
     type: sum
     value_format: '$#,##0'
@@ -202,7 +219,8 @@
     sql: ${TABLE}.tax_amount
 
   - measure: cart_discount_amount
-    description: "Discount amount due to Shopping Cart Price Rules"
+    label: "Cart Discount Amount $"
+    description: "Discount amount from catalog (advertised) price because of Shopping Cart Price Rules and redeemed Customer Credit"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.discount_amount

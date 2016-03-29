@@ -162,6 +162,7 @@
     sql: ${TABLE}.ideal_desired_quantity
     
   - measure: average_cost
+    label: "Average Cost $"
     description: "Average landed cost per unit, after discounts"
     type: avg
     value_format: '$#,##0'
@@ -203,9 +204,9 @@
     value_format: '$#,##0'
     sql: ${TABLE}.total_sales_opportunity
     
-  - dimension: opening_margin
+  - measure: opening_margin
     label: "Opening Margin %"
-    type: number
+    type: avg
     value_format: '0%'
     sql: ${TABLE}.opening_margin
 

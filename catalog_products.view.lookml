@@ -222,7 +222,7 @@
       
   - measure: average_price
     description: "Average MSRP/price for a product"
-    label: "Average Price (MSRP)"
+    label: "Average Price (MSRP) $"
     type: avg
     value_format: '$#,##0'
     sql: ${TABLE}.price

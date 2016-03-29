@@ -250,7 +250,7 @@
   - measure: days_of_inventory_calculation
     type: number
     hidden: true
-    sql: ${quantity_on_hand} / NULLIF((${quantity_sold_last_30_days} / 30.0),0)
+    sql: ${quantity_available_to_sell} / NULLIF((${quantity_sold_last_30_days} / 30.0),0)
 
   - measure: days_of_inventory_remaining
     description: "Based on 30-day sales history, the number of days that will elapse before we run out of inventory"
@@ -259,7 +259,7 @@
       CASE WHEN ${quantity_available_to_sell} > 0 AND ${days_of_inventory_calculation} IS NULL THEN 9999 ELSE ${days_of_inventory_calculation} END
 
   - measure: sell_through_rate
-    label: "Sell Through Rate %"
+    label: "Sell Through %"
     description: "Net sold quantity divided by (quantity on hand plus net sold quantity)"
     type: number
     value_format: '0%'

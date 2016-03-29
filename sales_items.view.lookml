@@ -259,12 +259,40 @@
     value_format: '0'
     sql: ${gross_sold_quantity} - ${credits.refunded_quantity}
 
+  - measure: return_rate_units
+    label: "Returned %"
+    description: "Number of units returned divided by gross sold units"
+    type: number
+    value_format: '0%'
+    sql: ${credits.refunded_quantity} / ${gross_sold_quantity}
+
+  - measure: return_rate_dollars
+    label: "Refunded %"
+    description: "Amount refunded for returned items divided by Gross Sold $"
+    type: number
+    value_format: '0%'
+    sql: ${credits.refund_for_return} / ${subtotal}
+
   - measure: deferred_revenue
-    description: "Total amount of gift cards sold or donations accepted"
+    description: "Total amount of gift cards sold"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.deferred_revenue
-    
+      
+  - measure: net_contribution
+    label: "Contribution $"
+    description: "Net contribution is calculated by including any shipping costs as well as a 4% levy for credit card charges and packaging."
+    type: number
+    value_format: '$#,##0.00'
+    sql: ${net_sold} - ${shipping_charges.total_shipping_charge} - ${net_cost} - (${net_sold} * 0.04)
+
+  - measure: net_contribution_percent
+    label: "Contribution %"
+    description: "Net contribution is calculated by including any shipping costs as well as a 4% levy for credit card charges and packaging."
+    type: number
+    value_format: '0.0%' 
+    sql: ${net_contribution} / NULLIF(${net_sold},0)
+
   - measure: orders
     description: "Number of orders placed"
     type: count_distinct

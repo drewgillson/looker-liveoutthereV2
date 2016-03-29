@@ -157,8 +157,8 @@
     - join: shipping_charges
       from: sales_shipping_charges
       sql_on: sales.order_entity_id = shipping_charges.order_id
-      required_joins: [sales]
       relationship: one_to_one
+      required_joins: [sales]
     - join: shipping_tracking
       from: sales_shipping_tracking
       sql_on: sales.order_entity_id = shipping_tracking.order_id

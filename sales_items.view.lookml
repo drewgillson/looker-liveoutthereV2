@@ -180,6 +180,13 @@
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.row_total
+    
+  - measure: average_sale_price
+    label: "Average Sale Price $"
+    description: "Average gross sold price per unit"
+    type: number
+    value_format: '$#,##0'
+    sql: ${subtotal} / ${gross_sold_quantity}
 
   - measure: net_sold
     description: "Total charged less total refunded (does not include tax)"
@@ -240,11 +247,17 @@
     value_format: '$#,##0'
     sql: ${TABLE}.discount_amount
 
-  - measure: quantity
+  - measure: gross_sold_quantity
     description: "Number of units ordered"
     type: sum
     value_format: '0' 
     sql: ${TABLE}.qty
+    
+  - measure: net_sold_quantity
+    description: "Number of units ordered less number of units refunded"
+    type: number
+    value_format: '0'
+    sql: ${gross_sold_quantity} - ${credits.refunded_quantity}
 
   - measure: deferred_revenue
     description: "Total amount of gift cards sold or donations accepted"

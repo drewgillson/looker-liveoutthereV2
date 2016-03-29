@@ -18,6 +18,7 @@
         , MAX(last_sold) AS last_sold
         , MAX(quantity_returned_all_time) AS quantity_returned_all_time
         , MAX(average_cost.value) AS average_cost
+        , (MAX(catalog_product.price) - MAX(average_cost.value)) / MAX(catalog_product.price) AS opening_margin
         
       FROM magento.cataloginventory_stock_item AS a
       
@@ -150,6 +151,7 @@
     
   - dimension: average_cost
     description: "Average landed cost per unit, after discounts"
+    type: number
     value_format: '$#,##0.00'
     sql: ${TABLE}.average_cost
 
@@ -183,6 +185,12 @@
     type: sum
     value_format: '$#,##0.00'
     sql: ${TABLE}.total_sales_opportunity
+    
+  - dimension: opening_margin
+    label: "Opening Margin %"
+    type: number
+    value_format: '0%'
+    sql: ${TABLE}.opening_margin
 
   - measure: percent_of_total_sales_opportunity
     description: "Percentage of sales opportunity compared to total"
@@ -251,6 +259,7 @@
       CASE WHEN ${quantity_available_to_sell} > 0 AND ${days_of_inventory_calculation} IS NULL THEN 9999 ELSE ${days_of_inventory_calculation} END
 
   - measure: sell_through_rate
+    label: "Sell Through Rate %"
     description: "Net sold quantity divided by (quantity on hand plus net sold quantity)"
     type: number
     value_format: '0%'
@@ -267,8 +276,8 @@
     type: number
     sql: ${skus_on_hand} - ${skus_reserved}
     
-  - measure: return_rate
-    description: "Percentage of units sold that were returned (warning: this measure seems to return results that are suspiciously low)"
-    type: number
-    value_format: '0%'
-    sql: ${quantity_returned_all_time} / NULLIF(CAST(${quantity_sold_all_time} AS float),0)
+#  - measure: return_rate
+#    description: "Percentage of units sold that were returned (warning: this measure seems to return results that are suspiciously low)"
+#    type: number
+#    value_format: '0%'
+#    sql: ${quantity_returned_all_time} / NULLIF(CAST(${quantity_sold_all_time} AS float),0)

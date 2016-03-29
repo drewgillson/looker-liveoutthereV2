@@ -5,7 +5,7 @@
 
 - explore: customers
   symmetric_aggregates: true
-  persist_for: 1 hour
+  persist_for: 12 hours
   joins:
     - join: carts
       sql_on: customers.email = carts.customer_email
@@ -24,7 +24,7 @@
 - explore: sales
   from: sales_items
   symmetric_aggregates: true
-  persist_for: 1 hour
+  persist_for: 12 hours
   always_join: [credits]
   joins:
     - join: products
@@ -80,7 +80,7 @@
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels
   description: "Use to assist with transaction & account reconciliation"
   symmetric_aggregates: true
-  persist_for: 1 hour
+  persist_for: 12 hours
   joins:
 #   used to map Magento invoices and credit memos to Netbanx transactions
     - join: magento_map
@@ -140,7 +140,7 @@
 - explore: products
   description: "Use to answer supply-side questions (i.e. how many units do we have available to sell and from what categories?)"
   symmetric_aggregates: true
-  persist_for: 1 hour
+  persist_for: 12 hours
   from: catalog_products
   joins:
     - join: associations

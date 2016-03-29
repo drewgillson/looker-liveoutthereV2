@@ -156,10 +156,10 @@
     sql: ${TABLE}.order_increment_id
     links:
       - label: 'Magento Sales Order'
-        url: "https://admin.liveoutthere.com/index.php/inspire/sales_order/view/order_id/{{ sales.order_entity_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/sales_order/view/order_id/{{ sales.order_entity_id._value | encode_uri }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
       - label: 'Shopify Sales Order'
-        url: "https://thevan.myshopify.com/admin/orders/{{ sales.order_entity_id._value }}"
+        url: "https://thevan.myshopify.com/admin/orders/{{ sales.order_entity_id._value | encode_uri }}"
         icon_url: 'https://cdn.shopify.com/shopify-marketing_assets/static/shopify-favicon.png'
 
   - dimension: storefront
@@ -186,7 +186,7 @@
     description: "Average gross sold price per unit"
     type: number
     value_format: '$#,##0'
-    sql: ${subtotal} / ${gross_sold_quantity}
+    sql: ${subtotal} / NULLIF(${gross_sold_quantity},0)
 
   - measure: net_sold
     description: "Total charged less total refunded (does not include tax)"

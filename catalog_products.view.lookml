@@ -98,7 +98,7 @@
     description: "SKU for a product with a specific colour and size - what we call a 'simple SKU'. It is one of the core fields that join most of our models."
     links:
       - label: 'Simple Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/advancedstock_products/edit/product_id/{{ products.entity_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/advancedstock_products/edit/product_id/{{ products.entity_id._value | encode_uri }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
       - label: 'Photo'
         url: "https://www.liveoutthere.com/media/catalog/product/{{ products.image._value }}"
@@ -188,7 +188,7 @@
     drill_fields: [sku, colour, colour_family, size]
     links:
       - label: 'Configurable Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value | encode_uri }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: short_product_name
@@ -198,7 +198,7 @@
     drill_fields: [sku, colour, colour_family, size]
     links:
       - label: 'Configurable Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value | encode_uri }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: has_image

@@ -3,7 +3,8 @@
 - include: "*.view.lookml"       # include all the views
 - include: "*.dashboard.lookml"  # include all the dashboards
 
-- explore: customers
+- explore: people
+  from: customers
   symmetric_aggregates: true
   persist_for: 12 hours
   joins:
@@ -20,61 +21,6 @@
       sql_on: cart_items.product_id = products.entity_id
       relationship: one_to_one
       required_joins: [cart_items]
-
-- explore: sales
-  from: sales_items
-  symmetric_aggregates: true
-  persist_for: 12 hours
-  always_join: [credits]
-  joins:
-    - join: products
-      from: catalog_products
-      sql_on: sales.product_id = products.entity_id
-      relationship: one_to_one
-    - join: product_facts
-      from: catalog_product_facts
-      sql_on: sales.product_id = product_facts.product_id
-      relationship: one_to_one
-      required_joins: [products]
-    - join: weekly_sell_through
-      from: catalog_product_facts_weekly_sellthrough
-      sql_on: sales.product_id = weekly_sell_through.product_id
-      relationship: one_to_one
-      required_joins: [products]
-    - join: categories
-      from: catalog_categories
-      sql_on: products.entity_id = categories.product_id
-      relationship: one_to_many
-      required_joins: [products]
-    - join: associations
-      from: catalog_product_associations
-      sql_on: products.entity_id = associations.product_id
-      relationship: one_to_many
-      required_joins: [products]
-    - join: impressions
-      from: catalog_product_impressions
-      sql_on: associations.parent_id = impressions.product_id
-      required_joins: [associations]
-      relationship: one_to_many
-    - join: product_attributes
-      from: catalog_akeneo_option_values
-      sql_on: associations.parent_id = product_attributes.parent_id
-      relationship: one_to_one
-      required_joins: [associations]
-    - join: credits
-      from: sales_credit_items
-      sql_on: |
-        sales.order_entity_id = credits.order_entity_id
-        AND sales.product_id = credits.product_id
-      relationship: one_to_many
-    - join: shipping_charges
-      from: sales_shipping_charges
-      sql_on: sales.order_entity_id = shipping_charges.order_id
-      relationship: one_to_one
-    - join: shipping_tracking
-      from: sales_shipping_tracking
-      sql_on: sales.order_entity_id = shipping_tracking.order_id
-      relationship: many_to_many
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels
@@ -138,6 +84,7 @@
       required_joins: [payment_transaction]
 
 - explore: products
+  label: "Products & Sales"
   description: "Use to answer supply-side questions (i.e. how many units do we have available to sell and from what categories?)"
   symmetric_aggregates: true
   persist_for: 12 hours
@@ -147,9 +94,9 @@
       from: catalog_product_associations
       sql_on: products.entity_id = associations.product_id
       relationship: one_to_many
-    - join: facts
+    - join: product_facts
       from: catalog_product_facts
-      sql_on: products.entity_id = facts.product_id
+      sql_on: products.entity_id = product_facts.product_id
       relationship: one_to_one
     - join: weekly_sell_through
       from: catalog_product_facts_weekly_sellthrough
@@ -195,6 +142,29 @@
       sql_on: associations.parent_id = product_attributes.parent_id
       relationship: one_to_one
       required_joins: [associations]
+    - join: credits
+      from: sales_credit_items
+      sql_on: |
+        sales.order_entity_id = credits.order_entity_id
+        AND sales.product_id = credits.product_id
+      relationship: one_to_many
+      required_joins: [sales]
+    - join: sales
+      from: sales_items
+      sql_on: products.entity_id = sales.product_id
+      relationship: one_to_many
+      required_joins: [credits]
+    - join: shipping_charges
+      from: sales_shipping_charges
+      sql_on: sales.order_entity_id = shipping_charges.order_id
+      required_joins: [sales]
+      relationship: one_to_one
+    - join: shipping_tracking
+      from: sales_shipping_tracking
+      sql_on: sales.order_entity_id = shipping_tracking.order_id
+      relationship: many_to_many
+      required_joins: [sales]
+      
 #  conditionally_filter:
 #    facts.is_in_stock: '%'
 #    unless:

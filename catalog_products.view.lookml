@@ -23,6 +23,7 @@
            , MAX(w.parent_id) AS parent_id
            , COUNT(DISTINCT w.parent_id) AS parent_count
            , MIN(CAST(y.value AS int)) AS merchandise_priority
+           , z.value AS url_key
         FROM magento.catalog_product_entity AS a
         LEFT JOIN magento.catalog_product_entity_varchar AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
@@ -63,16 +64,17 @@
         LEFT JOIN magento.catalog_product_entity_varchar AS u
           ON a.entity_id = u.entity_id AND u.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'color_family' AND entity_type_id = 4) AND u.store_id = 0
         LEFT JOIN magento.eav_attribute_option_value AS v
+          -- only join the label value for the first colour family if the varchar table contains a comma-separated string of colour family value IDs
           ON CASE WHEN u.value LIKE '%,%' THEN LEFT(u.value,CHARINDEX(',',u.value)-1) ELSE u.value END = v.option_id AND v.store_id = 0
         LEFT JOIN magento.catalog_product_super_link AS w
           ON a.entity_id = w.product_id
-        LEFT JOIN magento.catalog_product_entity AS x
-          ON w.parent_id = x.entity_id
         LEFT JOIN magento.catalog_product_entity_varchar AS y
-          ON x.entity_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
+          ON w.parent_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
+        LEFT JOIN magento.catalog_product_entity_varchar AS z
+          ON w.parent_id = z.entity_id AND z.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'url_key' AND entity_type_id = 4)
         WHERE a.type_id = 'simple'
-        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value
-    indexes: [sku, entity_id]
+        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value
+    indexes: [sku, entity_id, url_key]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       
@@ -166,6 +168,11 @@
     type: string
     sql: ${TABLE}.department
     drill_fields: [brand]
+
+  - dimension: url_key
+    description: "URL key for a product"
+    type: string
+    sql: ${TABLE}.url_key
 
   - dimension: is_virtual_product
     description: "Is 'Yes' if the product has a brand value of LiveOutThere.com, which we use for gift cards, promo items, etc."

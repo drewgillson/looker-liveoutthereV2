@@ -9,7 +9,7 @@
   persist_for: 12 hours
   joins:
     - join: carts
-      sql_on: customers.email = carts.customer_email
+      sql_on: people.email = carts.customer_email
       relationship: one_to_many
     - join: cart_items
       from: carts_items

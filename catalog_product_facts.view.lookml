@@ -161,10 +161,10 @@
     type: number
     sql: ${TABLE}.ideal_desired_quantity
     
-  - dimension: average_cost
+  - measure: average_cost
     description: "Average landed cost per unit, after discounts"
-    type: number
-    value_format: '$#,##0.00'
+    type: avg
+    value_format: '$#,##0'
     sql: ${TABLE}.average_cost
 
   - measure: skus_on_hand
@@ -186,21 +186,21 @@
     description: "Total cost of the inventory we have on hand (at average cost after discounts)"
     label: "Discounted Cost On Hand $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.total_discounted_cost
 
   - measure: total_cost
     description: "Total cost of the inventory we have on hand (at wholesale cost before discounts)"
     label: "Wholesale Cost On Hand $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.total_cost
 
   - measure: total_sales_opportunity
     description: "Total sales opportunity of the inventory we have on hand"
     label: "Sales Opportunity On Hand $"
     type: sum
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.total_sales_opportunity
     
   - dimension: opening_margin

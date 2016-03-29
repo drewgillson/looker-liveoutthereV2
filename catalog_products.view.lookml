@@ -217,14 +217,14 @@
   - dimension: cost
     description: "Wholesale cost for a product"
     type: number
-    value_format: '$#,##0.00'
+    value_format: '$#,##0'
     sql: ${TABLE}.cost
       
-  - dimension: price
-    description: "MSRP/price for a product"
-    label: "Price (MSRP)"
-    type: number
-    value_format: '$#,##0.00'
+  - measure: average_price
+    description: "Average MSRP/price for a product"
+    label: "Average Price (MSRP)"
+    type: avg
+    value_format: '$#,##0'
     sql: ${TABLE}.price
 
   - dimension: sort_order

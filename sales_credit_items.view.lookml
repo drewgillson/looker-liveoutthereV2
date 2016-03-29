@@ -92,9 +92,6 @@
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
 
   fields:
-  - measure: count
-    type: count
-    drill_fields: detail*
 
   - dimension: row
     primary_key: true
@@ -102,6 +99,7 @@
     sql: ${TABLE}.row
 
   - dimension: type
+    description: "Always 'credit' for credit memos"
     type: string
     sql: ${TABLE}.type
 
@@ -128,10 +126,10 @@
     sql: ${TABLE}.creditmemo_increment_id
     links:
       - label: 'Magento Credit Memo'
-        url: "https://admin.liveoutthere.com/index.php/inspire/sales_creditmemo/view/creditmemo_id/{{ credits.creditmemo_entity_id._value }}"
+        url: "https://admin.liveoutthere.com/index.php/inspire/sales_creditmemo/view/creditmemo_id/{{ credits.creditmemo_entity_id._value | encode_uri }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
       - label: 'Shopify Sales Order'
-        url: "https://thevan.myshopify.com/admin/orders/{{ sales.order_entity_id._value }}"
+        url: "https://thevan.myshopify.com/admin/orders/{{ sales.order_entity_id._value | encode_uri }}"
         icon_url: 'https://cdn.shopify.com/shopify-marketing_assets/static/shopify-favicon.png'
 
   - dimension: creditmemo_entity_id
@@ -140,56 +138,66 @@
     sql: ${TABLE}.creditmemo_entity_id
 
   - dimension: request_type
+    description: "Reason for the refund"
     type: string
     sql: ${TABLE}.request_type
 
   - measure: refunded_quantity
+    description: "Quantity of units refunded (will not include independent refunds not associated to a product)"
     type: sum
     sql: ${TABLE}.refunded_qty
 
   - measure: extended_cost
     label: "Extended Cost $"
+    description: "Cost of returned goods, calculating by multiplying the refunded quantity by the average landed cost"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.extended_cost
 
   - measure: refund_for_return
     label: "Refund for Return $"
+    description: "Amount refunded in exchange for items that were returned"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.refund_for_return
 
   - measure: refund_for_other_reason
     label: "Refund for Other Reason $"
+    description: "Amount refunded for price matches, out of stock refunds, forgotten coupon codes, etc."
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.refund_for_other_reason
 
   - measure: refund_for_shipping
     label: "Refund for Shipping $"
+    description: "Amount refunded for shipping"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.refund_for_shipping
 
   - measure: refunded_tax
     label: "Refunded Tax $"
+    description: "Amount of tax refunded"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.refunded_tax
 
   - measure: refunded_total
     label: "Refunded Total $"
+    description: "Total amount refunded to customers (includes tax)"
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.refunded_total
 
   - measure: refunded_subtotal
-    label: "Refunded Subtotal $"
+    label: "Refunded $"
+    description: "Amount refunded to customers (does not include tax). This is equal to Refund for Return + Refund for Other Reason + Refund for Shipping"
     type: number
     value_format: '$#,##0'
     sql: ${refunded_total} - ${refunded_tax}
     
   - measure: unique_products_refunded
+    description: "Unique number of SKUs refunded"
     type: count_distinct
     sql: ${TABLE}.product_id
 

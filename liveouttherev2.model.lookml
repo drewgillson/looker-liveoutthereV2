@@ -151,6 +151,10 @@
       from: catalog_product_facts
       sql_on: products.entity_id = facts.product_id
       relationship: one_to_one
+    - join: weekly_sell_through
+      from: catalog_product_facts_weekly_sellthrough
+      sql_on: products.entity_id = weekly_sell_through.product_id
+      relationship: one_to_one
     - join: categories
       from: catalog_categories
       sql_on: products.entity_id = categories.product_id

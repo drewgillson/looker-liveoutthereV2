@@ -19,6 +19,7 @@
         , MAX(quantity_returned_all_time) AS quantity_returned_all_time
         , MAX(average_cost.value) AS average_cost
         , (MAX(catalog_product.price) - MAX(average_cost.value)) / MAX(catalog_product.price) AS opening_margin
+        , MAX(quantity_on_order) AS quantity_on_order
         
       FROM magento.cataloginventory_stock_item AS a
       
@@ -96,6 +97,17 @@
         GROUP BY pop_product_id
       ) AS average_cost
       ON a.product_id = average_cost.pop_product_id
+      
+      LEFT JOIN (
+        SELECT a.pop_product_id AS product_id
+             , (SUM(a.pop_qty) - SUM(a.pop_supplied_qty)) AS quantity_on_order
+        FROM magento.purchase_order_product AS a
+        INNER JOIN magento.purchase_order AS b
+          ON a.pop_order_num = b.po_num
+        WHERE b.po_status NOT IN ('complete','closed','cancelled') AND b.po_cancel_date > GETDATE()
+        GROUP BY a.pop_product_id
+      ) AS quantity_on_order
+      ON a.product_id = quantity_on_order.product_id
 
       GROUP BY a.product_id
     indexes: [product_id]
@@ -160,6 +172,11 @@
     type: sum
     sql: CASE WHEN ${TABLE}.quantity_on_hand > 0 THEN 1 END
 
+  - measure: quantity_on_order
+    description: "Quantity currently on order from purchase orders that are not complete, closed, or cancelled, and are not past their cancel date"
+    type: sum
+    sql: ${TABLE}.quantity_on_order
+    
   - measure: quantity_on_hand
     description: "Quantity currently on hand / in stock"
     type: sum

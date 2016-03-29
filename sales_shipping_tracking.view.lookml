@@ -28,9 +28,11 @@
     sql: ${TABLE}.order_id
 
   - dimension: title
+    description: "Carrier code and service code for shipment"
     type: string
     sql: ${TABLE}.title
 
   - dimension: tracking_number
+    description: "Tracking number for shipment"
     type: string
     sql: CAST(${TABLE}.track_number AS varchar(255))

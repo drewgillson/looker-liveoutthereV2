@@ -28,6 +28,7 @@
     sql: ${TABLE}.sm_id
 
   - dimension_group: stock_movement
+    description: "Date and time that a stock movement occurred"
     type: time
     sql: ${TABLE}.sm_date
 
@@ -36,31 +37,39 @@
     sql: ${TABLE}.sm_product_id
 
   - dimension: shelf_location
+    description: "Shelf location that was recorded during a stock movement"
     type: string
     sql: ${TABLE}.shelf_location
 
   - dimension: description
+    description: "Description that was recorded for a stock movement entry in the Magento audit log"
     type: string
     sql: ${TABLE}.sm_description
 
   - dimension: purchase_order_number
+    description: "Purchase order number associated with a stock movement"
     sql: ${TABLE}.po_order_id
 
   - dimension: type
+    description: "Stock movement type (sale, transfer, return, etc.)"
     type: string
     sql: ${TABLE}.sm_type
 
   - dimension: source
+    description: "Source warehouse (LiveOutThere.com, Returns, etc.)"
     type: string
     sql: ${TABLE}.sm_source_stock
 
   - dimension: target
+    description: "Target warehouse (LiveOutThere.com, Returns, etc.)"
     type: string
     sql: ${TABLE}.sm_target_stock
     
   - measure: quantity
+    label: "Number of units on stock movement"
     type: sum
     sql: ${TABLE}.sm_qty
 
   - measure: count
+    label: "Total number of stock movements"
     type: count

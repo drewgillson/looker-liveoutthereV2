@@ -196,6 +196,7 @@
 
   - measure: sell_through_rate_4_weeks_ago
     label: "4 Weeks Ago %"
+    description: "Sell through rate as of 28 days ago"
     type: number
     value_format: '0%'
     sql: (${net_sold_quantity_4_weeks_ago} / NULLIF(${quantity_on_hand_4_weeks_ago} + ${net_sold_quantity_4_weeks_ago},0))
@@ -222,6 +223,7 @@
 
   - measure: sell_through_rate_3_weeks_ago
     label: "3 Weeks Ago %"
+    description: "Sell through rate as of 21 days ago"
     type: number
     value_format: '0%'
     sql: (${net_sold_quantity_3_weeks_ago} / NULLIF(${quantity_on_hand_3_weeks_ago} + ${net_sold_quantity_3_weeks_ago},0))
@@ -248,6 +250,7 @@
 
   - measure: sell_through_rate_2_weeks_ago
     label: "2 Weeks Ago %"
+    description: "Sell through rate as of 14 days ago"
     type: number
     value_format: '0%'
     sql: (${net_sold_quantity_2_weeks_ago} / NULLIF(${quantity_on_hand_2_weeks_ago} + ${net_sold_quantity_2_weeks_ago},0))
@@ -274,6 +277,7 @@
 
   - measure: sell_through_rate_1_week_ago
     label: "1 Week Ago %"
+    description: "Sell through rate as of 7 days ago"
     type: number
     value_format: '0%'
     sql: (${net_sold_quantity_1_week_ago} / NULLIF(${quantity_on_hand_1_week_ago} + ${net_sold_quantity_1_week_ago},0))

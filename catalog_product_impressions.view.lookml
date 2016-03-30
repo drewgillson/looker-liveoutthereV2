@@ -25,7 +25,14 @@
     hidden: true
     sql: ${TABLE}.product_id
 
-  - measure: impressions
+  - measure: count
     description: "Number of times a Magento product was loaded on the frontend of the website, this includes carousels, PLP, PDP, etc. - anywhere the product is displayed."
     type: sum
     sql: ${TABLE}.views
+    
+  - measure: conversion_rate
+    label: "Conversion Rate %"
+    description: "Calculated conversion rate of impressions to orders"
+    type: number
+    sql: ${sales.orders} / ${count}
+    value_format: "0.0%"

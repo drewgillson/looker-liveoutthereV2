@@ -23,7 +23,7 @@
            , MAX(w.parent_id) AS parent_id
            , COUNT(DISTINCT w.parent_id) AS parent_count
            , MIN(CAST(y.value AS int)) AS merchandise_priority
-           , z.value AS url_key
+           , '/' + z.value + '.html' AS url_key
         FROM magento.catalog_product_entity AS a
         LEFT JOIN magento.catalog_product_entity_varchar AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)

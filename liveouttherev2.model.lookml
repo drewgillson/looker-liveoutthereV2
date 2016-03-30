@@ -106,9 +106,9 @@
       from: catalog_categories
       sql_on: products.entity_id = categories.product_id
       relationship: one_to_many
-    - join: impressions
+    - join: product_impressions
       from: catalog_product_impressions
-      sql_on: associations.parent_id = impressions.product_id
+      sql_on: associations.parent_id = product_impressions.product_id
       required_joins: [associations]
       relationship: one_to_many
     - join: applied_catalog_price_rules
@@ -164,7 +164,11 @@
       sql_on: sales.order_entity_id = shipping_tracking.order_id
       relationship: many_to_many
       required_joins: [sales]
-      
+    - join: product_page_views
+      from: catalog_products_page_views
+      sql_on: products.url_key = product_page_views.url_key
+      relationship: many_to_many
+
 #  conditionally_filter:
 #    facts.is_in_stock: '%'
 #    unless:

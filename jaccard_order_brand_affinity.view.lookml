@@ -34,7 +34,7 @@
     hidden: true
     sql: ${TABLE}.row
     
-  - dimension: brand
+  - dimension: value
     type: string
     sql: ${TABLE}.brand_b
     
@@ -54,7 +54,7 @@
     sql: ${TABLE}.brand_b_frequency
     
   - measure: score
-    label: "Score %"
+    label: "Score"
     type: sum
-    value_format: "0%"
+    value_format: "0.00"
     sql: ${TABLE}.joint_frequency / CAST(${TABLE}.brand_a_frequency + ${TABLE}.brand_b_frequency - ${TABLE}.joint_frequency AS float)

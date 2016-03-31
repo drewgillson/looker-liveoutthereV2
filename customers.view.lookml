@@ -12,6 +12,7 @@
              , d.customer_group_code
              , b.value AS date_of_birth
              , c.value AS member_until
+             , CASE WHEN g.value = 1 THEN 'Male' WHEN g.value = 2 THEN 'Female' END AS gender
         FROM magento.customer_entity AS a
         LEFT JOIN magento.customer_entity_datetime AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'dob' AND entity_type_id = 1)
@@ -23,6 +24,8 @@
           ON a.entity_id = e.entity_id AND e.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'firstname' AND entity_type_id = 1)
         LEFT JOIN magento.customer_entity_varchar AS f
           ON a.entity_id = f.entity_id AND f.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'lastname' AND entity_type_id = 1)
+        LEFT JOIN magento.customer_entity_int AS g
+          ON a.entity_id = g.entity_id AND g.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'gender' AND entity_type_id = 1)
       ) AS a
       LEFT JOIN (
         SELECT a.email AS customer_email
@@ -80,6 +83,10 @@
   - dimension: customer_group
     type: string
     sql: ${TABLE}.customer_group_code
+    
+  - dimension: gender
+    type: string
+    sql: ${TABLE}.gender
 
   - dimension_group: birth
     type: time

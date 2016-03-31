@@ -8,10 +8,6 @@
   symmetric_aggregates: true
   persist_for: 12 hours
   joins:
-    - join: activity
-      from: people_activity
-      sql_on: people.email = activity.email
-      relationship: one_to_many
     - join: customers
       sql_on: people.email = customers.email
       relationship: one_to_one

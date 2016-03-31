@@ -21,7 +21,9 @@
         LEFT JOIN ${people_products_page_views_product.SQL_TABLE_NAME} AS product_page_views_product ON product_page_views.url_key = product_page_views_product.url_key
 
         -- customers who have not purchased in last 30 days
-        WHERE (customers.last_order < (DATEADD(day,-30, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ))) AND (((product_page_views.visit) >= (DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND (product_page_views.visit) < (DATEADD(day,4, DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
+        WHERE ((customers.last_order < (DATEADD(day,-30, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ))) OR customers.last_order IS NULL)
+        AND (((product_page_views.visit) >= (DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ))
+        AND (product_page_views.visit) < (DATEADD(day,4, DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
         GROUP BY people.email, brand
       )  AS ww
     indexes: [email,score]
@@ -36,7 +38,7 @@
       type: string
       sql: ${TABLE}.email
       
-    - dimension: brand
+    - dimension: value
       description: "Brands for products viewed in the last 3 days by people who have not made a purchase in the last 30 days."
       type: string
       sql: ${TABLE}.brand

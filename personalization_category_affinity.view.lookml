@@ -22,7 +22,9 @@
         LEFT JOIN ${catalog_categories.SQL_TABLE_NAME} AS product_page_views_category ON product_page_views_product.entity_id = product_page_views_category.product_id
         
         -- customers who have not purchased in last 30 days
-        WHERE (customers.last_order < (DATEADD(day,-30, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ))) AND (((product_page_views.visit) >= (DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND (product_page_views.visit) < (DATEADD(day,4, DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
+        WHERE ((customers.last_order < (DATEADD(day,-30, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ))) OR customers.last_order IS NULL)
+        AND (((product_page_views.visit) >= (DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ))
+        AND (product_page_views.visit) < (DATEADD(day,4, DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
         GROUP BY people.email, reporting_category_level1 + ISNULL('/' + NULLIF(reporting_category_level2,''),'')
       )  AS ww
     indexes: [email,score]
@@ -37,7 +39,7 @@
       type: string
       sql: ${TABLE}.email
       
-    - dimension: category
+    - dimension: value
       description: "Categories for products viewed in the last 3 days by people who have not made a purchase in the last 30 days."
       type: string
       sql: ${TABLE}.category

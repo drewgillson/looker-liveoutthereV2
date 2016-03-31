@@ -53,6 +53,9 @@
     - join: personalization_category_affinity
       sql_on: people.email = personalization_category_affinity.email
       relationship: one_to_one
+    - join: personalization_brand_affinity
+      sql_on: people.email = personalization_brand_affinity.email
+      relationship: one_to_one
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

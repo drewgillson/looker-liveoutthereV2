@@ -11,19 +11,20 @@
     - join: customers
       sql_on: people.email = customers.email
       relationship: one_to_one
-    - join: carts
-      sql_on: people.email = carts.customer_email
-      relationship: one_to_many
     - join: cart_items
       from: carts_items
-      sql_on: carts.entity_id = cart_items.quote_id
+      sql_on: people.email = cart_items.email
       relationship: one_to_many
-      required_joins: [carts]
     - join: cart_items_product
       from: carts_items_product
       sql_on: cart_items.product_id = cart_items_product.entity_id
       relationship: one_to_many
       required_joins: [cart_items]
+    - join: cart_items_category
+      from: catalog_categories
+      sql_on: cart_items_product.entity_id = cart_items_category.product_id
+      relationship: one_to_many
+      required_joins: [cart_items_product]
     - join: mailchimp_activity
       sql_on: people.email = mailchimp_activity.email
       relationship: one_to_many
@@ -40,6 +41,11 @@
       sql_on: product_page_views.url_key = product_page_views_product.url_key
       relationship: one_to_many
       required_joins: [product_page_views]
+    - join: product_page_views_category
+      from: catalog_categories
+      sql_on: product_page_views_product.entity_id = product_page_views_category.product_id
+      relationship: one_to_many
+      required_joins: [product_page_views_product]
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

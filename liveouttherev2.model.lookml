@@ -107,7 +107,7 @@
   description: "Use to answer supply-side questions (i.e. how many units do we have available to sell and from what categories?)"
   symmetric_aggregates: true
   persist_for: 12 hours
-  from: catalog_products
+  from: catalog_products_links
   joins:
     - join: associations
       from: catalog_product_associations

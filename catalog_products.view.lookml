@@ -93,18 +93,6 @@
     hidden: true
     value_format: '0'
     sql: ${TABLE}.parent_id
-
-  - dimension: sku
-    required_fields: entity_id
-    sql: ${TABLE}.sku
-    description: "SKU for a product with a specific colour and size - what we call a 'simple SKU'. It is one of the core fields that join most of our models."
-    links:
-      - label: 'Simple Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/advancedstock_products/edit/product_id/{{ products.entity_id._value | encode_uri }}"
-        icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
-      - label: 'Photo'
-        url: "https://www.liveoutthere.com/media/catalog/product/{{ products.image._value }}"
-        icon_url: 'http://icons.iconarchive.com/icons/rade8/minium-2/16/Sidebar-Pictures-icon.png'
         
   - dimension_group: created_at
     description: "Time a product was created in Magento"
@@ -188,25 +176,6 @@
         ELSE 'All Other Brands'
       END
     drill_fields: [short_product_name, long_product_name, department, colour, colour_family, categories.long_category, categories.short_category]
-      
-  - dimension: long_product_name
-    sql: ISNULL(${brand},'') + ' ' + ISNULL(CASE WHEN ${department} NOT LIKE '%^%' THEN ${department} END,'') + ' ' + ISNULL(${short_product_name},'')
-    description: "Long product name, like Arc'teryx Men's Gamma Pants"
-    drill_fields: [sku, colour, colour_family, size]
-    links:
-      - label: 'Configurable Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value | encode_uri }}"
-        icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
-
-  - dimension: short_product_name
-    description: "Name of a product"
-    type: string
-    sql: ${TABLE}.product
-    drill_fields: [sku, colour, colour_family, size]
-    links:
-      - label: 'Configurable Product'
-        url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value | encode_uri }}"
-        icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
 
   - dimension: has_image
     description: "Will be 'Yes' if a product has an image"

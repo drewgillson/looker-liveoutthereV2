@@ -50,6 +50,9 @@
       sql_on: product_page_views_product.entity_id = product_page_views_category.product_id
       relationship: one_to_many
       required_joins: [product_page_views_product]
+    - join: personalization_category_affinity
+      sql_on: people.email = personalization_category_affinity.email
+      relationship: one_to_one
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

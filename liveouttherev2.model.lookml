@@ -4,10 +4,13 @@
 - include: "*.dashboard.lookml"  # include all the dashboards
 
 - explore: people
-  from: customers
+  from: people
   symmetric_aggregates: true
   persist_for: 12 hours
   joins:
+    - join: customers
+      sql_on: people.email = customers.email
+      relationship: one_to_one
     - join: carts
       sql_on: people.email = carts.customer_email
       relationship: one_to_many
@@ -21,6 +24,13 @@
       sql_on: cart_items.product_id = products.entity_id
       relationship: one_to_one
       required_joins: [cart_items]
+    - join: mailchimp_activity
+      from: people_mailchimp_activity
+      sql_on: people.email = mailchimp_activity.email
+      relationship: one_to_many
+    - join: mailchimp_campaigns
+      sql_on: mailchimp_activity.campaign_id = mailchimp_campaigns.campaign_id
+      relationship: many_to_one
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

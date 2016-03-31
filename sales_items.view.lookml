@@ -2,7 +2,8 @@
   derived_table:
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row, a.*, (qty * average_cost.value) AS extended_cost FROM (
-        SELECT order_created
+        SELECT email 
+           , order_created
            , invoice_created
            , order_entity_id
            , order_increment_id
@@ -18,7 +19,8 @@
            , storefront
            , ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS customer_credit_amount
         FROM (
-          SELECT c.created_at AS order_created
+          SELECT c.customer_email AS email
+            , c.created_at AS order_created
             , b.created_at AS invoice_created
             , c.entity_id AS order_entity_id
             , c.increment_id AS order_increment_id
@@ -44,7 +46,8 @@
         ) AS a
         UNION ALL
         -- insert rows for shipping charges
-        SELECT b.created_at AS order_created
+        SELECT b.customer_email AS email
+          , b.created_at AS order_created
           , a.created_at AS invoice_created
           , b.entity_id AS order_entity_id
           , b.increment_id AS order_increment_id
@@ -63,7 +66,8 @@
         WHERE a.shipping_amount > 0
         UNION ALL
         -- insert an additional row in the result set that can be used to join independent refunds for orders that aren't associated to order items
-        SELECT a.created_at AS order_created
+        SELECT a.customer_email AS email
+          , a.created_at AS order_created
           , MAX(d.created_at) AS invoice_created
           , a.entity_id AS order_entity_id
           , a.increment_id AS order_increment_id
@@ -84,10 +88,11 @@
         LEFT JOIN magento.sales_flat_invoice AS d
           ON a.entity_id = d.order_id
         WHERE c.entity_id IS NULL AND a.marketplace_order_id IS NULL
-        GROUP BY a.created_at, a.entity_id, a.increment_id, a.marketplace_order_id, a.custom_storefront
+        GROUP BY a.customer_email, a.created_at, a.entity_id, a.increment_id, a.marketplace_order_id, a.custom_storefront
         UNION ALL
         -- Shopify sales
-        SELECT CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
+        SELECT a.[order-email] AS email
+            , CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS order_created
             , CONVERT(VARCHAR(19),[order-created_at],120) + '.0000000 +00:00' AS invoice_created
             , c.[order-id] AS order_entity_id
             , a.[order-order_number] AS order_increment_id
@@ -117,7 +122,7 @@
         GROUP BY pop_product_id
       ) AS average_cost
       ON a.product_id = average_cost.pop_product_id
-    indexes: [order_entity_id, order_increment_id]
+    indexes: [email, order_entity_id, order_increment_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
 
@@ -166,6 +171,10 @@
     description: "Either LiveOutThere.com, TheVan.ca, or Amazon"
     type: string
     sql: ${TABLE}.storefront
+    
+  - dimension: email
+    type: string
+    sql: ${TABLE}.email
     
   - measure: total_collected
     description: "Total charged to the customer, including taxes"

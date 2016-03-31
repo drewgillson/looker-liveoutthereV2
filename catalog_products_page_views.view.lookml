@@ -30,7 +30,6 @@
   - dimension_group: page_view
     description: "Date page view was recorded (note that to speed things up this view only contains the last 8 weeks of data)"
     type: time
-    timeframes: [date]
     sql: ${TABLE}.visit
     
   - measure: count

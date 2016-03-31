@@ -3,12 +3,10 @@
   sql_table_name: mailchimp.v3api_liveoutthere_campaigns
 
   fields:
-  - measure: count
-    type: count
-    drill_fields: detail*
 
   - dimension: campaign_id
     primary_key: true
+    hidden: true
     type: string
     sql: ${TABLE}.campaign_id
 
@@ -29,16 +27,45 @@
     sql: ${TABLE}.title
 
   - dimension: utm_campaign
+    label: "UTM Tracking Value"
     type: string
     sql: ${TABLE}.utm_campaign
 
   - dimension: ab_split_subject_a
+    label: "A/B Test - Subject Line A"
     type: string
     sql: ${TABLE}.ab_split_subject_a
 
   - dimension: ab_split_subject_b
+    label: "A/B Test - Subject Line B"
     type: string
     sql: ${TABLE}.ab_split_subject_b
+    
+  - measure: opens
+    type: sum
+    sql: ${TABLE}.opens
+
+  - measure: unique_opens
+    type: sum
+    sql: ${TABLE}.unique_opens
+
+  - measure: open_rate
+    type: avg
+    value_format: "0.00%"
+    sql: ${TABLE}.open_rate
+
+  - measure: clicks
+    type: sum
+    sql: ${TABLE}.clicks
+
+  - measure: unique_clicks
+    type: sum
+    sql: ${TABLE}.unique_clicks
+
+  - measure: click_rate
+    type: avg
+    value_format: "0.00%"
+    sql: ${TABLE}.click_rate
 
   sets:
     detail:

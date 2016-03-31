@@ -1,5 +1,5 @@
 
-- view: people_mailchimp_activity
+- view: mailchimp_activity
   derived_table:
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY [activity]) AS row, a.* FROM (
@@ -19,7 +19,7 @@
           ON a.id = b.subscriber_id
         WHERE LEN(b.[timestamp]) = 25
       ) AS a
-    indexes: [email]
+    indexes: [email, activity]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
 

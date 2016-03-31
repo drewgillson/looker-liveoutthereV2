@@ -25,12 +25,12 @@
       relationship: one_to_one
       required_joins: [cart_items]
     - join: mailchimp_activity
-      from: people_mailchimp_activity
       sql_on: people.email = mailchimp_activity.email
       relationship: one_to_many
     - join: mailchimp_campaigns
       sql_on: mailchimp_activity.campaign_id = mailchimp_campaigns.campaign_id
       relationship: many_to_one
+      required_joins: [mailchimp_activity]
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

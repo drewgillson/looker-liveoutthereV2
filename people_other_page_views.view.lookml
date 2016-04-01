@@ -1,7 +1,10 @@
 - view: people_other_page_views
   derived_table:
     sql: |
-      SELECT ROW_NUMBER() OVER (ORDER BY visit) AS row, a.*, COUNT(DISTINCT b.brand) AS brand_plp
+      SELECT ROW_NUMBER() OVER (ORDER BY visit) AS row
+        , a.*
+        , COUNT(DISTINCT b.brand) AS brand_plp
+        , COUNT(DISTINCT c.url_key) AS category_plp
       FROM (
         SELECT CONVERT(date, a.mdt_timestamp, 120) AS visit
            , a.[user_id] AS email
@@ -10,16 +13,17 @@
         FROM snowplow.events AS a
         LEFT JOIN (SELECT DISTINCT url_key FROM ${catalog_products.SQL_TABLE_NAME}) AS b
           ON a.page_urlpath = b.url_key
-        WHERE
-        -- if prod -- a.mdt_timestamp > DATEADD(d,-56,GETDATE())
-        -- if dev -- a.mdt_timestamp > DATEADD(d,-3,GETDATE())
+        WHERE a.mdt_timestamp > DATEADD(d,-56,GETDATE())
         AND b.url_key IS NULL
         AND a.[user_id] LIKE '%@%.%'
         GROUP BY CONVERT(date, a.mdt_timestamp, 120), a.page_urlpath, a.[user_id]
       ) AS a
       LEFT JOIN (SELECT DISTINCT REPLACE(REPLACE(LOWER(brand),' ','-'),'''','') AS brand
-        FROM ${catalog_products.SQL_TABLE_NAME}) AS b
-      ON a.url_key LIKE '%' + b.brand + '%'
+        FROM ${catalog_products.SQL_TABLE_NAME}
+      ) AS b
+        ON a.url_key LIKE '%' + b.brand + '%'
+      LEFT JOIN (SELECT url_key FROM magento.catalog_category_flat_store_1) AS c
+        ON a.url_key LIKE '%' + c.url_key + '%'
       GROUP BY a.visit, a.email, a.url_key, a.page_views
     indexes: [visit, url_key, email]
     sql_trigger_value: |
@@ -48,36 +52,77 @@
     sql: ${TABLE}.visit
     
   - dimension: department
+    hidden: true
     sql: |
-      CASE WHEN ${url_key} LIKE '/womens-%' OR ${url_key} = '/womens' THEN 'Women'
-           WHEN ${url_key} LIKE '/mens-%' OR ${url_key} = '/mens' THEN 'Men'
-           WHEN ${url_key} LIKE '/boys-%' OR ${url_key} = '/boys' THEN 'Boy'
-           WHEN ${url_key} LIKE '/girls-%' OR ${url_key} = '/girls' THEN 'Girl' END
+      CASE WHEN ${url_key} LIKE '/womens-%' OR ${url_key} LIKE '%womens' OR ${url_key} LIKE '%-womens-%' THEN 'Women'
+           WHEN ${url_key} LIKE '/mens-%' OR ${url_key} LIKE '%mens' OR ${url_key} LIKE '%-mens-%' THEN 'Men'
+           WHEN ${url_key} LIKE '/boys-%' OR ${url_key} LIKE '%boys' OR ${url_key} LIKE '%-boys-%' THEN 'Boy'
+           WHEN ${url_key} LIKE '/girls-%' OR ${url_key} LIKE '%girls' OR ${url_key} LIKE '%-girls-%' THEN 'Girl' END
+
+  - dimension: category_plp
+    hidden: true
+    type: yesno
+    sql: ${TABLE}.category_plp > 0
 
   - dimension: brand_plp
-    label: "Brand PLP"
-    type: number
-    sql: ${TABLE}.brand_plp
+    hidden: true
+    type: yesno
+    sql: ${TABLE}.brand_plp > 0
 
   - dimension: discount_plp
-    label: "Discount PLP"
+    hidden: true
     type: yesno
     sql: ${url_key} LIKE '%__-off%'
 
-  - dimension: checkout
+  - dimension: product_listing_page
+    hidden: true
     type: yesno
-    sql: ${url_key} LIKE '%checkout%' OR ${url_key} LIKE '%paypal%'
+    sql: ${department} IS NOT NULL OR ${brand_plp} OR ${discount_plp} OR ${category_plp} OR ${url_key} = '/new' OR ${url_key} = '/sale-rack' OR ${url_key} = '/shop'
+
+  - dimension: checkout
+    hidden: true
+    type: yesno
+    sql: (${url_key} LIKE '%checkout%' OR ${url_key} LIKE '%paypal%') AND ${url_key} NOT LIKE '%cart%'
 
   - dimension: cart
+    hidden: true
     type: yesno
-    sql: ${url_key} LIKE '%cart%'
+    sql: ${url_key} LIKE '%/cart%'
 
-  - dimension: account
+  - dimension: account_dashboard
+    hidden: true
     type: yesno
     sql: ${url_key} LIKE '%account%'
+
+  - dimension: policy_page
+    hidden: true
+    type: yesno
+    sql: ${url_key} LIKE '/policies-%' OR ${url_key} LIKE '%-policy%' OR ${url_key} LIKE '%terms-conditions%'
+
+  - dimension: home_page
+    hidden: true
+    type: yesno
+    sql: ${url_key} = '/' OR ${url_key} = '/index.php'
     
-  - measure: count
-    description: "Number of unique page views recorded by Snowplow"
+  - dimension: page_type
+    type: string
+    sql_case:
+      'Product Listing Page': ${product_listing_page}
+      'Cart': ${cart}
+      'Checkout': ${checkout}
+      'Policy Page': ${policy_page}
+      'Account Dashboard': ${account_dashboard}
+      'Home': ${home_page}
+      'Other': 1=1
+    
+  - measure: page_views
+    description: "Number of page views recorded by Snowplow"
     type: sum
     sql: ${TABLE}.page_views
-    value_format: "0"
+    value_format: "#,##0"
+
+  - measure: unique_visitors
+    description: "Number of unique visitors recorded by Snowplow"
+    type: count_distinct
+    sql: ${TABLE}.email
+    value_format: "#,##0"

@@ -58,9 +58,17 @@
       from: sales_order_address
       sql_on: people.email = customer_address.email
       relationship: one_to_many
-    - join: other_page_views
+    - join: other_page_views_1
       from: people_other_page_views
-      sql_on: people.email = other_page_views.email
+      sql_on: people.email = other_page_views_1.email
+      relationship: one_to_many
+    - join: other_page_views_2
+      from: people_other_page_views
+      sql_on: people.email = other_page_views_2.email
+      relationship: one_to_many
+    - join: other_page_views_3
+      from: people_other_page_views
+      sql_on: people.email = other_page_views_3.email
       relationship: one_to_many
     - join: gift_certificates
       sql_on: people.email = gift_certificates.recipient_email

@@ -81,6 +81,6 @@
     value_format: "0.00"
     sql: ${TABLE}.member_rating
     
-  - measure: count
+  - measure: activity_count
     type: count
     

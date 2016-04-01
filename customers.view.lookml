@@ -62,11 +62,11 @@
 
   - dimension: first_name
     type: string
-    sql: ${TABLE}.firstname
+    sql: CASE WHEN ${TABLE}.firstname != 'First Name' THEN ${TABLE}.firstname END
 
   - dimension: last_name
     type: string
-    sql: ${TABLE}.lastname
+    sql: CASE WHEN ${TABLE}.lastname != 'Last Name' THEN ${TABLE}.lastname END
 
   - dimension_group: created
     type: time

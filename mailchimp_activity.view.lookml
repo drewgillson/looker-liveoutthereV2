@@ -36,7 +36,7 @@
     type: string
     sql: ${TABLE}.campaign_type
 
-  - dimension: activity_status
+  - dimension: subscriber_status
     type: string
     sql: ${TABLE}.activity_status
 
@@ -65,7 +65,7 @@
     type: string
     sql: ${TABLE}.ab_split_subject_b
 
-  - dimension: campaign_status
+  - dimension: activity_status
     type: string
     sql: ${TABLE}.status
 

@@ -102,6 +102,10 @@
       sql_on: sales.order_entity_id = shipping_charges.order_id
       relationship: one_to_many
       required_joins: [sales]
+    - join: other_events
+      from: people_other_events
+      sql_on: people.email = other_events.email
+      relationship: one_to_many
 
 
 - explore: reconciliation

@@ -17,7 +17,6 @@
         FROM [mailchimp].v3api_liveoutthere_list AS a
         LEFT JOIN [mailchimp].[v3api_liveoutthere_list_activity] AS b
           ON a.id = b.subscriber_id
-        WHERE LEN(b.[timestamp]) = 25
       ) AS a
     indexes: [email, activity]
     sql_trigger_value: |
@@ -81,4 +80,7 @@
     type: avg
     value_format: "0.00"
     sql: ${TABLE}.member_rating
+    
+  - measure: count
+    type: count
     

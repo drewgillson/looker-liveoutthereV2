@@ -2,9 +2,9 @@
 - view: mailchimp_activity
   derived_table:
     sql: |
-      SELECT ROW_NUMBER() OVER (ORDER BY [activity]) AS row, a.* FROM (
+      SELECT ROW_NUMBER() OVER (ORDER BY [activity]) AS row, a.*, b.* FROM (
         SELECT a.email_address AS email
-           , a.[status]
+           , a.[status] AS activity_status
            , a.avg_open_rate
            , a.avg_click_rate
            , ISNULL(CAST(NULLIF(a.timestamp_signup,'') AS datetime),'1970-01-01') AS signup
@@ -14,10 +14,12 @@
            , b.url
            , b.campaign_id
            , b.title
-        FROM [mailchimp].v3api_liveoutthere_list AS a
-        LEFT JOIN [mailchimp].[v3api_liveoutthere_list_activity] AS b
+        FROM mailchimp.v3api_liveoutthere_list AS a
+        LEFT JOIN mailchimp.v3api_liveoutthere_list_activity AS b
           ON a.id = b.subscriber_id
       ) AS a
+      LEFT JOIN mailchimp.v3api_liveoutthere_campaigns AS b
+        ON a.campaign_id = b.campaign_id
     indexes: [email, activity]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -30,7 +32,38 @@
     type: number
     sql: ${TABLE}.row
 
-  - dimension: status
+  - dimension: campaign_type
+    type: string
+    sql: ${TABLE}.campaign_type
+
+  - dimension: activity_status
+    type: string
+    sql: ${TABLE}.activity_status
+
+  - dimension: subject_line
+    type: string
+    sql: ${TABLE}.subject_line
+
+  - dimension: title
+    type: string
+    sql: ${TABLE}.title
+
+  - dimension: utm_campaign
+    label: "UTM Tracking Value"
+    type: string
+    sql: ${TABLE}.utm_campaign
+
+  - dimension: ab_split_subject_a
+    label: "A/B Test - Subject Line A"
+    type: string
+    sql: ${TABLE}.ab_split_subject_a
+
+  - dimension: ab_split_subject_b
+    label: "A/B Test - Subject Line B"
+    type: string
+    sql: ${TABLE}.ab_split_subject_b
+
+  - dimension: campaign_status
     type: string
     sql: ${TABLE}.status
 
@@ -80,6 +113,32 @@
     type: avg
     value_format: "0.00"
     sql: ${TABLE}.member_rating
+
+  - measure: campaign_opens
+    type: sum
+    sql: ${TABLE}.opens
+
+  - measure: campaign_unique_opens
+    type: sum
+    sql: ${TABLE}.unique_opens
+
+  - measure: campaign_open_rate
+    type: avg
+    value_format: "0.00%"
+    sql: ${TABLE}.open_rate
+
+  - measure: campaign_clicks
+    type: sum
+    sql: ${TABLE}.clicks
+
+  - measure: campaign_unique_clicks
+    type: sum
+    sql: ${TABLE}.unique_clicks
+
+  - measure: campaign_click_rate
+    type: avg
+    value_format: "0.00%"
+    sql: ${TABLE}.click_rate
     
   - measure: activity_count
     type: count

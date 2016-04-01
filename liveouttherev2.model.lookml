@@ -25,13 +25,14 @@
       sql_on: cart_items_product.entity_id = cart_items_category.product_id
       relationship: one_to_many
       required_joins: [cart_items_product]
-    - join: mailchimp_activity
-      sql_on: people.email = mailchimp_activity.email
+    - join: mailchimp_activity_1
+      from: mailchimp_activity
+      sql_on: people.email = mailchimp_activity_1.email
       relationship: one_to_many
-    - join: mailchimp_campaigns
-      sql_on: mailchimp_activity.campaign_id = mailchimp_campaigns.campaign_id
-      relationship: many_to_one
-      required_joins: [mailchimp_activity]
+    - join: mailchimp_activity_2
+      from: mailchimp_activity
+      sql_on: people.email = mailchimp_activity_2.email
+      relationship: one_to_many
     - join: product_page_views
       from: people_products_page_views
       sql_on: people.email = product_page_views.email

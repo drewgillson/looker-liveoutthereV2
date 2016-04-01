@@ -25,7 +25,7 @@
       sql: ${TABLE}.email
 
     - dimension: type
-      description: "Currently either 'Brand', 'Category', or 'Department'"
+      description: "Currently either 'Brand', 'Category', 'Department', or 'Best Use'"
       type: string
       sql: ${TABLE}.affinity_type
       

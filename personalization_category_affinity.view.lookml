@@ -25,28 +25,3 @@
     indexes: [email,score]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
-    
-  fields:
-  
-    - dimension: email
-      primary_key: true
-      hidden: true
-      type: string
-      sql: ${TABLE}.email
-      
-    - dimension: value
-      description: "Categories for products viewed in the last 3 days by people who have not made a purchase in the last 30 days."
-      type: string
-      sql: ${TABLE}.category
-      
-    - dimension: affinity_score
-      description: "Rank for the category, based on the number of page views in the last 3 days. A rank of 1 is the highest value and indicates the person spent the most time looking at products in this category."
-      type: number
-      sql: ${TABLE}.score
-      
-    - measure: page_views
-      description: "Page views for category in the last 3 days."
-      type: sum
-      value_format: '0'
-      sql: ${TABLE}.page_views
-      

@@ -1,11 +1,11 @@
-- view: personalization_brand_affinity
+- view: personalization_department_affinity
   derived_table:
     sql: |
       SELECT ww.*, ROW_NUMBER() OVER (PARTITION BY email ORDER BY page_views DESC) AS score
       FROM (
         SELECT 
           people.email AS email,
-          brand,
+          department,
           COALESCE(COALESCE(        (
                   SUM(DISTINCT
                     (CAST(FLOOR(COALESCE(product_page_views.page_views,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
@@ -19,7 +19,8 @@
         LEFT JOIN ${people_products_page_views.SQL_TABLE_NAME} AS product_page_views ON people.email = product_page_views.email
         LEFT JOIN ${people_products_page_views_product.SQL_TABLE_NAME} AS product_page_views_product ON product_page_views.url_key = product_page_views_product.url_key
         WHERE product_page_views.visit >= DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )
-        GROUP BY people.email, brand
+        AND department IS NOT NULL
+        GROUP BY people.email, department
       )  AS ww
     indexes: [email,score]
     sql_trigger_value: |

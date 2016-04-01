@@ -46,12 +46,14 @@
       sql_on: product_page_views_product.entity_id = product_page_views_category.product_id
       relationship: one_to_many
       required_joins: [product_page_views_product]
-    - join: personalization_category_affinity
-      sql_on: people.email = personalization_category_affinity.email
-      relationship: one_to_one
-    - join: personalization_brand_affinity
-      sql_on: people.email = personalization_brand_affinity.email
-      relationship: one_to_one
+    - join: personalization_affinity_1
+      from: personalization_affinity
+      sql_on: people.email = personalization_affinity_1.email
+      relationship: one_to_many
+    - join: personalization_affinity_2
+      from: personalization_affinity
+      sql_on: people.email = personalization_affinity_2.email
+      relationship: one_to_many
     - join: customer_address
       from: sales_order_address
       sql_on: people.email = customer_address.email

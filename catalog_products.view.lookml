@@ -1,79 +1,85 @@
 - view: catalog_products
   derived_table:
     sql: |
-      SELECT a.sku
-           , a.entity_id
-           , a.created_at
-           , a.updated_at
-           , b.value AS colour_code
-           , c.value AS style_code
-           , CASE WHEN d.value = 'thevan' THEN 'TheVan.ca' ELSE 'LiveOutThere.com' END AS storefront
-           , f.value AS carry_over
-           , h.value AS colour
-           , i.value AS image
-           , j.value AS barcode
-           , l.value AS size
-           , CASE WHEN m.value = '17215' THEN 'Men' WHEN m.value = '17216' THEN 'Women' WHEN m.value = '17215,17216' OR m.value = '17216,17215' THEN 'Men^Women' WHEN m.value = '17213' THEN 'Boy' WHEN m.value = '17214' THEN 'Girl' WHEN m.value = '17213,17214' THEN 'Boy^Girl' WHEN m.value = '42206' THEN 'Infant' END AS department
-           , n.value AS product
-           , p.value AS brand
-           , q.value AS cost
-           , r.value AS price
-           , t.value AS season
-           , v.value AS colour_family
-           , MAX(w.parent_id) AS parent_id
-           , COUNT(DISTINCT w.parent_id) AS parent_count
-           , MIN(CAST(y.value AS int)) AS merchandise_priority
-           , '/' + z.value + '.html' AS url_key
-        FROM magento.catalog_product_entity AS a
-        LEFT JOIN magento.catalog_product_entity_varchar AS b
-          ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_varchar AS c
-          ON a.entity_id = c.entity_id AND c.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_product_id' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_varchar AS d
-          ON a.entity_id = d.entity_id AND d.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'custom_storefront' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_int AS f
-          ON a.entity_id = f.entity_id AND f.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'belongs_to_crossover_style' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_int AS g
-          ON a.entity_id = g.entity_id AND g.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'choose_color' AND entity_type_id = 4) AND g.store_id = 0
-        LEFT JOIN magento.eav_attribute_option_value AS h
-          ON g.value = h.option_id AND h.store_id = 0
-        LEFT JOIN magento.catalog_product_entity_varchar AS i
-          ON a.entity_id = i.entity_id AND i.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'image' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_varchar AS j
-          ON a.entity_id = j.entity_id AND j.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'ean' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_int AS k
-          ON a.entity_id = k.entity_id AND k.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'choose_size' AND entity_type_id = 4) AND k.store_id = 0
-        LEFT JOIN magento.eav_attribute_option_value AS l
-          ON k.value = l.option_id AND l.store_id = 0
-        LEFT JOIN magento.catalog_product_entity_varchar AS m
-          ON a.entity_id = m.entity_id AND m.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'department' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_varchar AS n
-          ON a.entity_id = n.entity_id AND n.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_int AS o
-          ON a.entity_id = o.entity_id AND o.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'manufacturer' AND entity_type_id = 4) AND o.store_id = 0
-        LEFT JOIN magento.eav_attribute_option_value AS p
-          ON o.value = p.option_id AND p.store_id = 0
-        LEFT JOIN magento.catalog_product_entity_decimal AS q
-          ON a.entity_id = q.entity_id AND q.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'cost' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_decimal AS r
-          ON a.entity_id = r.entity_id AND r.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'price' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_int AS s
-          ON a.entity_id = s.entity_id AND s.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'season_id' AND entity_type_id = 4) AND s.store_id = 0
-        LEFT JOIN magento.eav_attribute_option_value AS t
-          ON s.value = t.option_id AND t.store_id = 0
-        LEFT JOIN magento.catalog_product_entity_varchar AS u
-          ON a.entity_id = u.entity_id AND u.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'color_family' AND entity_type_id = 4) AND u.store_id = 0
-        LEFT JOIN magento.eav_attribute_option_value AS v
-          -- only join the label value for the first colour family if the varchar table contains a comma-separated string of colour family value IDs
-          ON CASE WHEN u.value LIKE '%,%' THEN LEFT(u.value,CHARINDEX(',',u.value)-1) ELSE u.value END = v.option_id AND v.store_id = 0
-        LEFT JOIN magento.catalog_product_super_link AS w
-          ON a.entity_id = w.product_id
-        LEFT JOIN magento.catalog_product_entity_varchar AS y
-          ON w.parent_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_varchar AS z
-          ON w.parent_id = z.entity_id AND z.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'url_key' AND entity_type_id = 4)
-        WHERE a.type_id = 'simple'
-        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value
+      SELECT magento.*
+           , akeneo.best_use
+      FROM (
+        SELECT a.sku
+             , a.entity_id
+             , a.created_at
+             , a.updated_at
+             , b.value AS colour_code
+             , c.value AS style_code
+             , CASE WHEN d.value = 'thevan' THEN 'TheVan.ca' ELSE 'LiveOutThere.com' END AS storefront
+             , f.value AS carry_over
+             , h.value AS colour
+             , i.value AS image
+             , j.value AS barcode
+             , l.value AS size
+             , CASE WHEN m.value = '17215' THEN 'Men' WHEN m.value = '17216' THEN 'Women' WHEN m.value = '17215,17216' OR m.value = '17216,17215' THEN 'Men^Women' WHEN m.value = '17213' THEN 'Boy' WHEN m.value = '17214' THEN 'Girl' WHEN m.value = '17213,17214' THEN 'Boy^Girl' WHEN m.value = '42206' THEN 'Infant' END AS department
+             , n.value AS product
+             , p.value AS brand
+             , q.value AS cost
+             , r.value AS price
+             , t.value AS season
+             , v.value AS colour_family
+             , MAX(w.parent_id) AS parent_id
+             , COUNT(DISTINCT w.parent_id) AS parent_count
+             , MIN(CAST(y.value AS int)) AS merchandise_priority
+             , '/' + z.value + '.html' AS url_key
+          FROM magento.catalog_product_entity AS a
+          LEFT JOIN magento.catalog_product_entity_varchar AS b
+            ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_varchar AS c
+            ON a.entity_id = c.entity_id AND c.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_product_id' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_varchar AS d
+            ON a.entity_id = d.entity_id AND d.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'custom_storefront' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_int AS f
+            ON a.entity_id = f.entity_id AND f.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'belongs_to_crossover_style' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_int AS g
+            ON a.entity_id = g.entity_id AND g.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'choose_color' AND entity_type_id = 4) AND g.store_id = 0
+          LEFT JOIN magento.eav_attribute_option_value AS h
+            ON g.value = h.option_id AND h.store_id = 0
+          LEFT JOIN magento.catalog_product_entity_varchar AS i
+            ON a.entity_id = i.entity_id AND i.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'image' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_varchar AS j
+            ON a.entity_id = j.entity_id AND j.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'ean' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_int AS k
+            ON a.entity_id = k.entity_id AND k.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'choose_size' AND entity_type_id = 4) AND k.store_id = 0
+          LEFT JOIN magento.eav_attribute_option_value AS l
+            ON k.value = l.option_id AND l.store_id = 0
+          LEFT JOIN magento.catalog_product_entity_varchar AS m
+            ON a.entity_id = m.entity_id AND m.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'department' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_varchar AS n
+            ON a.entity_id = n.entity_id AND n.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_int AS o
+            ON a.entity_id = o.entity_id AND o.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'manufacturer' AND entity_type_id = 4) AND o.store_id = 0
+          LEFT JOIN magento.eav_attribute_option_value AS p
+            ON o.value = p.option_id AND p.store_id = 0
+          LEFT JOIN magento.catalog_product_entity_decimal AS q
+            ON a.entity_id = q.entity_id AND q.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'cost' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_decimal AS r
+            ON a.entity_id = r.entity_id AND r.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'price' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_int AS s
+            ON a.entity_id = s.entity_id AND s.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'season_id' AND entity_type_id = 4) AND s.store_id = 0
+          LEFT JOIN magento.eav_attribute_option_value AS t
+            ON s.value = t.option_id AND t.store_id = 0
+          LEFT JOIN magento.catalog_product_entity_varchar AS u
+            ON a.entity_id = u.entity_id AND u.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'color_family' AND entity_type_id = 4) AND u.store_id = 0
+          LEFT JOIN magento.eav_attribute_option_value AS v
+            -- only join the label value for the first colour family if the varchar table contains a comma-separated string of colour family value IDs
+            ON CASE WHEN u.value LIKE '%,%' THEN LEFT(u.value,CHARINDEX(',',u.value)-1) ELSE u.value END = v.option_id AND v.store_id = 0
+          LEFT JOIN magento.catalog_product_super_link AS w
+            ON a.entity_id = w.product_id
+          LEFT JOIN magento.catalog_product_entity_varchar AS y
+            ON w.parent_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
+          LEFT JOIN magento.catalog_product_entity_varchar AS z
+            ON w.parent_id = z.entity_id AND z.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'url_key' AND entity_type_id = 4)
+          WHERE a.type_id = 'simple'
+          GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value
+        ) AS magento
+        LEFT JOIN ${catalog_akeneo_option_values.SQL_TABLE_NAME} AS akeneo
+          ON magento.parent_id = akeneo.parent_id
     indexes: [sku, entity_id, url_key]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -195,6 +201,11 @@
     type: number
     value_format: '$#,##0'
     sql: ${TABLE}.cost
+    
+  - dimension: best_use
+    type: string
+    description: "Activity / best use values for products collected by Suntec from REI and saved in Akeneo"
+    sql: ${TABLE}.best_use
       
   - measure: average_price
     description: "Average MSRP/price for a product"

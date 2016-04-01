@@ -9,6 +9,9 @@
       UNION ALL
       SELECT 'Department' AS affinity_type, email, department, score, page_views
       FROM ${personalization_department_affinity.SQL_TABLE_NAME}
+      UNION ALL
+      SELECT 'Best Use' AS affinity_type, email, best_use, score, page_views
+      FROM ${personalization_best_use_affinity.SQL_TABLE_NAME}
     indexes: [email,affinity_type,score]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

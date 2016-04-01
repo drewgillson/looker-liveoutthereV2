@@ -21,15 +21,3 @@
     indexes: [parent_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
-
-  fields:
-
-  - dimension: row
-    hidden: true
-    primary_key: true
-    sql: ${TABLE}.row
-
-  - dimension: best_use
-    type: string
-    description: "Activity / best use values for products collected by Suntec from REI and saved in Akeneo"
-    sql: ${TABLE}.best_use

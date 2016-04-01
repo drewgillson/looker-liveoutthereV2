@@ -174,11 +174,6 @@
     - join: stock_movements
       sql_on: products.entity_id = stock_movements.sm_product_id
       relationship: one_to_many
-    - join: product_attributes
-      from: catalog_akeneo_option_values
-      sql_on: associations.parent_id = product_attributes.parent_id
-      relationship: one_to_one
-      required_joins: [associations]
     - join: credits
       from: sales_credit_items
       sql_on: |

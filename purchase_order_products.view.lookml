@@ -65,6 +65,7 @@
     sql: MIN(${TABLE}.po_ship_date)
     
   - measure: days_to_next_ship_date
+    type: number
     description: "The number of days between now and the next ship date in the group of dimensions you have filtered"
     sql: DATEDIFF(d,GETDATE(),${next_ship_date})
 

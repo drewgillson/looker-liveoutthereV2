@@ -18,6 +18,7 @@
                              GROUP BY sku') AS a
       LEFT JOIN ${catalog_product_associations.SQL_TABLE_NAME} AS b
         ON a.sku = b.parent_sku
+      GROUP BY a.sku, b.parent_id, a.best_use
     indexes: [parent_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

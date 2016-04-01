@@ -12,14 +12,14 @@
            , b.action
            , DATEADD(hh,-7,CAST(REPLACE(LEFT(b.[timestamp],15),'T',' ') AS datetime)) AS [activity]
            , b.url
-           , b.campaign_id
-           , b.title
+           , b.campaign_id AS activity_campaign_id
+           , b.title AS activity_title
         FROM mailchimp.v3api_liveoutthere_list AS a
         LEFT JOIN mailchimp.v3api_liveoutthere_list_activity AS b
           ON a.id = b.subscriber_id
       ) AS a
       LEFT JOIN mailchimp.v3api_liveoutthere_campaigns AS b
-        ON a.campaign_id = b.campaign_id
+        ON a.activity_campaign_id = b.campaign_id
     indexes: [email, activity]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -42,11 +42,13 @@
 
   - dimension: subject_line
     type: string
-    sql: ${TABLE}.subject_line
+    sql: |
+      CASE WHEN ${TABLE}.subject_line IS NOT NULL THEN ${TABLE}.subject_line
+           WHEN ${TABLE}.action LIKE 'mandrill%' THEN ${TABLE}.activity_title END
 
-  - dimension: title
+  - dimension: activity_title
     type: string
-    sql: ${TABLE}.title
+    sql: ${TABLE}.activity_title
 
   - dimension: utm_campaign
     label: "UTM Tracking Value"
@@ -91,7 +93,7 @@
     type: string
     sql: ${TABLE}.campaign_id
 
-  - dimension: email_title
+  - dimension: campaign_title
     type: string
     sql: ${TABLE}.title
     
@@ -115,28 +117,34 @@
     sql: ${TABLE}.member_rating
 
   - measure: campaign_opens
-    type: sum
+    type: sum_distinct
+    sql_distinct_key: ${TABLE}.campaign_id
     sql: ${TABLE}.opens
 
   - measure: campaign_unique_opens
-    type: sum
+    type: sum_distinct
+    sql_distinct_key: ${TABLE}.campaign_id
     sql: ${TABLE}.unique_opens
 
   - measure: campaign_open_rate
-    type: avg
+    type: avg_distinct
+    sql_distinct_key: ${TABLE}.campaign_id
     value_format: "0.00%"
     sql: ${TABLE}.open_rate
 
   - measure: campaign_clicks
-    type: sum
+    type: sum_distinct
+    sql_distinct_key: ${TABLE}.campaign_id
     sql: ${TABLE}.clicks
 
-  - measure: campaign_unique_clicks
-    type: sum
-    sql: ${TABLE}.unique_clicks
+#  - measure: campaign_unique_clicks
+#    type: sum_distinct
+#    sql_distinct_key: ${TABLE}.campaign_id
+#    sql: ${TABLE}.unique_clicks
 
   - measure: campaign_click_rate
-    type: avg
+    type: avg_distinct
+    sql_distinct_key: ${TABLE}.campaign_id
     value_format: "0.00%"
     sql: ${TABLE}.click_rate
     

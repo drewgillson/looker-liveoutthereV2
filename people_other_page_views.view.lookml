@@ -13,7 +13,7 @@
         FROM snowplow.events AS a
         LEFT JOIN (SELECT DISTINCT url_key FROM ${catalog_products.SQL_TABLE_NAME}) AS b
           ON a.page_urlpath = b.url_key
-        WHERE a.mdt_timestamp > DATEADD(d,-56,GETDATE())
+        WHERE a.mdt_timestamp > DATEADD(d,-28,GETDATE())
         AND b.url_key IS NULL
         AND a.[user_id] LIKE '%@%.%'
         GROUP BY CONVERT(date, a.mdt_timestamp, 120), a.page_urlpath, a.[user_id]

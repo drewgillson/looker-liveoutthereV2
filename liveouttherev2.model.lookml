@@ -75,6 +75,34 @@
       sql_on: people.email = gift_certificates.recipient_email
       type: full_outer
       relationship: one_to_many
+    - join: credits
+      from: sales_credit_items
+      sql_on: |
+        sales.order_entity_id = credits.order_entity_id
+        AND sales.product_id = credits.product_id
+      relationship: one_to_many
+      required_joins: [sales]
+    - join: sales
+      from: sales_items
+      sql_on: customers.email = sales.email
+      relationship: one_to_many
+      required_joins: [credits, customers]
+    - join: sales_product
+      from: carts_items_product
+      sql_on: sales.product_id = sales_product.entity_id
+      relationship: one_to_many
+      required_joins: [sales]
+    - join: sales_product_category
+      from: catalog_categories
+      sql_on: sales.product_id = sales_product_category.product_id
+      relationship: one_to_many
+      required_joins: [sales_product]
+    - join: shipping_charges
+      from: sales_shipping_charges
+      sql_on: sales.order_entity_id = shipping_charges.order_id
+      relationship: one_to_many
+      required_joins: [sales]
+
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

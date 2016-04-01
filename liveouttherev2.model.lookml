@@ -217,9 +217,9 @@
       from: catalog_products_page_views
       sql_on: products.url_key = product_page_views.url_key
       relationship: many_to_many
-    - join: jaccard_similarity_by_brand
+    - join: brand_similarity
       from: jaccard_order_brand_affinity
-      sql_on: products.brand = jaccard_similarity_by_brand.brand_a
+      sql_on: products.brand = brand_similarity.brand_a
       relationship: many_to_one
 
 #  conditionally_filter:

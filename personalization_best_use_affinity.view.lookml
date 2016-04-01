@@ -19,6 +19,7 @@
         LEFT JOIN ${people_products_page_views.SQL_TABLE_NAME} AS product_page_views ON people.email = product_page_views.email
         LEFT JOIN ${people_products_page_views_product.SQL_TABLE_NAME} AS product_page_views_product ON product_page_views.url_key = product_page_views_product.url_key
         WHERE product_page_views.visit >= DATEADD(day,-3, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )
+        AND best_use IS NOT NULL
         GROUP BY people.email, best_use
       )  AS ww
     indexes: [email,score]

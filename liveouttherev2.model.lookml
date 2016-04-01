@@ -58,6 +58,10 @@
       from: sales_order_address
       sql_on: people.email = customer_address.email
       relationship: one_to_many
+    - join: other_page_views
+      from: people_other_page_views
+      sql_on: people.email = other_page_views.email
+      relationship: one_to_many
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

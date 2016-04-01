@@ -1,5 +1,14 @@
 - view: gift_certificates
-  sql_table_name: magento.ugiftcert_cert
+  derived_table:
+    sql: |
+      SELECT a.*, b.ts AS created FROM magento.ugiftcert_cert AS a
+      LEFT JOIN (SELECT [cert_id], ts FROM (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY [cert_id] ORDER BY ts) AS seq
+        FROM magento.ugiftcert_history
+      ) AS a
+      WHERE seq = 1) AS b
+      ON a.cert_id = b.cert_id
+      
   fields:
 
   - dimension: cert_id
@@ -11,6 +20,10 @@
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.balance
+
+  - dimension_group: created
+    type: time
+    sql: ${TABLE}.created
 
   - dimension: certificate_number
     type: string

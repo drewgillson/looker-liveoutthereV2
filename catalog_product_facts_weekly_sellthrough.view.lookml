@@ -285,17 +285,20 @@
   - measure: net_sold_quantity_1_week_ago_visible
     label: "1 Week Ago Units"
     description: "Net sold units 1 week ago"
+    type: number
     value_format: "#,##0"
     sql: ${net_sold_quantity_1_week_ago} - ${net_sold_quantity_2_weeks_ago}
     
   - measure: net_sold_quantity_2_weeks_ago_visible
     label: "2 Weeks Ago Units"
     description: "Net sold units 2 weeks ago"
+    type: number
     value_format: "#,##0"
     sql: ${net_sold_quantity_2_weeks_ago} - ${net_sold_quantity_3_weeks_ago}
 
   - measure: net_sold_quantity_3_weeks_ago_visible
     label: "3 Weeks Ago Units"
     description: "Net sold units 3 weeks ago"
+    type: number
     value_format: "#,##0"
     sql: ${net_sold_quantity_3_weeks_ago} - ${net_sold_quantity_4_weeks_ago}

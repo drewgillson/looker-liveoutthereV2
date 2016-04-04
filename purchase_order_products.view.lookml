@@ -219,7 +219,7 @@
 
   - measure: row_qty
     description: "Number of units that were ordered"
-    label: "Ordered Quantity"
+    label: "Quantity On Order"
     type: sum
     sql: ${TABLE}.pop_qty
 

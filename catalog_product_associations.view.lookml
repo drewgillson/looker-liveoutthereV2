@@ -15,3 +15,7 @@
     primary_key: true
     hidden: true
     sql: ${TABLE}.link_id
+    
+  - dimension: configurable_sku
+    label: "Configurable SKU"
+    sql: ${TABLE}.parent_sku

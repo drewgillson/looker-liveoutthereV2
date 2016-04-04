@@ -227,3 +227,8 @@
     label: "Count of GTIN/UPC"
     type: count_distinct
     sql: ${gtin}
+    
+  - measure: count_long_product_name
+    description: "Unique count of Long Product Name"
+    type: count_distinct
+    sql: ${long_product_name}

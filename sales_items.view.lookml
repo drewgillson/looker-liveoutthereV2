@@ -31,7 +31,7 @@
             , qty
             , CASE WHEN d.type_id LIKE '%gift%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS deferred_revenue
             -- fix an issue where some sales_invoice_items are actually configurable products, and won't have a match in the Products view
-            , COALESCE(d.entity_id, a.product_id) AS product_id
+            , COALESCE(d.entity_id, a.product_id, -1) AS product_id
             , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
             , b.subtotal_incl_tax - ISNULL(b.discount_amount,0) AS invoice_total
             , b.customer_credit_amount AS customer_credit_total
@@ -57,7 +57,7 @@
           , 0 AS discount_amount
           , 1 AS qty
           , NULL AS deferred_revenue
-          , NULL AS product_id
+          , -1 AS product_id
           , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
           , NULL
         FROM magento.sales_flat_invoice AS a
@@ -102,7 +102,7 @@
             , 0 AS discount_amount
             , [order-line_items-quantity] AS qty
             , NULL AS deferred_revenue
-            , b.entity_id AS product_id
+            , COALESCE(b.entity_id, -1) AS product_id
             , 'TheVan.ca' AS storefront
             , NULL
         FROM shopify.order_items AS a

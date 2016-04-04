@@ -41,7 +41,7 @@
         , b.increment_id AS creditmemo_increment_id
         , b.entity_id AS creditmemo_entity_id
         , 'Return' AS request_type
-        , a.product_id
+        , COALESCE(a.product_id,-1)
         , a.qty AS refunded_qty
         , a.row_total - ISNULL(a.discount_amount,0) AS refund_for_return
         , NULL AS refund_for_other_reason
@@ -62,7 +62,7 @@
         , a.[order-order_number] AS creditmemo_increment_id
         , b.[order-id] AS creditmemo_entity_id
         , 'Return' AS request_type
-        , c.entity_id AS product_id
+        , COALESCE(c.entity_id,-1) AS product_id
         , [order-line_items-total_refunded_quantity] AS refunded_qty
         , [order-line_items-total_refunded] - ([order-line_items-total_refunded] - ([order-line_items-total_refunded] / (1 + [order-tax_lines-rate]))) AS [refund_for_return]
         , NULL AS refund_for_other_reason

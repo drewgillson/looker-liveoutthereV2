@@ -190,7 +190,8 @@
     sql: ${TABLE}.quantity_sold_4_weeks_ago
 
   - measure: net_sold_quantity_4_weeks_ago
-    label: "4 Weeks Ago Net Sold Units"
+    label: "4 Weeks Ago #"
+    description: "Net sold units 4 weeks ago"
     type: number
     sql: ${quantity_sold_4_weeks_ago} - ${quantity_returned_4_weeks_ago}
 
@@ -217,7 +218,8 @@
     sql: ${TABLE}.quantity_sold_3_weeks_ago
 
   - measure: net_sold_quantity_3_weeks_ago
-    label: "3 Weeks Ago Net Sold Units"
+    label: "3 Weeks Ago #"
+    description: "Net sold units 3 weeks ago"
     type: number
     sql: ${quantity_sold_3_weeks_ago} - ${quantity_returned_3_weeks_ago}
 
@@ -244,7 +246,8 @@
     sql: ${TABLE}.quantity_sold_2_weeks_ago
 
   - measure: net_sold_quantity_2_weeks_ago
-    label: "2 Weeks Ago Net Sold Units"
+    label: "2 Weeks Ago #"
+    description: "Net sold units 2 weeks ago"
     type: number
     sql: ${quantity_sold_2_weeks_ago} - ${quantity_returned_2_weeks_ago}
 
@@ -271,7 +274,8 @@
     sql: ${TABLE}.quantity_sold_1_week_ago
 
   - measure: net_sold_quantity_1_week_ago
-    label: "1 Week Ago Net Sold Units"
+    label: "1 Week Ago #"
+    description: "Net sold units 1 week ago"
     type: number
     sql: ${quantity_sold_1_week_ago} - ${quantity_returned_1_week_ago}
 

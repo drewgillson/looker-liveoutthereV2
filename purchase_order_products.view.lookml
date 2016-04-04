@@ -94,6 +94,10 @@
     label: "Season"
     sql: ${TABLE}.po_carrier
 
+  - dimension: is_not_cancelled
+    type: yesno
+    sql: ${TABLE}.po_status != 'cancelled' OR ${TABLE}.po_status IS NULL
+
   - dimension: status
     description: "Current status of the purchase order"
     sql_case:

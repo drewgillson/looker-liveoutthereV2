@@ -94,10 +94,6 @@
     label: "Season"
     sql: ${TABLE}.po_carrier
 
-  - dimension: is_not_cancelled
-    type: yesno
-    sql: ${TABLE}.po_status != 'cancelled' OR ${TABLE}.po_status IS NULL
-
   - dimension: status
     description: "Current status of the purchase order"
     sql_case:
@@ -219,9 +215,14 @@
 
   - measure: row_qty
     description: "Number of units that were ordered"
-    label: "Quantity On Order"
+    label: "Ordered Quantity"
     type: sum
     sql: ${TABLE}.pop_qty
+
+  - measure: quantity_on_order
+    description: "Number of units that are still on order from purchase orders that don't have a recorded arrival date and have not been cancelled."
+    type: sum
+    sql: CASE WHEN ${TABLE}.po_status != 'cancelled' AND ${TABLE}.po_arrival_date IS NULL THEN ${TABLE}.pop_qty END
 
   - measure: row_delivered_qty
     description: "Number of units that were delivered"

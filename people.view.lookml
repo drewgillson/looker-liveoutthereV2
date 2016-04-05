@@ -8,6 +8,9 @@
         SELECT customer_email
         FROM magento.sales_flat_quote
         UNION ALL
+        SELECT customer_email
+        FROM magento.sales_flat_order
+        UNION ALL
         SELECT email_address
         FROM mailchimp.v3api_liveoutthere_list
         UNION ALL

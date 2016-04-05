@@ -253,6 +253,14 @@
       from: jaccard_order_brand_affinity
       sql_on: products.brand = brand_similarity.brand_a
       relationship: many_to_one
+    - join: available_colours
+      from: catalog_product_available_colours
+      sql_on: associations.parent_sku = available_colours.configurable_sku
+      relationship: one_to_one
+    - join: available_sizes
+      from: catalog_product_available_sizes
+      sql_on: associations.parent_sku = available_sizes.configurable_sku
+      relationship: one_to_one
 
 #  conditionally_filter:
 #    facts.is_in_stock: '%'

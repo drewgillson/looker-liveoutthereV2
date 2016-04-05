@@ -1,19 +1,23 @@
 - view: customers
   derived_table:
     sql: |
-      SELECT * FROM (
-        SELECT a.entity_id
-             , a.email
-             , e.value AS firstname
-             , f.value AS lastname
-             , a.created_at
-             , a.updated_at
-             , a.is_active
-             , d.customer_group_code
-             , b.value AS date_of_birth
-             , c.value AS member_until
-             , CASE WHEN g.value = 1 THEN 'Male' WHEN g.value = 2 THEN 'Female' END AS gender
-        FROM magento.customer_entity AS a
+      SELECT ROW_NUMBER() OVER (ORDER BY created_at) AS entity_id, * FROM (
+        SELECT s.customer_email AS email
+           , COALESCE(MAX(e.value), MAX(s.customer_firstname)) AS firstname
+           , COALESCE(MAX(f.value), MAX(s.customer_lastname)) AS lastname
+           , COALESCE(MIN(a.created_at), MIN(s.created_at)) AS created_at
+           , COALESCE(MAX(a.updated_at), MAX(s.created_at)) AS updated_at
+           , COALESCE(MAX(a.is_active), 1) AS is_active
+           , ISNULL(MAX(d.customer_group_code), 'Guest') AS customer_group_code
+           , MAX(b.value) AS date_of_birth
+           , MAX(c.value) AS member_until
+           , CASE WHEN MAX(g.value) = 1 THEN 'Male' WHEN MAX(g.value) = 2 THEN 'Female' END AS gender
+           , MIN(s.created_at) AS first_order
+           , MAX(s.created_at) AS last_order
+           , COUNT(DISTINCT s.entity_id) AS orders
+        FROM magento.sales_flat_order AS s
+        LEFT JOIN magento.customer_entity AS a
+          ON s.customer_id = a.entity_id
         LEFT JOIN magento.customer_entity_datetime AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'dob' AND entity_type_id = 1)
         LEFT JOIN magento.customer_entity_datetime AS c
@@ -26,12 +30,10 @@
           ON a.entity_id = f.entity_id AND f.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'lastname' AND entity_type_id = 1)
         LEFT JOIN magento.customer_entity_int AS g
           ON a.entity_id = g.entity_id AND g.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'gender' AND entity_type_id = 1)
+        GROUP BY s.customer_email
       ) AS a
       LEFT JOIN (
         SELECT a.email AS customer_email
-          , COUNT(DISTINCT a.order_entity_id) AS orders
-          , MIN(a.order_created) AS first_order
-          , MAX(a.order_created) AS last_order
           , CASE WHEN MIN(a.order_created) >= MIN(b.first_created) THEN DATEDIFF(d, MIN(b.first_created), MIN(a.order_created)) ELSE NULL END AS days_to_1st_purchase
           , CAST(AVG(a.row_total / a.qty) AS money) AS avg_item_price
           , SUM(a.row_total) AS sales
@@ -130,6 +132,11 @@
     label: "Unique Customer Count"
     type: count_distinct
     sql: ${email}
+
+  - measure: unique_customers_running_count
+    label: "Unique Customer Count Running Total"
+    type: running_total
+    sql: ${unique_customers}
 
   - measure: average_orders_per_customer
     type: number

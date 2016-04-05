@@ -12,6 +12,9 @@
            , MAX(b.value) AS date_of_birth
            , MAX(c.value) AS member_until
            , CASE WHEN MAX(g.value) = 1 THEN 'Male' WHEN MAX(g.value) = 2 THEN 'Female' END AS gender
+           , MIN(s.created_at) AS first_order
+           , MAX(s.created_at) AS last_order
+           , COUNT(DISTINCT s.entity_id) AS orders
         FROM magento.sales_flat_order AS s
         LEFT JOIN magento.customer_entity AS a
           ON s.customer_id = a.entity_id
@@ -31,9 +34,6 @@
       ) AS a
       LEFT JOIN (
         SELECT a.email AS customer_email
-          , COUNT(DISTINCT a.order_entity_id) AS orders
-          , MIN(a.order_created) AS first_order
-          , MAX(a.order_created) AS last_order
           , CASE WHEN MIN(a.order_created) >= MIN(b.first_created) THEN DATEDIFF(d, MIN(b.first_created), MIN(a.order_created)) ELSE NULL END AS days_to_1st_purchase
           , CAST(AVG(a.row_total / a.qty) AS money) AS avg_item_price
           , SUM(a.row_total) AS sales

@@ -179,7 +179,7 @@
     label: "Refunded Tax $"
     description: "Amount of tax refunded"
     type: sum
-    value_format: '$#,##0'
+    value_format: '$#,##0.00'
     sql: ${TABLE}.refunded_tax
 
   - measure: refunded_total

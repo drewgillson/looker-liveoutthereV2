@@ -11,6 +11,7 @@
          , b.reporting_category_level3
          , b.reporting_category_level4
          , b.reporting_category_level5
+         , ROW_NUMBER() OVER (PARTITION BY a.product_id ORDER BY LEN(a.category_name) DESC) AS sequence
       FROM (
         SELECT DISTINCT REPLACE(b.name + ISNULL('/' + c.name,'') + ISNULL('/' + d.name,''),'LiveOutThere.com/','') AS category_name
            , f.entity_id AS product_id
@@ -40,6 +41,12 @@
     hidden: true
     primary_key: true
     sql: ${TABLE}.product_id
+
+  - dimension: sequence
+    description: "Use this sequence dimension to remove duplicate categories from your looks, by filtering this dimension to 1, you can only show the 'longest' category for a product, which is usually the most specific category as well."
+    type: number
+    value_format: "0"
+    sql: ${TABLE}.sequence
 
   - dimension: is_categorized
     description: "Does the product belong to a category in our master list of categories?"

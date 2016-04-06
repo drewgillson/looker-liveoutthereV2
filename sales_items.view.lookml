@@ -1,7 +1,11 @@
 - view: sales_items
   derived_table:
     sql: |
-      SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row, a.*, (qty * average_cost.value) AS extended_cost FROM (
+      SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row
+        , a.*
+        , (qty * average_cost.value) AS extended_cost
+        , 1 - (row_total / (qty * msrp.price)) AS discount_percentage_from_msrp
+      FROM (
         SELECT email 
            , order_created
            , invoice_created
@@ -122,6 +126,8 @@
         GROUP BY pop_product_id
       ) AS average_cost
       ON a.product_id = average_cost.pop_product_id
+      LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS msrp
+      ON a.product_id = msrp.entity_id
     indexes: [email, order_entity_id, order_increment_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -248,6 +254,12 @@
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.customer_credit_amount
+
+  - measure: discount
+    label: "Discount %"
+    type: avg
+    value_format: '#%' 
+    sql: ${TABLE}.discount_percentage_from_msrp
 
   - measure: cart_discount_amount
     label: "Cart Discount Amount $"

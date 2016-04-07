@@ -59,6 +59,7 @@
     sql: ${TABLE}.entity_id
 
   - dimension: email
+    hidden: true
     description: "Email addresses associated with Magento orders"
     sql: LOWER(${TABLE}.email)
 

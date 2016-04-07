@@ -30,6 +30,7 @@
     sql: ${TABLE}.cert_number
 
   - dimension: recipient_email
+    hidden: true
     type: string
     sql: ${TABLE}.recipient_email
 

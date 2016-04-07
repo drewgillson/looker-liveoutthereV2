@@ -35,6 +35,7 @@
     sql: ${TABLE}.review_id
 
   - dimension: customer_email
+    hidden: true
     description: "Email address of the customer who left the review"
     sql: ${TABLE}.customer_email
 

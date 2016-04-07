@@ -62,7 +62,7 @@
     
   - measure: next_ship_date
     description: "The earliest ship date in the group of dimensions you have filtered"
-    sql: MIN(${TABLE}.po_ship_date)
+    sql: MIN(CASE WHEN ${TABLE}.po_status != 'cancelled' AND ${TABLE}.po_arrival_date IS NULL AND ${TABLE}.po_cancel_date > GETDATE() THEN ${TABLE}.po_ship_date END)
     
   - measure: days_to_next_ship_date
     type: number
@@ -222,7 +222,7 @@
   - measure: quantity_on_order
     description: "Number of units that are still on order from purchase orders that don't have a recorded arrival date and have not been cancelled."
     type: sum
-    sql: CASE WHEN ${TABLE}.po_status != 'cancelled' AND ${TABLE}.po_arrival_date IS NULL THEN ${TABLE}.pop_qty END
+    sql: CASE WHEN ${TABLE}.po_status != 'cancelled' AND ${TABLE}.po_arrival_date IS NULL AND ${TABLE}.po_cancel_date > GETDATE() THEN ${TABLE}.pop_qty END
 
   - measure: row_delivered_qty
     description: "Number of units that were delivered"

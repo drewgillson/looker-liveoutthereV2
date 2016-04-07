@@ -269,7 +269,6 @@
       sql_on: associations.parent_sku = available_sizes.configurable_sku
       relationship: one_to_one
 
-#  conditionally_filter:
-#    facts.is_in_stock: '%'
-#    unless:
-#      - facts.is_in_stock
+- explore: weekly_business_review
+  from: reports_weekly_business_review
+  hidden: true

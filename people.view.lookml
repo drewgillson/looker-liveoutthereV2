@@ -32,3 +32,7 @@
     primary_key: true
     type: string
     sql: ${TABLE}.email
+    
+  - measure: count
+    type: count_distinct
+    sql: ${TABLE}.email

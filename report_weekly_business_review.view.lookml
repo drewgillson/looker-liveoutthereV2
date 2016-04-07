@@ -14,7 +14,11 @@
            , sales_14_days_ago_for_7_days.dollars AS sales_dollars_14_days_ago_for_7_days
            , sales_21_days_ago_for_7_days.dollars AS sales_dollars_21_days_ago_for_7_days
            , sales_28_days_ago_for_7_days.dollars AS sales_dollars_28_days_ago_for_7_days
-         
+           , on_hand_90_days.quantity_available_to_sell AS units_on_hand_last_receipt_within_90_days
+           , on_hand_90_days.sales_opportunity AS dollars_on_hand_last_receipt_within_90_days
+           , on_hand_before_90_days.quantity_available_to_sell AS units_on_hand_last_receipt_before_90_days_ago
+           , on_hand_before_90_days.sales_opportunity AS dollars_on_hand_last_receipt_before_90_days_ago
+      
       FROM ${catalog_products.SQL_TABLE_NAME} AS products
       
       LEFT JOIN (
@@ -180,7 +184,35 @@
       ) AS sales_28_days_ago_for_7_days
       ON products.parent_id = sales_28_days_ago_for_7_days.parent_id
       AND products.colour = sales_28_days_ago_for_7_days.colour
+      
+      LEFT JOIN (
+        SELECT 
+          products.parent_id,
+          products.colour,
+          (COALESCE(SUM(product_facts.quantity_on_hand),0)) - (COALESCE(SUM(product_facts.quantity_reserved),0)) AS quantity_available_to_sell,
+          COALESCE(SUM(product_facts.total_sales_opportunity),0) AS sales_opportunity
+        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
+        WHERE product_facts.last_receipt >= (DATEADD(day,-89, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND product_facts.last_receipt < (DATEADD(day,90, DATEADD(day,-89, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME))))
+        GROUP BY products.parent_id, products.colour
+      ) AS on_hand_90_days
+      ON products.parent_id = on_hand_90_days.parent_id
+      AND products.colour = on_hand_90_days.colour
 
+      LEFT JOIN (
+        SELECT 
+          products.parent_id,
+          products.colour,
+          (COALESCE(SUM(product_facts.quantity_on_hand),0)) - (COALESCE(SUM(product_facts.quantity_reserved),0)) AS quantity_available_to_sell,
+          COALESCE(SUM(product_facts.total_sales_opportunity),0) AS sales_opportunity
+        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
+        WHERE product_facts.last_receipt < (DATEADD(day,-90, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ))
+        GROUP BY products.parent_id, products.colour
+      ) AS on_hand_before_90_days
+      ON products.parent_id = on_hand_before_90_days.parent_id
+      AND products.colour = on_hand_before_90_days.colour
+      
       GROUP BY products.parent_id
       , products.brand + ' ' + ISNULL(CASE WHEN products.department NOT LIKE '%^%' THEN products.department END,'') + ' ' + ISNULL(products.product,'')
       , products.colour
@@ -194,6 +226,10 @@
       , sales_14_days_ago_for_7_days.dollars
       , sales_21_days_ago_for_7_days.dollars
       , sales_28_days_ago_for_7_days.dollars
+      , on_hand_90_days.quantity_available_to_sell
+      , on_hand_90_days.sales_opportunity
+      , on_hand_before_90_days.quantity_available_to_sell
+      , on_hand_before_90_days.sales_opportunity
 
     indexes: [long_product_name]
     sql_trigger_value: |
@@ -265,3 +301,28 @@
       sql_distinct_key: ${parent_id} + ${TABLE}.colour
       value_format: '$0'
       sql: ${TABLE}.sales_dollars_28_days_ago_for_7_days
+
+    - measure: units_on_hand_last_receipt_within_90_days
+      type: sum_distinct
+      sql_distinct_key: ${parent_id} + ${TABLE}.colour
+      value_format: '0'
+      sql: ${TABLE}.units_on_hand_last_receipt_within_90_days
+      
+    - measure: dollars_on_hand_last_receipt_within_90_days
+      type: sum_distinct
+      sql_distinct_key: ${parent_id} + ${TABLE}.colour
+      value_format: '$0'
+      sql: ${TABLE}.dollars_on_hand_last_receipt_within_90_days
+      
+    - measure: units_on_hand_last_receipt_before_90_days_ago
+      type: sum_distinct
+      sql_distinct_key: ${parent_id} + ${TABLE}.colour
+      value_format: '0'
+      sql: ${TABLE}.units_on_hand_last_receipt_before_90_days_ago
+      
+    - measure: dollars_on_hand_last_receipt_before_90_days_ago
+      type: sum_distinct
+      sql_distinct_key: ${parent_id} + ${TABLE}.colour
+      value_format: '$0'
+      sql: ${TABLE}.dollars_on_hand_last_receipt_before_90_days_ago
+

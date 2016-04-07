@@ -106,7 +106,10 @@
       from: people_other_events
       sql_on: people.email = other_events.email
       relationship: one_to_many
-
+    - join: page_views_with_utm_parameters
+      from: people_other_utm_visits
+      sql_on: people.email = page_views_with_utm_parameters.email
+      relationship: one_to_many
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

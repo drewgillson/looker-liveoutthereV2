@@ -1,7 +1,16 @@
 - view: personalization_affinity_8_weeks
   derived_table:
     sql: |
-      SELECT 'Best Use' AS affinity_type, email, best_use AS value, score, page_views
+      SELECT 'Brand' AS affinity_type, email, brand AS value, score, page_views
+      FROM ${personalization_brand_affinity_8_weeks.SQL_TABLE_NAME}
+      UNION ALL
+      SELECT 'Category' AS affinity_type, email, category, score, page_views
+      FROM ${personalization_category_affinity_8_weeks.SQL_TABLE_NAME}
+      UNION ALL
+      SELECT 'Department' AS affinity_type, email, department, score, page_views
+      FROM ${personalization_department_affinity_8_weeks.SQL_TABLE_NAME}
+      UNION ALL
+      SELECT 'Best Use' AS affinity_type, email, best_use, score, page_views
       FROM ${personalization_best_use_affinity_8_weeks.SQL_TABLE_NAME}
     indexes: [email,affinity_type,score]
     sql_trigger_value: |

@@ -272,3 +272,9 @@
 - explore: weekly_business_review
   from: reports_weekly_business_review
   hidden: true
+  joins:
+    - join: categories
+      from: catalog_categories
+      sql_on: weekly_business_review.parent_id = categories.product_id
+      relationship: one_to_many
+      

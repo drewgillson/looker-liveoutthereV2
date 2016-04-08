@@ -18,8 +18,8 @@
            , on_hand_90_days.sales_opportunity AS dollars_on_hand_last_receipt_within_90_days
            , on_hand_before_90_days.quantity_available_to_sell AS units_on_hand_last_receipt_before_90_days_ago
            , on_hand_before_90_days.sales_opportunity AS dollars_on_hand_last_receipt_before_90_days_ago
-           , quantity_on_order.last_receipt_date
-           , quantity_on_order.last_sold_date
+           , last_receipt_sold_date.last_receipt_date
+           , last_receipt_sold_date.last_sold_date
            , quantity_on_order.days_of_inventory_remaining
            , quantity_on_order.days_to_next_ship_date
            , quantity_on_order.next_ship_date
@@ -218,13 +218,27 @@
       ) AS on_hand_before_90_days
       ON products.parent_id = on_hand_before_90_days.parent_id
       AND products.colour = on_hand_before_90_days.colour
-      
+
       LEFT JOIN (
         SELECT 
           products.parent_id,
           products.colour,
           CONVERT(VARCHAR(10),product_facts.last_receipt,120) AS last_receipt_date,
           CONVERT(VARCHAR(10),product_facts.last_sold,120) AS last_sold_date,
+        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
+        LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id
+        WHERE 
+          NOT(products.brand = 'LiveOutThere.com')
+        GROUP BY products.parent_id, products.colour
+      ) AS last_receipt_sold_date
+      ON a.parent_id = last_receipt_sold_date
+      AND a.colour = last_receipt_sold_date.colour
+      
+      LEFT JOIN (
+        SELECT 
+          products.parent_id,
+          products.colour,
           CASE WHEN ((COALESCE(COALESCE(        (
                   SUM(DISTINCT
                     (CAST(FLOOR(COALESCE(product_facts.quantity_on_hand,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
@@ -360,8 +374,8 @@
       , on_hand_90_days.sales_opportunity
       , on_hand_before_90_days.quantity_available_to_sell
       , on_hand_before_90_days.sales_opportunity
-      , quantity_on_order.last_receipt_date
-      , quantity_on_order.last_sold_date
+      , last_receipt_sold_date.last_receipt_date
+      , last_receipt_sold_date.last_sold_date
       , quantity_on_order.days_of_inventory_remaining
       , quantity_on_order.days_to_next_ship_date
       , quantity_on_order.next_ship_date
@@ -461,6 +475,11 @@
       sql_distinct_key: ${parent_id} + ${TABLE}.colour
       value_format: '$0'
       sql: ${TABLE}.dollars_on_hand_last_receipt_before_90_days_ago
+
+    - measure: total_units_on_hand
+      type: number
+      value_format: '0'
+      sql: ${units_on_hand_last_receipt_within_90_days} + ${units_on_hand_last_receipt_before_90_days_ago}
 
     - dimension_group: last_receipt
       type: time

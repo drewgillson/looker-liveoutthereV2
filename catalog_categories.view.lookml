@@ -27,7 +27,6 @@
         LEFT JOIN magento.catalog_product_entity AS f
           ON e.product_id = f.entity_id
         WHERE (a.entity_id = 2261 OR a.entity_id = 1)
-        AND f.type_id = 'simple'
       ) AS a
       LEFT JOIN lut_Messy_Category_Data AS b
         ON a.category_name = b.category

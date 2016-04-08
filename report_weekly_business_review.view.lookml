@@ -224,7 +224,7 @@
           products.parent_id,
           products.colour,
           CONVERT(VARCHAR(10),product_facts.last_receipt,120) AS last_receipt_date,
-          CONVERT(VARCHAR(10),product_facts.last_sold,120) AS last_sold_date,
+          CONVERT(VARCHAR(10),product_facts.last_sold,120) AS last_sold_date
         FROM ${catalog_products.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
         LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id

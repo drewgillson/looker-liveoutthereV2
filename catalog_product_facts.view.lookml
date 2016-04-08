@@ -288,6 +288,7 @@
     description: "Quantity on hand minus quantity reserved for orders that haven't shipped"
     type: number
     sql: ${quantity_on_hand} - ${quantity_reserved}
+    drill_fields: [products.long_product_name, products.sku]
 
   - measure: skus_available_to_sell
     label: "SKUs Available to Sell"

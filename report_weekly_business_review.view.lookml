@@ -230,7 +230,7 @@
         LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id
         WHERE 
           NOT(products.brand = 'LiveOutThere.com')
-        GROUP BY products.parent_id, products.colour
+        GROUP BY products.parent_id, products.colour, CONVERT(VARCHAR(10),product_facts.last_receipt,120), CONVERT(VARCHAR(10),product_facts.last_sold,120)
       ) AS last_receipt_sold_date
       ON a.parent_id = last_receipt_sold_date
       AND a.colour = last_receipt_sold_date.colour
@@ -322,10 +322,7 @@
         
         WHERE 
           NOT(products.brand = 'LiveOutThere.com')
-        GROUP BY products.parent_id
-          , products.colour
-          ,CONVERT(VARCHAR(10),product_facts.last_receipt,120)
-          ,CONVERT(VARCHAR(10),product_facts.last_sold,120)
+        GROUP BY products.parent_id, products.colour
         HAVING 
           ((COALESCE(COALESCE(        (
                   SUM(DISTINCT

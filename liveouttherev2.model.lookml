@@ -97,6 +97,13 @@
       sql_on: sales.product_id = sales_product_category.product_id
       relationship: one_to_many
       required_joins: [sales_product]
+    - join: reviews
+      from: catalog_product_reviews
+      sql_on: |
+        sales_product.parent_id = reviews.entity_id
+        AND people.email = reviews.customer_email
+      relationship: one_to_many
+      required_joins: [sales_product]
     - join: shipping_charges
       from: sales_shipping_charges
       sql_on: sales.order_entity_id = shipping_charges.order_id

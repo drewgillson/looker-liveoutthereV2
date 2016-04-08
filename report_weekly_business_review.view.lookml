@@ -18,6 +18,12 @@
            , on_hand_90_days.sales_opportunity AS dollars_on_hand_last_receipt_within_90_days
            , on_hand_before_90_days.quantity_available_to_sell AS units_on_hand_last_receipt_before_90_days_ago
            , on_hand_before_90_days.sales_opportunity AS dollars_on_hand_last_receipt_before_90_days_ago
+           , quantity_on_order.last_receipt_date
+           , quantity_on_order.last_sold_date
+           , quantity_on_order.days_of_inventory_remaining
+           , quantity_on_order.days_to_next_ship_date
+           , quantity_on_order.next_ship_date
+           , quantity_on_order.quantity_on_order
       
       FROM ${catalog_products.SQL_TABLE_NAME} AS products
       
@@ -213,6 +219,130 @@
       ON products.parent_id = on_hand_before_90_days.parent_id
       AND products.colour = on_hand_before_90_days.colour
       
+      LEFT JOIN (
+        SELECT 
+          products.parent_id,
+          products.colour,
+          CONVERT(VARCHAR(10),product_facts.last_receipt,120) AS last_receipt_date,
+          CONVERT(VARCHAR(10),product_facts.last_sold,120) AS last_sold_date,
+          CASE WHEN ((COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_on_hand,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0)) - (COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_reserved,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0))) > 0 AND (((COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_on_hand,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0)) - (COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_reserved,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0))) / NULLIF(((COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_sold_last_30_days,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0)) / 30.0),0)) IS NULL THEN 9999 ELSE (((COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_on_hand,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0)) - (COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_reserved,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0))) / NULLIF(((COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_sold_last_30_days,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0)) / 30.0),0)) END
+          AS days_of_inventory_remaining,
+          DATEDIFF(d,GETDATE(),(MIN(CASE WHEN purchase_orders.po_status != 'cancelled' AND purchase_orders.po_arrival_date IS NULL AND purchase_orders.po_cancel_date > GETDATE() THEN purchase_orders.po_ship_date END))) AS days_to_next_ship_date,
+          MIN(CASE WHEN purchase_orders.po_status != 'cancelled' AND purchase_orders.po_arrival_date IS NULL AND purchase_orders.po_cancel_date > GETDATE() THEN purchase_orders.po_ship_date END) AS next_ship_date,
+          COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(CASE WHEN purchase_orders.po_status != 'cancelled' AND purchase_orders.po_arrival_date IS NULL AND purchase_orders.po_cancel_date > GETDATE() THEN purchase_orders.pop_qty END,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0) AS quantity_on_order
+        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
+        LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id
+        
+        WHERE 
+          NOT(products.brand = 'LiveOutThere.com')
+        GROUP BY products.parent_id
+          , products.colour
+          ,CONVERT(VARCHAR(10),product_facts.last_receipt,120)
+          ,CONVERT(VARCHAR(10),product_facts.last_sold,120)
+        HAVING 
+          ((COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_on_hand,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0)) - (COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(product_facts.quantity_reserved,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_facts.product_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0))) > 0 AND 
+          (COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(CASE WHEN purchase_orders.po_status != 'cancelled' AND purchase_orders.po_arrival_date IS NULL AND purchase_orders.po_cancel_date > GETDATE() THEN purchase_orders.pop_qty END,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
+          ,0),0) > 0)
+      ) AS quantity_on_order
+      ON products.parent_id = quantity_on_order.parent_id
+      AND products.colour = quantity_on_order.colour
+      
       GROUP BY products.parent_id
       , products.brand + ' ' + ISNULL(CASE WHEN products.department NOT LIKE '%^%' THEN products.department END,'') + ' ' + ISNULL(products.product,'')
       , products.colour
@@ -230,6 +360,12 @@
       , on_hand_90_days.sales_opportunity
       , on_hand_before_90_days.quantity_available_to_sell
       , on_hand_before_90_days.sales_opportunity
+      , quantity_on_order.last_receipt_date
+      , quantity_on_order.last_sold_date
+      , quantity_on_order.days_of_inventory_remaining
+      , quantity_on_order.days_to_next_ship_date
+      , quantity_on_order.next_ship_date
+      , quantity_on_order.quantity_on_order
 
     indexes: [long_product_name]
     sql_trigger_value: |
@@ -326,3 +462,35 @@
       value_format: '$0'
       sql: ${TABLE}.dollars_on_hand_last_receipt_before_90_days_ago
 
+    - dimension_group: last_receipt
+      type: time
+      timeframes: [date]
+      sql: ${TABLE}.last_receipt_date
+      
+    - dimension_group: last_sold
+      type: time
+      timeframes: [date]
+      sql: ${TABLE}.last_sold_date
+    
+    - measure: days_of_inventory_remaining
+      type: avg_distinct
+      sql_distinct_key: ${parent_id} + ${TABLE}.colour
+      value_format: '0'
+      sql: ${TABLE}.days_of_inventory_remaining
+    
+    - measure: days_to_next_ship_date
+      type: avg_distinct
+      sql_distinct_key: ${parent_id} + ${TABLE}.colour
+      value_format: '0'
+      sql: ${TABLE}.days_to_next_ship_date
+    
+    - dimension_group: next_ship
+      type: time
+      timeframes: [date]
+      sql: ${TABLE}.next_ship_date
+
+    - measure: quantity_on_order
+      type: sum_distinct
+      sql_distinct_key: ${parent_id} + ${TABLE}.colour
+      value_format: '0'
+      sql: ${TABLE}.quantity_on_order

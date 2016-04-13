@@ -4,6 +4,7 @@
       SELECT products.parent_id AS parent_id
            , products.brand + ' ' + ISNULL(CASE WHEN products.department NOT LIKE '%^%' THEN products.department END,'') + ' ' + ISNULL(products.product,'') AS long_product_name
            , products.colour AS colour
+           , products.storefront AS storefront
            , page_views_last_7_days.value AS page_views_last_7_days
            , page_views_14_days_ago_for_7_days.value AS page_views_14_days_ago_for_7_days
            , sales_last_7_days.units AS sales_units_last_7_days
@@ -357,6 +358,7 @@
       GROUP BY products.parent_id
       , products.brand + ' ' + ISNULL(CASE WHEN products.department NOT LIKE '%^%' THEN products.department END,'') + ' ' + ISNULL(products.product,'')
       , products.colour
+      , products.storefront
       , page_views_last_7_days.value
       , page_views_14_days_ago_for_7_days.value
       , sales_last_7_days.units
@@ -394,6 +396,9 @@
 
     - dimension: colour
       sql: ${TABLE}.colour
+      
+    - dimension: storefront
+      sql: ${TABLE}.storefront
       
     - measure: page_views_last_7_days
       type: sum_distinct

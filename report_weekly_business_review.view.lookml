@@ -325,6 +325,7 @@
         
         WHERE 
           NOT(products.brand = 'LiveOutThere.com')
+          AND purchase_orders.po_ship_date <= DATEADD(d,60,GETDATE())
         GROUP BY products.parent_id, products.colour
         HAVING 
           ((COALESCE(COALESCE(        (

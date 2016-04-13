@@ -3,7 +3,7 @@
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY sku) AS row, a.best_use, b.parent_id
       FROM OPENQUERY(AKENEO,'SELECT f.value_string AS sku
-                                  , GROUP_CONCAT(e.value SEPARATOR '', '') AS best_use
+                                  , GROUP_CONCAT(e.value SEPARATOR '', '' ORDER BY e.value) AS best_use
                              FROM pim_catalog_product AS a
                              INNER JOIN pim_catalog_product_value AS b
                                ON a.id = b.entity_id AND b.attribute_id = (SELECT id FROM pim_catalog_attribute WHERE code = ''best_use'')

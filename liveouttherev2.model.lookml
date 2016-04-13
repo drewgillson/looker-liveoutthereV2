@@ -297,7 +297,6 @@
       sql_on: sales.email = customer_address.email
       relationship: one_to_many
 
-
 - explore: weekly_business_review
   from: reports_weekly_business_review
   hidden: true

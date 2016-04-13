@@ -3,6 +3,7 @@
     sql: |
       SELECT a.product_id AS product_id
       
+        , MAX(quantity_5_weeks_ago) AS quantity_on_hand_5_weeks_ago
         , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_5_weeks_ago) - ABS(SUM(qty)) ELSE MAX(quantity_sold_5_weeks_ago) END AS quantity_sold_5_weeks_ago
         , MAX(returns_5_weeks_ago) AS quantity_returned_5_weeks_ago
 

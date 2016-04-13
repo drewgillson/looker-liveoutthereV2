@@ -234,7 +234,7 @@
     label: "Gross Margin %"
     description: "Gross margin percentage on net sales"
     type: number
-    value_format: '#\%' 
+    value_format: '0\%' 
     sql: |
       100.00 * CASE
         WHEN ${net_sold} = 0 AND ${gross_margin} = 0 THEN NULL
@@ -322,5 +322,3 @@
   - measure: unique_products_ordered
     type: count_distinct
     sql: ${TABLE}.product_id
-
-

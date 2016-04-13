@@ -208,7 +208,7 @@
   - measure: opening_margin
     label: "Opening Margin %"
     type: avg
-    value_format: '#\%'
+    value_format: '0\%'
     sql: 100.00 * ${TABLE}.opening_margin
 
   - measure: percent_of_total_sales_opportunity
@@ -281,7 +281,7 @@
     label: "Sell Through %"
     description: "Net sold quantity divided by (quantity on hand plus net sold quantity)"
     type: number
-    value_format: '#\%'
+    value_format: '0\%'
     sql: 100.00 * (${net_sold_quantity_all_time} / NULLIF(${quantity_on_hand} + ${net_sold_quantity_all_time},0))
 
   - measure: quantity_available_to_sell

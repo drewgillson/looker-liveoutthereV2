@@ -167,7 +167,7 @@
     description: "Average landed cost per unit, after discounts"
     type: avg
     value_format: '$#,##0'
-    sql: ${TABLE}.average_cost
+    sql: ISNULL(${TABLE}.average_cost,${products.cost})
 
   - measure: skus_on_hand
     hidden: true
@@ -289,6 +289,11 @@
     type: number
     sql: ${quantity_on_hand} - ${quantity_reserved}
     drill_fields: [products.long_product_name, products.sku, quantity_available_to_sell]
+
+  - measure: is_in_stock_or_created_within_last_year
+    description: "Will return SKUs that are either in stock, or have been added to Magento within the last 365 days. This is used to produce an item master for NRI."
+    type: yesno
+    sql: ${is_in_stock} AND DATEDIFF(d,${products.created_at_time},GETDATE()) < 365
 
   - measure: skus_available_to_sell
     label: "SKUs Available to Sell"

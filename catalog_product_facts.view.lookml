@@ -1,7 +1,7 @@
 - view: catalog_product_facts
   derived_table:
     sql: |
-      SELECT a.product_id
+      SELECT a.product_id AS product_id
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) END AS quantity_on_hand
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) * MAX(catalog_product.cost) END AS total_cost
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) * MAX(average_cost.value) END AS total_discounted_cost

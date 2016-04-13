@@ -2,6 +2,8 @@
   derived_table:
     sql: |
       SELECT products.parent_id AS parent_id
+           , products.brand
+           , products.department
            , products.brand + ' ' + ISNULL(CASE WHEN products.department NOT LIKE '%^%' THEN products.department END,'') + ' ' + ISNULL(products.product,'') AS long_product_name
            , products.colour AS colour
            , products.storefront AS storefront
@@ -356,6 +358,8 @@
       AND products.colour = quantity_on_order.colour
       
       GROUP BY products.parent_id
+      , products.brand
+      , products.department
       , products.brand + ' ' + ISNULL(CASE WHEN products.department NOT LIKE '%^%' THEN products.department END,'') + ' ' + ISNULL(products.product,'')
       , products.colour
       , products.storefront
@@ -391,13 +395,24 @@
       type: string
       sql: CAST(${TABLE}.parent_id AS varchar(20))
   
+    - dimension: brand
+      type: string
+      sql: ${TABLE}.brand
+
+    - dimension: department
+      type: string
+      sql: ${TABLE}.department
+
     - dimension: long_product_name
+      type: string
       sql: ${TABLE}.long_product_name
 
     - dimension: colour
+      type: string
       sql: ${TABLE}.colour
       
     - dimension: storefront
+      type: string
       sql: ${TABLE}.storefront
       
     - measure: page_views_last_7_days

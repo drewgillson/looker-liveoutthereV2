@@ -25,6 +25,9 @@
       sql_on: cart_items_product.entity_id = cart_items_category.product_id
       relationship: one_to_many
       required_joins: [cart_items_product]
+    - join: mailchimp_list
+      sql_on: people.email = mailchimp_list.email_address
+      relationship: one_to_one
     - join: mailchimp_activity_1
       from: mailchimp_activity
       sql_on: people.email = mailchimp_activity_1.email

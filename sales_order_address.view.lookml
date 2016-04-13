@@ -1,12 +1,35 @@
 - view: sales_order_address
-  sql_table_name: magento.sales_flat_order_address
+  derived_table:
+    sql: |
+      SELECT ROW_NUMBER() OVER (ORDER BY entity_id) AS row, * FROM (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence
+        FROM magento.sales_flat_order_address
+        WHERE address_type = 'shipping'
+        UNION ALL
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence
+        FROM magento.sales_flat_order_address
+        WHERE address_type = 'billing'
+      ) AS a
+      WHERE sequence = 1
+    indexes: [email, address_type]
+    sql_trigger_value: |
+      SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
+      
   fields:
 
-  - dimension: entity_id
+  - dimension: row
     primary_key: true
     hidden: true
     type: number
-    sql: ${TABLE}.entity_id
+    sql: ${TABLE}.row
+
+  - dimension: first_name
+    type: string
+    sql: ${TABLE}.firstname
+
+  - dimension: last_name
+    type: string
+    sql: ${TABLE}.lastname
 
   - dimension: address_type
     type: string
@@ -50,17 +73,7 @@
     sql: ${TABLE}.suffix
 
   - dimension: telephone
+    alias: telephone_1st
     type: string
-    sql: ${TABLE}.telephone
-
-  - measure: telephone_1st
-    label: "Telephone (1st)"
-    description: "Returns the first value for Telephone - use this to prevent duplicate rows in your Look"
-    type: max
     value_format: '###-###-####'
     sql: ${TABLE}.telephone
-
-  - measure: unique_address_count
-    type: count_distinct
-    sql: ${TABLE}.email
-

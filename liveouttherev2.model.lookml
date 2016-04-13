@@ -275,6 +275,21 @@
       from: catalog_product_available_sizes
       sql_on: associations.parent_sku = available_sizes.configurable_sku
       relationship: one_to_one
+    - join: return_authorizations
+      from: sales_return_authorizations
+      sql_on: sales.order_increment_id = return_authorizations.increment_id
+      relationship: one_to_many
+      required_joins: [sales]
+    - join: return_authorization_items
+      from: sales_return_authorizations_items
+      sql_on: return_authorizations.id = return_authorization_items.rma_entity_id
+      relationship: one_to_many
+      required_joins: [return_authorizations]
+    - join: customer_address
+      from: sales_order_address
+      sql_on: sales.email = customer_address.email
+      relationship: one_to_many
+
 
 - explore: weekly_business_review
   from: reports_weekly_business_review

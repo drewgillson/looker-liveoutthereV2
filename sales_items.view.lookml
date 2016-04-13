@@ -234,9 +234,9 @@
     label: "Gross Margin %"
     description: "Gross margin percentage on net sales"
     type: number
-    value_format: '0.0%' 
+    value_format: '#\%' 
     sql: |
-      CASE
+      100.00 * CASE
         WHEN ${net_sold} = 0 AND ${gross_margin} = 0 THEN NULL
         WHEN ${net_sold} > 0 THEN ${gross_margin} / ${net_sold}
       END
@@ -284,15 +284,15 @@
     label: "Returned %"
     description: "Number of units returned divided by gross sold units"
     type: number
-    value_format: '0%'
-    sql: ${credits.refunded_quantity} / NULLIF(${gross_sold_quantity},0)
+    value_format: '#.0\%'
+    sql: 100.00 * (${credits.refunded_quantity} / NULLIF(${gross_sold_quantity},0))
 
   - measure: return_rate_dollars
     label: "Refunded %"
     description: "Amount refunded for returned items divided by Gross Sold $"
     type: number
-    value_format: '0%'
-    sql: ${credits.refund_for_return} / NULLIF(${subtotal},0)
+    value_format: '#.0\%'
+    sql: 100.00 * (${credits.refund_for_return} / NULLIF(${subtotal},0))
 
   - measure: deferred_revenue
     description: "Total amount of gift cards sold"
@@ -311,8 +311,8 @@
     label: "Contribution %"
     description: "Net contribution (see note on Contribution $) expressed as a percentage"
     type: number
-    value_format: '0.0%' 
-    sql: ${net_contribution} / NULLIF(${net_sold},0)
+    value_format: '#.0\%' 
+    sql: 100.00 * (${net_contribution} / NULLIF(${net_sold},0))
 
   - measure: orders
     description: "Number of orders placed"

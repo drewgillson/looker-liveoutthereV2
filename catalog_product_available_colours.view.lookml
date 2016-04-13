@@ -42,5 +42,5 @@
   - measure: percentage_of_colors_in_stock
     label: "% of Colors in Stock"
     type: number
-    sql: CAST(${in_stock} AS float) / ${total}
-    value_format: "0.00%"
+    sql: 100.00 * (CAST(${in_stock} AS float) / ${total})
+    value_format: '#.00\%'

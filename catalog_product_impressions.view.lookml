@@ -34,5 +34,5 @@
     label: "Conversion Rate %"
     description: "Calculated conversion rate of impressions to orders"
     type: number
-    sql: ${sales.orders} / ${count}
-    value_format: "0.0%"
+    sql: 100.00 * (${sales.orders} / ${count})
+    value_format: '#.00\%'

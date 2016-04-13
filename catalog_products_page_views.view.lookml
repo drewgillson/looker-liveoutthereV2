@@ -42,5 +42,5 @@
     label: "Conversion Rate %"
     description: "Calculated conversion rate of page views to orders"
     type: number
-    sql: ${sales.orders} / ${count}
-    value_format: "0.0%"
+    sql: 100.00 * (${sales.orders} / NULLIF(${count},0))
+    value_format: '#.00\%'

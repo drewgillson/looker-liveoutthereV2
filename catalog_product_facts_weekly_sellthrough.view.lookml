@@ -313,36 +313,36 @@
     label: "Current %"
     description: "Sell through rate as of today"
     type: number
-    value_format: '0%'
-    sql: (${net_sold_quantity_1_week_ago} / NULLIF(${quantity_on_hand_1_week_ago} + ${net_sold_quantity_1_week_ago},0))
+    value_format: '#\%'
+    sql: 100.00 * (${net_sold_quantity_1_week_ago} / NULLIF(${quantity_on_hand_1_week_ago} + ${net_sold_quantity_1_week_ago},0))
 
   - measure: sell_through_rate_2_weeks_ago
     label: "7 Days Ago %"
     description: "Sell through rate as of 7 days ago"
     type: number
-    value_format: '0%'
-    sql: (${net_sold_quantity_2_weeks_ago} / NULLIF(${quantity_on_hand_2_weeks_ago} + ${net_sold_quantity_2_weeks_ago},0))
+    value_format: '#\%'
+    sql: 100.00 * (${net_sold_quantity_2_weeks_ago} / NULLIF(${quantity_on_hand_2_weeks_ago} + ${net_sold_quantity_2_weeks_ago},0))
 
   - measure: sell_through_rate_3_weeks_ago
     label: "14 Days Ago %"
     description: "Sell through rate as of 14 days ago"
     type: number
-    value_format: '0%'
-    sql: (${net_sold_quantity_3_weeks_ago} / NULLIF(${quantity_on_hand_3_weeks_ago} + ${net_sold_quantity_3_weeks_ago},0))
+    value_format: '#\%'
+    sql: 100.00 * (${net_sold_quantity_3_weeks_ago} / NULLIF(${quantity_on_hand_3_weeks_ago} + ${net_sold_quantity_3_weeks_ago},0))
     
   - measure: sell_through_rate_4_weeks_ago
     label: "21 Days Ago %"
     description: "Sell through rate as of 21 days ago"
     type: number
-    value_format: '0%'
-    sql: (${net_sold_quantity_4_weeks_ago} / NULLIF(${quantity_on_hand_4_weeks_ago} + ${net_sold_quantity_4_weeks_ago},0))
+    value_format: '#\%'
+    sql: 100.00 * (${net_sold_quantity_4_weeks_ago} / NULLIF(${quantity_on_hand_4_weeks_ago} + ${net_sold_quantity_4_weeks_ago},0))
 
   - measure: sell_through_rate_5_weeks_ago
     label: "28 Days Ago %"
     description: "Sell through rate as of 28 days ago"
     type: number
-    value_format: '0%'
-    sql: (${net_sold_quantity_5_weeks_ago} / NULLIF(${quantity_on_hand_5_weeks_ago} + ${net_sold_quantity_5_weeks_ago},0))
+    value_format: '#\%'
+    sql: 100.00 * (${net_sold_quantity_5_weeks_ago} / NULLIF(${quantity_on_hand_5_weeks_ago} + ${net_sold_quantity_5_weeks_ago},0))
 
   - measure: net_sold_quantity_1_week_ago_visible
     label: "0-7 Days Ago #"

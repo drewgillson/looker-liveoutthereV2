@@ -166,7 +166,7 @@
     label: "Average Cost $"
     description: "Average landed cost per unit, after discounts"
     type: avg
-    value_format: '$#,##0'
+    value_format: '$#,##0.00'
     sql: ISNULL(${TABLE}.average_cost,${products.cost})
 
   - measure: skus_on_hand

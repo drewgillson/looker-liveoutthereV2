@@ -1,4 +1,4 @@
-- view: sales_credit_items
+- view: sales_credits_items
   derived_table:
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY creditmemo_created) AS row, a.*, (refunded_qty * average_cost.value) AS extended_cost FROM (

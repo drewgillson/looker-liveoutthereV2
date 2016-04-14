@@ -28,8 +28,8 @@
             , b.created_at AS invoice_created
             , c.entity_id AS order_entity_id
             , c.increment_id AS order_increment_id
-            , CASE WHEN d.type_id NOT LIKE '%gift%' THEN a.row_total + ISNULL(a.tax_amount,0) - ISNULL(a.discount_amount,0) END AS row_total_incl_tax
-            , CASE WHEN d.type_id NOT LIKE '%gift%' THEN a.row_total - ISNULL(a.discount_amount,0) END AS row_total
+            , CASE WHEN d.type_id NOT LIKE '%gift%' OR d.type_id IS NULL THEN a.row_total + ISNULL(a.tax_amount,0) - ISNULL(a.discount_amount,0) END AS row_total_incl_tax
+            , CASE WHEN d.type_id NOT LIKE '%gift%' OR d.type_id IS NULL THEN a.row_total - ISNULL(a.discount_amount,0) END AS row_total
             , a.tax_amount
             , a.discount_amount
             , qty
@@ -45,7 +45,7 @@
           INNER JOIN magento.sales_flat_order AS c
             ON b.order_id = c.entity_id
           LEFT JOIN magento.catalog_product_entity AS d
-            ON a.sku = d.sku
+            ON (a.sku = d.sku OR a.product_id = d.entity_id)
           WHERE row_total > 0
         ) AS a
         UNION ALL

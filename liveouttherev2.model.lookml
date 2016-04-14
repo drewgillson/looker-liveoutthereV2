@@ -79,7 +79,7 @@
       type: full_outer
       relationship: one_to_many
     - join: credits
-      from: sales_credit_items
+      from: sales_credits_items
       sql_on: |
         sales.order_entity_id = credits.order_entity_id
         AND sales.product_id = credits.product_id
@@ -245,7 +245,7 @@
       sql_on: products.entity_id = stock_movements.sm_product_id
       relationship: one_to_many
     - join: credits
-      from: sales_credit_items
+      from: sales_credits_items
       sql_on: |
         sales.order_entity_id = credits.order_entity_id
         AND sales.product_id = credits.product_id

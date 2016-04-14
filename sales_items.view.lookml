@@ -45,7 +45,7 @@
           INNER JOIN magento.sales_flat_order AS c
             ON b.order_id = c.entity_id
           LEFT JOIN magento.catalog_product_entity AS d
-            ON (a.sku = d.sku OR a.product_id = d.entity_id)
+            ON a.sku = d.sku
           WHERE row_total > 0
         ) AS a
         UNION ALL

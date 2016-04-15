@@ -71,6 +71,10 @@
     type: string
     sql: CASE WHEN ${TABLE}.lastname != 'Last Name' THEN ${TABLE}.lastname END
 
+  - dimension: name
+    type: string
+    sql: ${first_name} + ' ' + ${last_name}
+
   - dimension_group: created
     type: time
     sql: ${TABLE}.created_at

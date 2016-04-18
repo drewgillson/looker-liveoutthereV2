@@ -6,8 +6,10 @@
         FROM magento.sales_flat_order
         WHERE marketplace_order_id IS NULL
         UNION ALL
-        SELECT 'credit', 'LiveOutThere.com', order_id, created_at, increment_id, entity_id, NULL, -giftcert_amount, -customer_credit_amount, -grand_total, -subtotal, -tax_amount, -shipping_amount
-        FROM magento.sales_flat_creditmemo
+        SELECT 'credit', 'LiveOutThere.com', a.order_id, created_at, increment_id, a.entity_id, NULL, -giftcert_amount, -customer_credit_amount, -grand_total, -subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -shipping_amount
+        FROM magento.sales_flat_creditmemo AS a
+        LEFT JOIN magento.sales_order_tax AS b
+          ON a.order_id = b.order_id AND b.position = 1
         UNION ALL
         SELECT CASE WHEN [order-transactions-kind] = 'refund' THEN 'credit' ELSE [order-transactions-kind] END, 'TheVan.ca', CAST([order-order_number] AS nvarchar(10)), [order-transactions-created_at], CAST([order-order_number] AS nvarchar(10)), NULL, [order-transactions-authorization], NULL, NULL, NULL, NULL, NULL, NULL
         FROM shopify.transactions

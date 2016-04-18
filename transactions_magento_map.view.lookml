@@ -21,7 +21,8 @@
           ON a.parent_id = b.parent_id
         INNER JOIN magento.sales_flat_creditmemo AS c
           ON a.parent_id = c.order_id AND DATEADD(mi, DATEDIFF(mi, 0, a.created_at), 0) = DATEADD(mi, DATEDIFF(mi, 0, c.created_at), 0)
-        WHERE a.comment LIKE 'Trans Type: refund%' AND CAST(a.comment AS varchar(255)) <> 'Trans Type: refund<br/>'
+        WHERE a.comment LIKE 'Trans Type: refund%'
+        AND CAST(a.comment AS varchar(255)) <> 'Trans Type: refund<br/>'
       ) AS a
     indexes: [netbanx_transaction_id, netbanx_confirmation_number, parent_id, credit_memo_id]
     sql_trigger_value: |

@@ -1,7 +1,8 @@
 - view: transactions_paypal_settlement
   derived_table: 
     sql: | 
-      SELECT ROW_NUMBER() OVER (ORDER BY [Transaction Initiation Date]) AS row, [Transaction ID] AS transaction_id, * FROM (
+      SELECT ROW_NUMBER() OVER (ORDER BY [Transaction Initiation Date]) AS row
+        , [Transaction ID] AS transaction_id, * FROM (
         SELECT *
             , DATEADD(hh,2,[Transaction Completion Date]) AS completion_mst
             , DATEADD(hh,2,[Transaction Initiation Date]) AS initiation_mst

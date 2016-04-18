@@ -9,7 +9,7 @@
           ,[TRAN_STATUS]
           ,[BRAND_CODE]
           ,[AMOUNT]
-          ,[TRANSACTION_DATE]
+          ,DATEADD(h,2,[TRANSACTION_DATE]) AS TRANSACTION_DATE
           ,[CURRENCY_CDE]
           ,[FIRST_NAME]
           ,[LAST_NAME]

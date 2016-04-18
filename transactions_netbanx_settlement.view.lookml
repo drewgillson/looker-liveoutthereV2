@@ -2,7 +2,18 @@
   derived_table: 
     sql: | 
       SELECT ROW_NUMBER() OVER (ORDER BY [TRANSACTION_DATE]) AS row, * FROM (
-        SELECT DISTINCT * FROM tbl_RawData_Netbanx_Transactions
+        SELECT DISTINCT [TRAN_TYPE]
+          ,[CARD_ENDING]
+          ,[TXN_NUM]
+          ,[CONF_NUM]
+          ,[TRAN_STATUS]
+          ,[BRAND_CODE]
+          ,[AMOUNT]
+          ,[TRANSACTION_DATE]
+          ,[CURRENCY_CDE]
+          ,[FIRST_NAME]
+          ,[LAST_NAME]
+        FROM tbl_RawData_Netbanx_Transactions
       ) AS a
     indexes: [TXN_NUM, TRANSACTION_DATE]
     sql_trigger_value: |

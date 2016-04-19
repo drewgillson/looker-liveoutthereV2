@@ -8,6 +8,9 @@
   symmetric_aggregates: true
   persist_for: 12 hours
   joins:
+    - join: people_facts
+      sql_on: people.email = ${people_facts.email}
+      relationship: one_to_one
     - join: customers
       sql_on: people.email = customers.email
       relationship: one_to_one

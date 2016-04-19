@@ -293,7 +293,7 @@
   - measure: is_in_stock_or_created_within_last_year
     description: "Will return SKUs that are either in stock, or have been added to Magento within the last 365 days. This is used to produce an item master for NRI."
     type: yesno
-    sql: ${is_in_stock} AND DATEDIFF(d,${products.created_at_time},GETDATE()) < 365
+    sql: ${is_in_stock} AND DATEDIFF(d,${products.created_at_time},GETDATE()) < 730
 
   - measure: skus_available_to_sell
     label: "SKUs Available to Sell"

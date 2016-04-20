@@ -27,7 +27,7 @@
              , MAX(w.parent_id) AS parent_id
              , COUNT(DISTINCT w.parent_id) AS parent_count
              , MIN(CAST(y.value AS int)) AS merchandise_priority
-             , '/' + z.value + '.html' AS url_key
+             , COALESCE('/' + za.value + '.html','/' + z.value + '.html') AS url_key
           FROM magento.catalog_product_entity AS a
           LEFT JOIN magento.catalog_product_entity_varchar AS b
             ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
@@ -70,14 +70,25 @@
           LEFT JOIN magento.eav_attribute_option_value AS v
             -- only join the label value for the first colour family if the varchar table contains a comma-separated string of colour family value IDs
             ON CASE WHEN u.value LIKE '%,%' THEN LEFT(u.value,CHARINDEX(',',u.value)-1) ELSE u.value END = v.option_id AND v.store_id = 0
-          LEFT JOIN magento.catalog_product_super_link AS w
+          -- then eliminate multiple configurable parents for one simple product (otherwise we get dupes in our result set)
+          LEFT JOIN (
+            SELECT MAX(parent_id) AS parent_id
+                 , product_id
+            FROM magento.catalog_product_super_link
+            GROUP BY product_id
+          ) AS w
             ON a.entity_id = w.product_id
           LEFT JOIN magento.catalog_product_entity_varchar AS y
             ON w.parent_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
+          -- url_keys are a little funny because sometimes they belong to store_id 0 and sometimes they belong to store_id 1. We want only the first value if there is a value for both stores, so we use a COALESCE in our select
           LEFT JOIN magento.catalog_product_entity_varchar AS z
             ON w.parent_id = z.entity_id AND z.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'url_key' AND entity_type_id = 4)
+            AND z.store_id = 0
+          LEFT JOIN magento.catalog_product_entity_varchar AS za
+            ON w.parent_id = za.entity_id AND za.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'url_key' AND entity_type_id = 4)
+            AND za.store_id = 1
           WHERE a.type_id = 'simple'
-          GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value
+          GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value
         ) AS magento
         LEFT JOIN ${catalog_akeneo_option_values.SQL_TABLE_NAME} AS akeneo
           ON magento.parent_id = akeneo.parent_id

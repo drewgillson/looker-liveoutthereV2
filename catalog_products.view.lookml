@@ -87,7 +87,7 @@
           LEFT JOIN magento.catalog_product_entity_varchar AS za
             ON w.parent_id = za.entity_id AND za.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'url_key' AND entity_type_id = 4)
             AND za.store_id = 1
-          WHERE a.type_id = 'simple'
+          WHERE a.type_id IN ('simple','ugiftcert','giftcert')
           GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value
         ) AS magento
         LEFT JOIN ${catalog_akeneo_option_values.SQL_TABLE_NAME} AS akeneo

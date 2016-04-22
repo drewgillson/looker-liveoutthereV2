@@ -3,6 +3,10 @@
 - include: "*.view.lookml"       # include all the views
 - include: "*.dashboard.lookml"  # include all the dashboards
 
+- explore: predictions
+  hidden: true
+  from: jaccard_product_view_affinity
+  
 - explore: people
   from: people
   symmetric_aggregates: true

@@ -11,15 +11,25 @@
           SELECT p1.url_key AS product_a
             , p2.url_key AS product_b
             , COUNT(*) AS joint_frequency
-          FROM ${people_products_page_views.SQL_TABLE_NAME} AS op1
-          JOIN ${people_products_page_views.SQL_TABLE_NAME} AS op2
+          FROM (SELECT email, url_key
+            FROM ${people_products_page_views.SQL_TABLE_NAME}
+            WHERE email != ''
+            GROUP BY email, url_key
+          ) AS op1
+          JOIN (SELECT email, url_key
+            FROM ${people_products_page_views.SQL_TABLE_NAME}
+            WHERE email != ''
+            GROUP BY email, url_key
+          ) AS op2
             ON op1.email = op2.email
-          JOIN (SELECT DISTINCT parent_id, url_key
+          JOIN (SELECT DISTINCT url_key
             FROM ${catalog_products.SQL_TABLE_NAME}
+            WHERE url_key IS NOT NULL
           ) AS p1
             ON op1.url_key = p1.url_key
-          JOIN (SELECT DISTINCT parent_id, url_key
+          JOIN (SELECT DISTINCT url_key
             FROM ${catalog_products.SQL_TABLE_NAME}
+            WHERE url_key IS NOT NULL
           ) AS p2
             ON op2.url_key = p2.url_key
           GROUP BY p1.url_key, p2.url_key
@@ -29,6 +39,7 @@
         JOIN ${jaccard_product_view.SQL_TABLE_NAME} as top2
           ON prop.product_b = top2.url_key
       ) AS a
+      WHERE product_a != product_b
     indexes: [product_a]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -65,5 +76,5 @@
     
   - measure: score
     type: sum
-    value_format: "0.00"
+    value_format: "0.0000"
     sql: ${TABLE}.joint_frequency / NULLIF(CAST(${TABLE}.product_a_frequency + ${TABLE}.product_b_frequency - ${TABLE}.joint_frequency AS float),0)

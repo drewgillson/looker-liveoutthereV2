@@ -2,7 +2,9 @@
   derived_table:
     sql: |
       SELECT magento.*
+      -- if you add more attributes from Akeneo, you need to add additional NULLs to the UNION'd select at the end of this query
            , akeneo.best_use
+           , akeneo.fit
       FROM (
         SELECT a.sku
              , a.entity_id
@@ -94,7 +96,7 @@
           ON magento.parent_id = akeneo.parent_id
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
-        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
     indexes: [sku, entity_id, url_key]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -221,6 +223,11 @@
     type: string
     description: "Activity / best use values for products collected by Suntec from REI and saved in Akeneo"
     sql: ${TABLE}.best_use
+
+  - dimension: fit
+    type: string
+    description: "Fit value for products collected by Suntec and saved in Akeneo"
+    sql: ${TABLE}.fit
       
   - measure: average_price
     description: "Average MSRP/price for a product"

@@ -45,7 +45,7 @@
           INNER JOIN magento.sales_flat_order AS c
             ON b.order_id = c.entity_id
           LEFT JOIN (
-            SELECT sku, entity_id
+            SELECT sku, entity_id, type_id
             FROM magento.catalog_product_entity
             WHERE type_id != 'simple'
           ) AS d

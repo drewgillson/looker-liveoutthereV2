@@ -274,6 +274,7 @@
   - measure: days_of_inventory_remaining
     description: "Based on 30-day sales history, the number of days that will elapse before we run out of inventory"
     type: number
+    value_format: "0"
     sql: |
       CASE WHEN ${quantity_available_to_sell} > 0 AND ${days_of_inventory_calculation} IS NULL THEN 9999 ELSE ${days_of_inventory_calculation} END
 

@@ -345,6 +345,34 @@
     value_format: '0\%'
     sql: 100.00 * (${net_sold_quantity_5_weeks_ago} / NULLIF(${quantity_on_hand_5_weeks_ago} + ${net_sold_quantity_5_weeks_ago},0))
 
+  - measure: sell_through_rate_1_week_ago_not_cumulative
+    label: "Period 0-7 Days Ago %"
+    description: "Sell through rate in last 7 days"
+    type: number
+    value_format: '0\%'
+    sql: ${sell_through_rate_1_week_ago} - ${sell_through_rate_2_weeks_ago}
+
+  - measure: sell_through_rate_2_weeks_ago_not_cumulative
+    label: "Period 7-14 Days Ago %"
+    description: "Sell through rate 7 to 14 days ago"
+    type: number
+    value_format: '0\%'
+    sql: ${sell_through_rate_2_weeks_ago} - ${sell_through_rate_3_weeks_ago}
+
+  - measure: sell_through_rate_3_weeks_ago_not_cumulative
+    label: "Period 14-21 Days Ago %"
+    description: "Sell through rate 14 to 21 days ago"
+    type: number
+    value_format: '0\%'
+    sql: ${sell_through_rate_3_weeks_ago} - ${sell_through_rate_4_weeks_ago}
+
+  - measure: sell_through_rate_4_weeks_ago_not_cumulative
+    label: "Period 21-28 Days Ago %"
+    description: "Sell through rate 21 to 28 days ago"
+    type: number
+    value_format: '0\%'
+    sql: ${sell_through_rate_4_weeks_ago} - ${sell_through_rate_5_weeks_ago}
+
   - measure: net_sold_quantity_1_week_ago_visible
     label: "0-7 Days Ago #"
     description: "Net sold units in the last 7 days ago"

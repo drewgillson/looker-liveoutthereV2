@@ -28,11 +28,12 @@
 
   - dimension: card_brand
     type: string
-    sql_case:
-      'American Express': ${TABLE}.BRAND_CODE = 'AM'
-      'Visa': ${TABLE}.BRAND_CODE = 'VI'
-      'MasterCard': ${TABLE}.BRAND_CODE = 'MC'
-      else: unknown
+    sql: |
+      CASE WHEN ${TABLE}.BRAND_CODE = 'AM' THEN 'American Express'
+           WHEN ${TABLE}.BRAND_CODE = 'VI' THEN 'Visa'
+           WHEN ${TABLE}.BRAND_CODE = 'MC' THEN 'MasterCard'
+           ELSE ${TABLE}.BRAND_CODE
+      END
       
   - dimension: last_4_card_digits
     type: string

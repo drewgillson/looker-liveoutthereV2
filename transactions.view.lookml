@@ -2,20 +2,24 @@
   derived_table:
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, * FROM (
-        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, entity_id, created_at, increment_id, NULL AS credit_memo_id, NULL AS authorization_number, giftcert_amount, customer_credit_amount, grand_total, subtotal, tax_amount, shipping_amount
-        FROM magento.sales_flat_order
-        WHERE marketplace_order_id IS NULL
+        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, a.entity_id, a.created_at, a.increment_id, NULL AS credit_memo_id, NULL AS authorization_number, a.giftcert_amount, a.customer_credit_amount, a.grand_total, a.subtotal, a.tax_amount, a.shipping_amount, b.method AS payment_method
+        FROM magento.sales_flat_order AS a
+        LEFT JOIN magento.sales_flat_order_payment AS b
+          ON a.entity_id = b.parent_id
+        WHERE a.marketplace_order_id IS NULL
         UNION ALL
-        SELECT 'credit', 'LiveOutThere.com', a.order_id, created_at, increment_id, a.entity_id, NULL, -giftcert_amount, -customer_credit_amount, -grand_total, -subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -shipping_amount
+        SELECT 'credit', 'LiveOutThere.com', a.order_id, created_at, increment_id, a.entity_id, NULL, -giftcert_amount, -customer_credit_amount, -grand_total, -subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -a.shipping_amount, c.method
         FROM magento.sales_flat_creditmemo AS a
         LEFT JOIN magento.sales_order_tax AS b
           ON a.order_id = b.order_id AND b.position = 1
+        LEFT JOIN magento.sales_flat_order_payment AS c
+          ON a.order_id = c.parent_id
         UNION ALL
-        SELECT CASE WHEN [order-transactions-kind] = 'refund' THEN 'credit' ELSE [order-transactions-kind] END, 'TheVan.ca', CAST([order-order_number] AS nvarchar(10)), [order-transactions-created_at], CAST([order-order_number] AS nvarchar(10)), NULL, [order-transactions-authorization], NULL, NULL, NULL, NULL, NULL, NULL
+        SELECT CASE WHEN [order-transactions-kind] = 'refund' THEN 'credit' ELSE [order-transactions-kind] END, 'TheVan.ca', CAST([order-order_number] AS nvarchar(10)), [order-transactions-created_at], CAST([order-order_number] AS nvarchar(10)), NULL, [order-transactions-authorization], NULL, NULL, NULL, NULL, NULL, NULL, [order-transactions-gateway]
         FROM shopify.transactions
         WHERE [order-transactions-status] = 'success'
         UNION ALL
-        SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL, NULL, NULL, NULL, grand_total, subtotal, tax_amount, shipping_amount
+        SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL, NULL, NULL, NULL, grand_total, subtotal, tax_amount, shipping_amount, 'Amazon'
         FROM magento.sales_flat_order
         WHERE marketplace_order_id IS NOT NULL
       ) AS a
@@ -62,6 +66,10 @@
   - dimension: storefront
     type: string
     sql: ${TABLE}.storefront
+
+  - dimension: payment_method
+    type: string
+    sql: ${TABLE}.payment_method
     
   - dimension: reference
     type: string

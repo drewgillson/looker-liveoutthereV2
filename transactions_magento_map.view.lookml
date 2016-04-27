@@ -54,5 +54,6 @@
     sql: ${TABLE}.type
 
   - dimension: payment_method
+    hidden: true
     type: string
     sql: ${TABLE}.method

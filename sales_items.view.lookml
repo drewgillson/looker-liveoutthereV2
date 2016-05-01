@@ -321,7 +321,7 @@
   - measure: orders
     description: "Number of orders placed"
     type: count_distinct
-    sql: ${order_entity_id}
+    sql: ${order_id}
     
   - measure: unique_products_ordered
     type: count_distinct

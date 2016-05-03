@@ -159,9 +159,9 @@
     drill_fields: [brand]
 
   - dimension: barcode
-    description: "Barcode value for a product (even fake barcodes that start with 000000)"
+    description: "Identical to GTIN dimension"
     type: string
-    sql: ${TABLE}.barcode
+    sql: ${gtin}
     
   - dimension: gtin
     description: "Real supplier GTIN/UPC for a product (null if we don't know it)"

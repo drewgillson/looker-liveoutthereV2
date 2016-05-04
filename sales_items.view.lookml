@@ -22,6 +22,8 @@
            , product_id
            , storefront
            , ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS customer_credit_amount
+           , state
+           , status
         FROM (
           SELECT c.customer_email AS email
             , c.created_at AS order_created
@@ -39,6 +41,8 @@
             , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
             , b.subtotal_incl_tax - ISNULL(b.discount_amount,0) AS invoice_total
             , b.customer_credit_amount AS customer_credit_total
+            , c.state
+            , c.status
           FROM magento.sales_flat_invoice_item AS a
           INNER JOIN magento.sales_flat_invoice AS b
             ON a.parent_id = b.entity_id
@@ -68,6 +72,8 @@
           , -1 AS product_id
           , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
           , NULL
+          , NULL
+          , NULL
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id
@@ -87,6 +93,8 @@
           , NULL AS deferred_revenue
           , -1 AS product_id
           , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
+          , NULL
+          , NULL
           , NULL
         FROM magento.sales_flat_order AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
@@ -112,6 +120,8 @@
             , NULL AS deferred_revenue
             , COALESCE(b.entity_id, -1) AS product_id
             , 'TheVan.ca' AS storefront
+            , NULL
+            , NULL
             , NULL
         FROM shopify.order_items AS a
         LEFT JOIN magento.catalog_product_entity AS b
@@ -185,6 +195,14 @@
   - dimension: email
     type: string
     sql: ${TABLE}.email
+
+  - dimension: status
+    type: string
+    sql: ${TABLE}.status
+
+  - dimension: state
+    type: string
+    sql: ${TABLE}.state
     
   - measure: total_collected
     description: "Total charged to the customer, including taxes"

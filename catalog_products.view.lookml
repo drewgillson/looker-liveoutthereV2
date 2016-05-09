@@ -229,6 +229,13 @@
     description: "Fit value for products collected by Suntec and saved in Akeneo"
     sql: ${TABLE}.fit
       
+  - dimension: price
+    description: "MSRP/price for a product"
+    label: "Price (MSRP) $"
+    type: number
+    value_format: '$#,##0.00'
+    sql: ${TABLE}.price
+
   - measure: average_price
     description: "Average MSRP/price for a product"
     label: "Average Price (MSRP) $"

@@ -24,6 +24,9 @@
            , ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS customer_credit_amount
            , state
            , status
+           , coupon_rule_name
+           , discount_description
+           , coupon_code
         FROM (
           SELECT c.customer_email AS email
             , c.created_at AS order_created
@@ -43,6 +46,9 @@
             , b.customer_credit_amount AS customer_credit_total
             , c.state
             , c.status
+            , c.coupon_rule_name
+            , c.discount_description
+            , c.coupon_code
           FROM magento.sales_flat_invoice_item AS a
           INNER JOIN magento.sales_flat_invoice AS b
             ON a.parent_id = b.entity_id
@@ -74,6 +80,9 @@
           , NULL
           , NULL
           , NULL
+          , NULL
+          , NULL
+          , NULL
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id
@@ -93,6 +102,9 @@
           , NULL AS deferred_revenue
           , -1 AS product_id
           , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
+          , NULL
+          , NULL
+          , NULL
           , NULL
           , NULL
           , NULL
@@ -120,6 +132,9 @@
             , NULL AS deferred_revenue
             , COALESCE(b.entity_id, -1) AS product_id
             , 'TheVan.ca' AS storefront
+            , NULL
+            , NULL
+            , NULL
             , NULL
             , NULL
             , NULL
@@ -203,6 +218,18 @@
   - dimension: state
     type: string
     sql: ${TABLE}.state
+    
+  - dimension: coupon_rule_name
+    type: string
+    sql: ${TABLE}.coupon_rule_name
+
+  - dimension: coupon_code
+    type: string
+    sql: ${TABLE}.coupon_code
+
+  - dimension: coupon_rule_description
+    type: string
+    sql: ${TABLE}.discount_description
     
   - measure: total_collected
     description: "Total charged to the customer, including taxes"

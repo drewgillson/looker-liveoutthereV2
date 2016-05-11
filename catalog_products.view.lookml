@@ -263,7 +263,8 @@
     label: "Is MAP Brand"
     type: yesno
     sql: |
-      ${TABLE}.brand IN ('2Undr',
+      ${TABLE}.brand IN ('Thule',
+                         '2Undr',
                          '7seasons',
                          'Arc''teryx',
                          'Add',

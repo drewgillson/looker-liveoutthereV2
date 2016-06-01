@@ -11,6 +11,11 @@
   - dimension_group: first_seen
     type: time
     sql: ${TABLE}.first_created
+    
+  - dimension: snowplow_id
+    label: "Snowplow Identifier"
+    type: string
+    sql: ${TABLE}.domain_userid
 
   sets:
     detail:

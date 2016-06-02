@@ -1,4 +1,5 @@
 - view: catalog_product_inventory_balances
+  suggestions: false
   derived_table:
     sql: |
       SELECT dates.sm_date

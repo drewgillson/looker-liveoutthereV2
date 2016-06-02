@@ -4,19 +4,27 @@
     sql: |
       SELECT dates.sm_date
          , sm_product_id AS product_id
-           , SUM(CASE WHEN sm_target_stock = 0 THEN -sm_qty ELSE sm_qty END) AS quantity
+         , SUM(CASE WHEN sm_target_stock = 0 THEN -sm_qty ELSE sm_qty END) AS quantity
+         , ROUND(AVG((pop_price_ht * (1-(CASE WHEN pop_discount > 0 THEN pop_discount ELSE 0 END / 100)))), 2) AS avg_cost
       FROM magento.stock_movement
       LEFT JOIN (
         SELECT DISTINCT CAST(sm_date AS date) AS sm_date FROM magento.stock_movement
       ) AS dates
-      ON magento.stock_movement.sm_date <= dates.sm_date
+        ON magento.stock_movement.sm_date <= dates.sm_date
+      LEFT JOIN magento.purchase_order_product AS pop
+        ON magento.stock_movement.sm_product_id = pop.pop_product_id
+      LEFT JOIN magento.purchase_order AS po
+        ON pop.pop_order_num = po.po_num AND po.po_arrival_date <= dates.sm_date
       WHERE ((sm_type != 'transfer' OR (
           sm_type = 'transfer' AND (
             (sm_source_stock = 0 OR sm_target_stock = 0) AND NOT (sm_source_stock = 0 AND sm_target_stock = 0)
           )
         )
       ))
-      GROUP BY dates.sm_date, sm_product_id
+      AND pop_price_ht <> 0 
+      AND pop_supplied_qty > 0 
+      AND pop_discount <> 100 
+      GROUP BY dates.sm_date, sm_product_id        
     indexes: [sm_date, product_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -43,3 +51,17 @@
     description: "Quantity on hand / in stock for inventory balance date"
     type: sum
     sql: ${TABLE}.quantity
+    
+  - measure: extended_cost
+    label: "Ext. Cost $"
+    description: "Extended (discounted) cost of inventory, using average cost of product as of inventory balance date"
+    type: sum
+    value_format: '$#,##0'
+    sql: ${TABLE}.quantity * ${TABLE}.avg_cost
+    
+  - measure: extended_retail
+    label: "Ext. Retail $"
+    description: "Extended retail value of inventory (calculated using most recent MSRP $)"
+    type: sum
+    value_format: '$#,##0'
+    sql: ${TABLE}.quantity * ${products.price}

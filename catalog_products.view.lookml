@@ -196,7 +196,7 @@
   - dimension: has_description
     description: "Is 'Yes' if the product has a value in the description attribute"
     type: yesno
-    sql: ${TABLE}.description_length > 0
+    sql: ${TABLE}.description_length > 0 AND ${TABLE}.description_length IS NOT NULL
 
   - dimension: brand
     description: "Brand/manufacturer for a product. Will also show brands selected in the 'Brand Filter' compared to all other brands if desired."

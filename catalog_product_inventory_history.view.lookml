@@ -1,4 +1,4 @@
-- view: catalog_product_inventory_balances
+- view: catalog_product_inventory_history
   suggestions: false
   derived_table:
     sql: |

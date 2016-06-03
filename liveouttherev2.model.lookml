@@ -212,9 +212,9 @@
       from: catalog_product_facts
       sql_on: products.entity_id = product_facts.product_id
       relationship: one_to_one
-    - join: inventory_balances
-      from: catalog_product_inventory_balances
-      sql_on: products.entity_id = inventory_balances.product_id
+    - join: inventory_history
+      from: catalog_product_inventory_history
+      sql_on: products.entity_id = inventory_history.product_id
       relationship: one_to_many
     - join: weekly_sell_through
       from: catalog_product_facts_weekly_sellthrough

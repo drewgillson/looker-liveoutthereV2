@@ -14,15 +14,15 @@
                 )/(1000000*1.0)
            ,0),0) AS quantity
          , ROUND(AVG((pop_price_ht * (1-(CASE WHEN pop_discount > 0 THEN pop_discount ELSE 0 END / 100)))), 2) AS avg_cost
-      FROM magento.stock_movement
+      FROM magento.stock_movement AS sm
       LEFT JOIN (
         SELECT DISTINCT CAST(sm_date AS date) AS sm_date
         FROM magento.stock_movement
         WHERE DATEPART(dd,sm_date) = 1
       ) AS dates
-        ON magento.stock_movement.sm_date <= dates.sm_date
+        ON sm.sm_date <= dates.sm_date
       LEFT JOIN magento.purchase_order_product AS pop
-        ON magento.stock_movement.sm_product_id = pop.pop_product_id
+        ON sm.sm_product_id = pop.pop_product_id
       LEFT JOIN magento.purchase_order AS po
         ON pop.pop_order_num = po.po_num AND po.po_arrival_date <= dates.sm_date
       WHERE ((sm_type != 'transfer' OR (

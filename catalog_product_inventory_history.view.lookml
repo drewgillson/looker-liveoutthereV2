@@ -4,19 +4,21 @@
     sql: |
       SELECT dates.sm_date
          , sm_product_id AS product_id
-         , COALESCE(COALESCE((
-           SUM(DISTINCT
-            (CAST(FLOOR(COALESCE(CASE WHEN sm_target_stock = 0 THEN -sm_qty ELSE sm_qty END,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
-            CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(sm_product_id AS varchar(20)))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(sm_product_id AS varchar(20)))),1,8) )) AS DECIMAL(38,0))
-            )
-            -
-            SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(sm_product_id AS varchar(20)))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(sm_product_id AS varchar(20)))),1,8) )) AS DECIMAL(38,0)))
-            )/(1000000*1.0)
+         , COALESCE(COALESCE(        (
+                  SUM(DISTINCT
+                    (CAST(FLOOR(COALESCE(CASE WHEN sm_target_stock = 0 THEN -sm_qty ELSE sm_qty END,0)*(1000000*1.0)) AS DECIMAL(38,0))) +
+                    CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sm.sm_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sm.sm_id)),1,8) )) AS DECIMAL(38,0))
+                  )
+                  -
+                   SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sm.sm_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sm.sm_id)),1,8) )) AS DECIMAL(38,0)))
+                )/(1000000*1.0)
            ,0),0) AS quantity
          , ROUND(AVG((pop_price_ht * (1-(CASE WHEN pop_discount > 0 THEN pop_discount ELSE 0 END / 100)))), 2) AS avg_cost
       FROM magento.stock_movement
       LEFT JOIN (
-        SELECT DISTINCT CAST(sm_date AS date) AS sm_date FROM magento.stock_movement
+        SELECT DISTINCT CAST(sm_date AS date) AS sm_date
+        FROM magento.stock_movement
+        WHERE DATEPART(dd,sm_date) = 1
       ) AS dates
         ON magento.stock_movement.sm_date <= dates.sm_date
       LEFT JOIN magento.purchase_order_product AS pop

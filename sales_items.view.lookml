@@ -43,7 +43,7 @@
             , COALESCE(d.entity_id, a.product_id, -1) AS product_id
             , CASE WHEN marketplace_order_id IS NOT NULL THEN 'Amazon' WHEN custom_storefront IS NOT NULL THEN custom_storefront ELSE 'LiveOutThere.com' END AS storefront
             , b.subtotal_incl_tax - ISNULL(b.discount_amount,0) AS invoice_total
-            , b.customer_credit_amount AS customer_credit_total
+            , ISNULL(b.customer_credit_amount,0) + ISNULL(c.use_gift_credit_amount,0) AS customer_credit_total
             , c.state
             , c.status
             , c.coupon_rule_name
@@ -297,8 +297,13 @@
     value_format: '$#,##0'
     sql: ${TABLE}.tax_amount
 
+  - dimension: redeemed_customer_credit
+    description: "Was there any store credit / customer credit redeemed for the order?"
+    type: yesno
+    sql: ${customer_credit_amount} > 0
+
   - measure: customer_credit_amount
-    description: "Redeemed customer credit (we treat customer credit like a discount so gross margin is not over-stated)"
+    description: "Redeemed customer credit subtotal portion (we treat customer credit like a discount so gross margin is not over-stated, we also remove the tax portion. Example:if someone redeems $10 in Alberta, we count $9.52 towards the subtotal portion and $0.48 towards the tax portion of their receipt)"
     label: "Redeemed Credit $"
     type: sum
     value_format: '$#,##0'

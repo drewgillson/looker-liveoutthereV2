@@ -1,7 +1,8 @@
 - view: purchase_order_products
   derived_table:
     sql: |
-        SELECT po.po_order_id
+        SELECT po.po_date
+           , po.po_order_id
            , po.po_status
            , po.po_data_status
            , po.po_type
@@ -68,6 +69,11 @@
     type: number
     description: "The number of days between now and the next ship date in the group of dimensions you have filtered"
     sql: DATEDIFF(d,GETDATE(),${next_ship_date})
+
+  - dimension_group: created
+    description: "Date the purchase order was created"
+    type: time
+    sql: ${TABLE}.po_date
 
   - dimension_group: arrival
     description: "Date the purchase order landed in the warehouse"

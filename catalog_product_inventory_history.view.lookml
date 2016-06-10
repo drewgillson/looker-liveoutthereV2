@@ -18,7 +18,7 @@
       LEFT JOIN (
         SELECT DISTINCT CAST(sm_date AS date) AS sm_date
         FROM magento.stock_movement
-        WHERE sm_date > '2015-02-01'
+        WHERE sm_date >= '2015-02-01' AND (DATEPART(dd,sm_date) = 1 OR DATEPART(dw,sm_date) = 1)
       ) AS dates
         ON sm.sm_date <= dates.sm_date
       LEFT JOIN magento.purchase_order_product AS pop

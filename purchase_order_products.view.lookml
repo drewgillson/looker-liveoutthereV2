@@ -10,6 +10,7 @@
            , po.po_ship_date
            , po.po_arrival_date
            , po.po_cancel_date
+           , po.po_terms
            , p.*
            , p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100) AS discounted_cost
            , p.pop_qty * (p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100)) AS ordered_amount
@@ -47,6 +48,15 @@
   - dimension: supplier
     description: "Supplier name for purchase order in Magento"
     sql: ${TABLE}.supplier
+
+  - dimension: terms
+    description: "Payment terms for purchase order"
+    sql: ${TABLE}.po_terms
+    
+  - dimension: predicted_invoice
+    type: time
+    description: "Date the 1st invoice will probably arrive, based on terms"
+    sql: CASE WHEN ISNUMERIC(${TABLE}.po_terms) = 1 THEN DATEADD(dd,CAST(${TABLE}.po_terms AS int),${TABLE}.po_ship_date) END
 
   - dimension: order_number
     description: "Purchase order number in Magento"

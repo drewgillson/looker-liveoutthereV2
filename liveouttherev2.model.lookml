@@ -307,7 +307,13 @@
       from: sales_order_address
       sql_on: sales.email = customer_address.email
       relationship: one_to_many
-
+    - join: canada_post_shipments
+      from: carriers_canada_post_shipments
+      sql_on: sales.order_entity_id = canada_post_shipments.order_entity_id
+      relationship: one_to_many
+      required_joins: [sales]
+      type: full_outer
+    
 - explore: weekly_business_review
   from: reports_weekly_business_review
   hidden: true

@@ -277,7 +277,7 @@
       CASE WHEN ${net_sold} > 0 THEN ${gross_cost} - ${credits.extended_cost} END
 
   - measure: gross_margin
-    label: "Gross Margin $ (Returns Netted)"
+    label: "Gross Margin $ (Refunds Netted)"
     description: "Gross margin dollars collected on net sales"
     type: number
     value_format: '$#,##0' 
@@ -291,7 +291,7 @@
     sql: CAST(${subtotal} - ${gross_cost} AS money)
 
   - measure: gross_margin_percent
-    label: "Gross Margin % (Returns Netted)"
+    label: "Gross Margin % (Refunds Netted)"
     description: "Gross margin percentage on net sales"
     type: number
     value_format: '0\%' 

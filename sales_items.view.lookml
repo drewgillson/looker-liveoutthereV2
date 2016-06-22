@@ -277,14 +277,21 @@
       CASE WHEN ${net_sold} > 0 THEN ${gross_cost} - ${credits.extended_cost} END
 
   - measure: gross_margin
-    label: "Gross Margin $"
+    label: "Gross Margin $ (Returns Netted)"
     description: "Gross margin dollars collected on net sales"
     type: number
     value_format: '$#,##0' 
     sql: CAST(${net_sold} - ${net_cost} AS money)
+    
+  - measure: gross_gross_margin
+    label: "Gross Margin $"
+    description: "Gross margin dollars collected on gross sales"
+    type: number
+    value_format: '$#,##0' 
+    sql: CAST(${subtotal} - ${gross_cost} AS money)
 
   - measure: gross_margin_percent
-    label: "Gross Margin %"
+    label: "Gross Margin % (Returns Netted)"
     description: "Gross margin percentage on net sales"
     type: number
     value_format: '0\%' 
@@ -292,6 +299,17 @@
       100.00 * CASE
         WHEN ${net_sold} = 0 AND ${gross_margin} = 0 THEN NULL
         WHEN ${net_sold} > 0 THEN ${gross_margin} / ${net_sold}
+      END
+
+  - measure: gross_gross_margin_percent
+    label: "Gross Margin %"
+    description: "Gross margin percentage on gross sales"
+    type: number
+    value_format: '0\%' 
+    sql: |
+      100.00 * CASE
+        WHEN ${subtotal} = 0 AND ${gross_gross_margin} = 0 THEN NULL
+        WHEN ${subtotal} > 0 THEN ${gross_gross_margin} / ${subtotal}
       END
       
   - measure: tax_collected

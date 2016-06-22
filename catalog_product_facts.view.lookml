@@ -18,7 +18,7 @@
         , MAX(last_sold) AS last_sold
         , MAX(quantity_returned_all_time) AS quantity_returned_all_time
         , MAX(average_cost.value) AS average_cost
-        , (MAX(catalog_product.price) - MAX(average_cost.value)) / MAX(catalog_product.price) AS opening_margin
+        , (MAX(catalog_product.price) - COALESCE(MAX(average_cost.value),MAX(cost.value))) / NULLIF(MAX(catalog_product.price),0) AS opening_margin
         , MAX(quantity_on_order) AS quantity_on_order
         
       FROM magento.cataloginventory_stock_item AS a
@@ -97,6 +97,11 @@
         GROUP BY pop_product_id
       ) AS average_cost
       ON a.product_id = average_cost.pop_product_id
+      
+      LEFT JOIN (
+        SELECT entity_id, value FROM magento.catalog_product_entity_decimal WHERE attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'cost')
+      ) AS cost
+      ON a.product_id = cost.entity_id
       
       LEFT JOIN (
         SELECT a.pop_product_id AS product_id

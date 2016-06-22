@@ -323,3 +323,7 @@
       sql_on: weekly_business_review.parent_id = categories.product_id
       relationship: one_to_many
       
+- explore: new_products
+  hidden: true
+  from: elasticsearch_products_new_this_week
+    

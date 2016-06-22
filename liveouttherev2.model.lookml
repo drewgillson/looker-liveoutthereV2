@@ -327,3 +327,6 @@
   hidden: true
   from: elasticsearch_products_new_this_week
     
+- explore: removed_products
+  hidden: true
+  from: elasticsearch_products_removed_this_week

@@ -3,7 +3,7 @@
     sql: |
       SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row
         , a.*
-        , (qty * average_cost.value) AS extended_cost
+        , (qty * COALESCE(average_cost.value, cost.value)) AS extended_cost
         , 1 - (row_total / (qty * msrp.price)) AS discount_percentage_from_msrp
       FROM (
         SELECT email 
@@ -155,6 +155,10 @@
         GROUP BY pop_product_id
       ) AS average_cost
       ON a.product_id = average_cost.pop_product_id
+      LEFT JOIN (
+        SELECT entity_id, value FROM magento.catalog_product_entity_decimal WHERE attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'cost')
+      ) AS cost
+      ON a.product_id = cost.entity_id
       LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS msrp
       ON a.product_id = msrp.entity_id
     indexes: [email, order_entity_id, order_increment_id]

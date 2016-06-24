@@ -33,3 +33,7 @@
       - label: 'Configurable Product'
         url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value | encode_uri }}"
         icon_url: 'https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico'
+        
+  - measure: count_of_styles
+    type: count_distinct
+    sql: ${TABLE}.parent_id

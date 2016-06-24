@@ -137,7 +137,7 @@
   - dimension: is_in_stock
     description: "Is 'Yes' if the total quantity available to sell is greater than 0"
     type: yesno
-    sql: ${quantity_available_to_sell} > 0
+    sql: ${TABLE}.quantity_on_hand > 0
 
   - dimension_group: reached_minimum_desired_quantity
     description: "Date we reached the minimum desired quantity for a product"

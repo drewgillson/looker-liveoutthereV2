@@ -313,6 +313,10 @@
       relationship: one_to_many
       required_joins: [sales]
       type: full_outer
+    - join: elasticsearch
+      from: elasticsearch_products_latest
+      sql_on: products.parent_id = ${elasticsearch.entity_id}
+      relationship: one_to_one
     
 - explore: weekly_business_review
   from: reports_weekly_business_review

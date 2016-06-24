@@ -37,3 +37,8 @@
   - measure: count_of_styles
     type: count_distinct
     sql: ${TABLE}.parent_id
+    
+  - measure: count_of_skus
+    label: "Count of SKUS"
+    type: count_distinct
+    sql: ${TABLE}.sku

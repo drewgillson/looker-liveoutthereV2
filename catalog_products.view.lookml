@@ -221,6 +221,10 @@
     type: yesno
     sql: ${TABLE}.parent_count = 0
 
+  - dimension: associated_to_configurable
+    type: yesno
+    sql: ${TABLE}.parent_count > 0
+
   - dimension: cost
     description: "Wholesale cost for a product"
     type: number

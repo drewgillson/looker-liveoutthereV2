@@ -18,7 +18,7 @@
              , i.value AS image
              , j.value AS barcode
              , l.value AS size
-             , CASE WHEN m.value = '17215' THEN 'Men' WHEN m.value = '17216' THEN 'Women' WHEN m.value = '17215,17216' OR m.value = '17216,17215' THEN 'Men^Women' WHEN m.value = '17213' THEN 'Boy' WHEN m.value = '17214' THEN 'Girl' WHEN m.value = '17213,17214' THEN 'Boy^Girl' WHEN m.value = '42206' THEN 'Infant' END AS department
+             , CASE WHEN m.value = '17215' THEN 'Men' WHEN m.value = '17216' THEN 'Women' WHEN m.value = '17215,17216' OR m.value = '17216,17215' THEN 'Men^Women' WHEN m.value = '17213' THEN 'Boys' WHEN m.value = '17214' THEN 'Girls' WHEN m.value = '17213,17214' OR m.value = '17214,17213' THEN 'Boys^Girls' WHEN m.value = '42206' THEN 'Infant' WHEN m.value = '64480' THEN 'Kids' WHEN m.value = '41763' THEN 'Toddler' END AS department
              -- strip tabs and line breaks from product names (they cause issues with CSV/TSV exports)
              , LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(n.value,CHAR(10),''),CHAR(13),''),CHAR(9),''))) AS product
              , p.value AS brand

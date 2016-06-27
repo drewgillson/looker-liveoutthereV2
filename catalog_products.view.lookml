@@ -270,6 +270,12 @@
     description: "Unique count of Long Product Name"
     type: count_distinct
     sql: ${long_product_name}
+
+  - measure: count_style_colours
+    label: "Count of Style/Colours"
+    description: "Unique count of style/colours"
+    type: count_distinct
+    sql: ${style_color_code}
     
   - dimension: is_map_brand
     label: "Is MAP Brand"

@@ -139,6 +139,11 @@
     type: yesno
     sql: ${TABLE}.quantity_on_hand > 0
 
+  - dimension: is_available_to_sell
+    description: "Is 'Yes' if the total quantity available to sell is greater than 0"
+    type: yesno
+    sql: (${TABLE}.quantity_on_hand - ${TABLE}.quantity_reserved) > 0
+
   - dimension_group: reached_minimum_desired_quantity
     description: "Date we reached the minimum desired quantity for a product"
     type: time

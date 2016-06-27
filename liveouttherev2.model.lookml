@@ -277,6 +277,11 @@
       sql_on: sales.order_entity_id = shipping_tracking.order_id
       relationship: many_to_many
       required_joins: [sales]
+    - join: lateshipment_data
+      from: carriers_lateshipment_data
+      sql_on: ${shipping_tracking.tracking_number} = lateshipment_data."Tracking Number"
+      relationship: one_to_one
+      required_joins: [shipping_tracking]
     - join: product_page_views
       from: catalog_products_page_views
       sql_on: products.url_key = product_page_views.url_key

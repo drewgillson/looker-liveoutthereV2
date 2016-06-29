@@ -20,6 +20,7 @@
            , p.pop_qty * price.value AS ordered_amount_msrp
            , p.pop_supplied_qty * price.value AS delivered_amount_msrp
            , sup.sup_name AS supplier
+           , po.po_author
         FROM magento.purchase_order_product AS p
         LEFT JOIN magento.purchase_order AS po
           ON p.pop_order_num = po.po_num
@@ -48,6 +49,10 @@
   - dimension: supplier
     description: "Supplier name for purchase order in Magento"
     sql: ${TABLE}.supplier
+
+  - dimension: owner
+    description: "Owner/author name for purchase order in Magento"
+    sql: ${TABLE}.po_author
 
   - dimension: terms
     description: "Payment terms for purchase order"

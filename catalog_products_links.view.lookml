@@ -42,3 +42,8 @@
     label: "Count of SKUS"
     type: count_distinct
     sql: ${TABLE}.sku
+    
+  - measure: percent_of_total
+    type: percent_of_total
+    sql: ${count_of_skus}
+    

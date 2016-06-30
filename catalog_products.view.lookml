@@ -161,6 +161,10 @@
     sql: ${TABLE}.storefront
     drill_fields: [brand]
 
+  - dimension: barcode_known
+    type: yesno
+    sql: ${gtin} IS NOT NULL
+    
   - dimension: barcode
     description: "Identical to GTIN dimension"
     type: string

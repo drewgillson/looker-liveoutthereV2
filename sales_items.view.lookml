@@ -395,6 +395,10 @@
     type: count_distinct
     sql: ${order_id}
     
+  - measure: percent_of_total_orders
+    type: percent_of_total
+    sql: ${orders}
+    
   - measure: unique_products_ordered
     type: count_distinct
     sql: ${TABLE}.product_id

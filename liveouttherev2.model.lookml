@@ -322,6 +322,10 @@
       from: elasticsearch_products_latest
       sql_on: products.parent_id = ${elasticsearch.entity_id}
       relationship: one_to_one
+    - join: order_sequence
+      from: sales_order_sequence
+      sql_on: sales.order_entity_id = order_sequence.order_entity_id
+      relationship: one_to_one
     
 - explore: weekly_business_review
   from: reports_weekly_business_review

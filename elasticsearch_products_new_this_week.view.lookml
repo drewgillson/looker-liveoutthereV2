@@ -1,7 +1,8 @@
 - view: elasticsearch_products_new_this_week
   derived_table:
     sql: |
-      SELECT a.* FROM elasticsearch.products_log AS a
+      SELECT a.*
+      FROM elasticsearch.products_log AS a
       LEFT JOIN elasticsearch.products_log AS b
         ON a.entity_id = b.entity_id AND CAST(b.log_date AS date) = DATEADD(dd,-7,CAST(GETDATE() AS date)) -- 7 days ago
       WHERE CAST(a.log_date AS date) = CAST(GETDATE() AS date) -- today

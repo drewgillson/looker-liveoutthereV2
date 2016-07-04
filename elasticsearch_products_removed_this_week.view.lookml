@@ -32,6 +32,10 @@
     type: string
     sql: SUBSTRING(${TABLE}.sku,2,LEN(${TABLE}.sku)-2)
 
+  - dimension: url_key
+    type: string
+    sql: SUBSTRING(${TABLE}.url_key,2,LEN(${TABLE}.url_key)-2)
+
   - dimension_group: log
     type: time
     sql: ${TABLE}.log_date

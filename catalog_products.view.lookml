@@ -97,6 +97,7 @@
         ) AS magento
         LEFT JOIN ${catalog_akeneo_option_values.SQL_TABLE_NAME} AS akeneo
           ON magento.parent_id = akeneo.parent_id
+          
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
         SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL

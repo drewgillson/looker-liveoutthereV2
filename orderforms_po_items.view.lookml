@@ -11,6 +11,7 @@
         , MAX(b.category) AS category
         , MAX(b.department) AS department
         , MAX(b.budget_type) AS budget_type
+        , MAX(b.source_sheet) AS source_sheet
         , MAX(d.inventory_type) AS inventory_type
         , c.po_ship_date AS ship
         , c.po_discount AS discount
@@ -39,27 +40,39 @@
 
   - dimension: inventory_type
     type: string
-    #hidden: true
+    hidden: true
     sql: ${TABLE}.inventory_type
+
+  - dimension: source_sheet
+    type: string
+    hidden: true
+    sql: ${TABLE}.source_sheet
     
   - dimension: budget_type
     type: string
-    #hidden: true
-    sql: ${TABLE}.budget_type
+    hidden: true
+    sql: |
+      CASE WHEN ${TABLE}.budget_type IS NOT NULL THEN ${TABLE}.budget_type
+           WHEN ${source_sheet} = 'Fashion' THEN 'Fashion'
+           WHEN ${source_sheet} = 'Kids' THEN 'Kids'
+           WHEN ${category} LIKE '%Footwear%' THEN 'Footwear'
+           WHEN ${category} LIKE '%Gear%' THEN 'Gear'
+           ELSE 'Apparel'
+      END
 
   - dimension: category
     type: string
-    #hidden: true
+    hidden: true
     sql: ${TABLE}.category
 
   - dimension: category_level_1
     type: string
-    #hidden: true
+    hidden: true
     sql: CASE WHEN ${category} LIKE '%/%' THEN LEFT(${category},CHARINDEX('/',${category})-1) ELSE ${category} END
 
   - dimension: department
     type: string
-    #hidden: true
+    hidden: true
     sql: ${TABLE}.department
 
   - dimension_group: ship

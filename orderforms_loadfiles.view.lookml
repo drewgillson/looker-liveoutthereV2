@@ -28,17 +28,17 @@
     
   - dimension: category_level_1
     type: string
-    sql: LEFT(${category},CHARINDEX('/',${category})-1)
+    sql: CASE WHEN ${category} LIKE '%/%' THEN LEFT(${category},CHARINDEX('/',${category})-1) ELSE ${category} END
     drill_fields: [category_level_2, brand]
 
   - dimension: category_level_2
     type: string
-    sql: SUBSTRING(${category},LEN(${category_level_1})+2,CASE WHEN CHARINDEX('/',${category},LEN(${category_level_1})+2) > 0 THEN CHARINDEX('/',${category},LEN(${category_level_1})+2) - LEN(${category_level_1}) - 2 ELSE 255 END)
+    sql: CASE WHEN ${category} LIKE '%/%' THEN SUBSTRING(${category},LEN(${category_level_1})+2,CASE WHEN CHARINDEX('/',${category},LEN(${category_level_1})+2) > 0 THEN CHARINDEX('/',${category},LEN(${category_level_1})+2) - LEN(${category_level_1}) - 2 ELSE 255 END) END
     drill_fields: [category_level_3, brand]
 
   - dimension: category_level_3
     type: string
-    sql: SUBSTRING(${category},LEN(${category_level_1} + '/' + ${category_level_2})+2,CASE WHEN CHARINDEX('/',${category},LEN(${category_level_1} + '/' + ${category_level_2})+2) > 0 THEN CHARINDEX('/',${category},LEN(${category_level_1} + '/' + ${category_level_2})+2) - LEN(${category_level_1} + '/' + ${category_level_2}) - 2 ELSE 255 END)
+    sql: CASE WHEN ${category} LIKE '%/%' THEN SUBSTRING(${category},LEN(${category_level_1} + '/' + ${category_level_2})+2,CASE WHEN CHARINDEX('/',${category},LEN(${category_level_1} + '/' + ${category_level_2})+2) > 0 THEN CHARINDEX('/',${category},LEN(${category_level_1} + '/' + ${category_level_2})+2) - LEN(${category_level_1} + '/' + ${category_level_2}) - 2 ELSE 255 END) END
 
   - dimension: price
     type: number

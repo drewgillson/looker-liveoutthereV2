@@ -326,6 +326,11 @@
       from: sales_order_sequence
       sql_on: sales.order_entity_id = order_sequence.order_entity_id
       relationship: one_to_one
+    - join: loadfiles
+      from: orderforms_loadfiles
+      sql_on: products.sku = loadfiles.sku
+      relationship: one_to_one
+      required_joins: [categories]
 
 - explore: assortment_planning
   from: orderforms_budgets
@@ -338,6 +343,7 @@
       from: orderforms_loadfiles
       sql_on: items.sku = loadfile.sku
       relationship: many_to_one
+      required_joins: [items]
     - join: items_for_budget
       from: orderforms_po_items
       sql_on: |
@@ -350,6 +356,11 @@
       from: catalog_products_links
       sql_on: loadfile.sku = products.sku
       relationship: many_to_one
+      required_joins: [loadfile]
+    - join: product_facts
+      from: catalog_product_facts
+      sql_on: products.entity_id = product_facts.product_id
+      relationship: one_to_many
 
 - explore: assortment_planning_not_mapped_to_budget
   hidden: true

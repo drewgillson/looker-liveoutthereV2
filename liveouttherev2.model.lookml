@@ -326,7 +326,53 @@
       from: sales_order_sequence
       sql_on: sales.order_entity_id = order_sequence.order_entity_id
       relationship: one_to_one
-    
+
+- explore: assortment_planning
+  from: orderforms_budgets
+  joins:
+    - join: items
+      from: orderforms_po_items
+      sql_on: assortment_planning.season = items.season
+      relationship: many_to_one
+    - join: loadfile
+      from: orderforms_loadfiles
+      sql_on: items.sku = loadfile.sku
+      relationship: many_to_one
+    - join: items_for_budget
+      from: orderforms_po_items
+      sql_on: |
+        assortment_planning.season = items_for_budget.season
+        AND LEFT(${assortment_planning.month},7) = ${items_for_budget.ship_month}
+        AND assortment_planning.department = CASE WHEN items_for_budget.department IN ('Boys','Girls','Kids') THEN 'Unisex' WHEN items_for_budget.inventory_type = 'Gear' THEN 'Unisex' ELSE items_for_budget.department END
+        AND (assortment_planning.type = ${items_for_budget.budget_type} OR assortment_planning.type = ${items_for_budget.inventory_type})
+      relationship: one_to_many
+    - join: products
+      from: catalog_products_links
+      sql_on: loadfile.sku = products.sku
+      relationship: many_to_one
+
+- explore: assortment_planning_not_mapped_to_budget
+  hidden: true
+  from: orderforms_loadfiles
+  joins:
+    - join: items
+      from: orderforms_po_items
+      sql_on: assortment_planning_not_mapped_to_budget.sku = items.sku
+      relationship: many_to_one
+    - join: categories
+      from: orderforms_category_map
+      sql_on: assortment_planning_not_mapped_to_budget.category = categories.category
+      relationship: one_to_one
+    - join: budgets
+      from: orderforms_budgets
+      sql_on: | 
+        budgets.season = items.season
+        AND LEFT(${budgets.month},7) = ${items.ship_month}
+        AND budgets.department = CASE WHEN assortment_planning_not_mapped_to_budget.department IN ('Boys','Girls','Kids') THEN 'Unisex' WHEN ${categories.inventory_type} = 'Gear' THEN 'Unisex' ELSE assortment_planning_not_mapped_to_budget.department END
+        AND (budgets.type = ${assortment_planning_not_mapped_to_budget.budget_type} OR budgets.type = ${categories.inventory_type})
+      relationship: one_to_one
+      required_joins: [categories]
+
 - explore: weekly_business_review
   from: reports_weekly_business_review
   hidden: true

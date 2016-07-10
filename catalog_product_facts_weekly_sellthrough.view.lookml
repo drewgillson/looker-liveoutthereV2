@@ -44,7 +44,7 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold_5_weeks_ago
         FROM magento.stock_movement
-        WHERE sm_date <= DATEADD(d,-28,GETDATE())
+        WHERE sm_date <= DATEADD(d,-28,GETDATE()) AND sm_date > DATEADD(d,-180,GETDATE())
         AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_5_weeks_ago
@@ -54,8 +54,8 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS returns_5_weeks_ago
         FROM magento.stock_movement
-        WHERE sm_date <= DATEADD(d,-28,GETDATE())
-        AND sm_type = 'transfer' AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        WHERE sm_date <= DATEADD(d,-28,GETDATE()) AND sm_date > DATEADD(d,-180,GETDATE())
+        AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_5_weeks_ago
       ON a.product_id = returns_5_weeks_ago.product_id
@@ -79,7 +79,7 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold_4_weeks_ago
         FROM magento.stock_movement
-        WHERE sm_date <= DATEADD(d,-21,GETDATE())
+        WHERE sm_date <= DATEADD(d,-21,GETDATE()) AND sm_date > DATEADD(d,-180,GETDATE())
         AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_4_weeks_ago
@@ -89,8 +89,8 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS returns_4_weeks_ago
         FROM magento.stock_movement
-        WHERE sm_date <= DATEADD(d,-21,GETDATE())
-        AND sm_type = 'transfer' AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        WHERE sm_date <= DATEADD(d,-21,GETDATE()) AND sm_date > DATEADD(d,-180,GETDATE())
+        AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_4_weeks_ago
       ON a.product_id = returns_4_weeks_ago.product_id
@@ -114,7 +114,7 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold_3_weeks_ago
         FROM magento.stock_movement
-        WHERE sm_date <= DATEADD(d,-14,GETDATE())
+        WHERE sm_date <= DATEADD(d,-14,GETDATE()) AND sm_date > DATEADD(d,-180,GETDATE())
         AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_3_weeks_ago
@@ -124,8 +124,8 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS returns_3_weeks_ago
         FROM magento.stock_movement
-        WHERE sm_date <= DATEADD(d,-14,GETDATE())
-        AND sm_type = 'transfer' AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        WHERE sm_date <= DATEADD(d,-14,GETDATE()) AND sm_date > DATEADD(d,-180,GETDATE())
+        AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_3_weeks_ago
       ON a.product_id = returns_3_weeks_ago.product_id
@@ -149,7 +149,7 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold_2_weeks_ago
         FROM magento.stock_movement
-        WHERE sm_date <= DATEADD(d,-7,GETDATE())
+        WHERE sm_date <= DATEADD(d,-7,GETDATE()) AND sm_date > DATEADD(d,-180,GETDATE())
         AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_2_weeks_ago
@@ -159,8 +159,8 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS returns_2_weeks_ago
         FROM magento.stock_movement
-        WHERE sm_date <= DATEADD(d,-7,GETDATE())
-        AND sm_type = 'transfer' AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        WHERE sm_date <= DATEADD(d,-7,GETDATE()) AND sm_date > DATEADD(d,-180,GETDATE())
+        AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_2_weeks_ago
       ON a.product_id = returns_2_weeks_ago.product_id
@@ -183,7 +183,7 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold_1_week_ago
         FROM magento.stock_movement
-        WHERE (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
+        WHERE sm_date > DATEADD(d,-180,GETDATE()) AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_1_week_ago
       ON a.product_id = sales_1_week_ago.product_id
@@ -192,7 +192,7 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS returns_1_week_ago
         FROM magento.stock_movement
-        WHERE sm_type = 'transfer' AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        WHERE sm_date > DATEADD(d,-180,GETDATE()) AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_1_week_ago
       ON a.product_id = returns_1_week_ago.product_id

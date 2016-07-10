@@ -8,6 +8,7 @@
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) * MAX(catalog_product.price) END AS total_sales_opportunity
         , MAX(historic_30_days_ago.quantity_on_hand) AS quantity_on_hand_30_days_ago
         , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_last_30_days) - ABS(SUM(qty)) ELSE MAX(quantity_sold_last_30_days) END AS quantity_sold_last_30_days
+        , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_last_180_days) - ABS(SUM(qty)) ELSE MAX(quantity_sold_last_180_days) END AS quantity_sold_last_180_days
         , CASE WHEN SUM(qty) < 0 THEN MAX(quantity_sold_all_time) - ABS(SUM(qty)) ELSE MAX(quantity_sold_all_time) END AS quantity_sold_all_time
         , MAX(min_qty) AS minimum_desired_quantity
         , MAX(is_in_stock) AS is_in_stock
@@ -17,6 +18,7 @@
         , MAX(last_receipt) AS last_receipt
         , MAX(last_sold) AS last_sold
         , MAX(quantity_returned_all_time) AS quantity_returned_all_time
+        , MAX(quantity_returned_last_180_days) AS quantity_returned_last_180_days
         , MAX(average_cost.value) AS average_cost
         , (MAX(catalog_product.price) - COALESCE(MAX(average_cost.value),MAX(cost.value))) / NULLIF(MAX(catalog_product.price),0) AS opening_margin
         , MAX(quantity_on_order) AS quantity_on_order
@@ -50,6 +52,16 @@
 
       LEFT JOIN (
         SELECT sm_product_id AS product_id
+             , SUM(sm_qty) AS quantity_sold_last_180_days
+        FROM magento.stock_movement
+        WHERE sm_date >= DATEADD(d,-180,GETDATE())
+        AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
+        GROUP BY sm_product_id
+      ) AS sales_180_days
+      ON a.product_id = sales_180_days.product_id
+
+      LEFT JOIN (
+        SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold_all_time
         FROM magento.stock_movement
         WHERE (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
@@ -79,10 +91,19 @@
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_returned_all_time
         FROM magento.stock_movement
-        WHERE sm_type = 'transfer' AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        WHERE (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_all_time
       ON a.product_id = returns_all_time.product_id
+
+      LEFT JOIN (
+        SELECT sm_product_id AS product_id
+             , SUM(sm_qty) AS quantity_returned_last_180_days
+        FROM magento.stock_movement
+        WHERE sm_date >= DATEADD(d,-180,GETDATE()) AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        GROUP BY sm_product_id
+      ) AS returns_180_days
+      ON a.product_id = returns_180_days.product_id
 
       LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS catalog_product
       ON a.product_id = catalog_product.entity_id
@@ -265,8 +286,23 @@
     type: sum
     sql: ${TABLE}.quantity_sold_all_time
 
+  - measure: quantity_returned_last_180_days
+    description: "Quantity returned during the last 180 days"
+    type: sum
+    sql: ${TABLE}.quantity_returned_all_time
+
+  - measure: quantity_sold_last_180_days
+    description: "Quantity sold during the last 180 days"
+    type: sum
+    sql: ${TABLE}.quantity_sold_all_time
+
   - measure: net_sold_quantity_all_time
-    description: "Total quantity sold minus the total quantity returned (all-time), used for calculating sell through rate"
+    description: "Total quantity sold minus the total quantity returned (all-time)"
+    type: number
+    sql: ${quantity_sold_all_time} - ${quantity_returned_all_time}
+
+  - measure: net_sold_quantity_last_180_days
+    description: "Total quantity sold minus the total quantity returned (last 180 days), used for calculating sell through rate"
     type: number
     sql: ${quantity_sold_all_time} - ${quantity_returned_all_time}
 
@@ -290,10 +326,10 @@
 
   - measure: sell_through_rate
     label: "Sell Through %"
-    description: "Net sold quantity divided by (quantity on hand plus net sold quantity)"
+    description: "Net sold quantity divided by (quantity on hand plus net sold quantity) for the last 180 days"
     type: number
     value_format: '0\%'
-    sql: 100.00 * (${net_sold_quantity_all_time} / NULLIF(${quantity_on_hand} + ${net_sold_quantity_all_time},0))
+    sql: 100.00 * ((${quantity_sold_last_180_days} - ${quantity_returned_last_180_days}) / NULLIF(${quantity_available_to_sell} + (${quantity_sold_last_180_days} - ${quantity_returned_last_180_days}),0))
 
   - measure: quantity_available_to_sell
     description: "Quantity on hand minus quantity reserved for orders that haven't shipped"

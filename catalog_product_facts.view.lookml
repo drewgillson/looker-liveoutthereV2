@@ -289,12 +289,12 @@
   - measure: quantity_returned_last_180_days
     description: "Quantity returned during the last 180 days"
     type: sum
-    sql: ${TABLE}.quantity_returned_all_time
+    sql: ${TABLE}.quantity_returned_last_180_days
 
   - measure: quantity_sold_last_180_days
     description: "Quantity sold during the last 180 days"
     type: sum
-    sql: ${TABLE}.quantity_sold_all_time
+    sql: ${TABLE}.quantity_sold_last_180_days
 
   - measure: net_sold_quantity_all_time
     description: "Total quantity sold minus the total quantity returned (all-time)"
@@ -304,7 +304,7 @@
   - measure: net_sold_quantity_last_180_days
     description: "Total quantity sold minus the total quantity returned (last 180 days), used for calculating sell through rate"
     type: number
-    sql: ${quantity_sold_all_time} - ${quantity_returned_all_time}
+    sql: ${quantity_sold_last_180_days} - ${quantity_returned_last_180_days}
 
   - measure: average_quantity_sold_per_day
     description: "Quantity of units sold per day based on 30-day sales history"
@@ -318,6 +318,7 @@
     sql: ${quantity_available_to_sell} / NULLIF((${quantity_sold_last_30_days} / 30.0),0)
 
   - measure: days_of_inventory_remaining
+    label: "Days of Inventory Remaining (for 30-day rolling sales)"
     description: "Based on 30-day sales history, the number of days that will elapse before we run out of inventory"
     type: number
     value_format: "0"

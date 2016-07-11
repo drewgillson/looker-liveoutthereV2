@@ -290,6 +290,11 @@
       from: jaccard_order_brand_affinity
       sql_on: products.brand = brand_similarity.brand_a
       relationship: many_to_one
+    - join: alternate_images
+      from: catalog_products_alternate_images
+      sql_on: associations.parent_sku = alternate_images.sku
+      relationship: one_to_one
+      required_joins: [associations]
     - join: available_colours
       from: catalog_product_available_colours
       sql_on: associations.parent_sku = available_colours.configurable_sku

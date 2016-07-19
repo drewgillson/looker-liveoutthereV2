@@ -367,6 +367,10 @@
       sql_on: products.entity_id = product_facts.product_id
       relationship: one_to_many
 
+- explore: orderforms_data_tracker
+  hidden: true
+  from: orderforms_data_tracker
+    
 - explore: assortment_planning_not_mapped_to_budget
   hidden: true
   from: orderforms_loadfiles

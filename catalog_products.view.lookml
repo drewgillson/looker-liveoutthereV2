@@ -26,6 +26,7 @@
            , MIN(CAST(y.value AS int)) AS merchandise_priority
            , COALESCE('/' + za.value + '.html','/' + z.value + '.html') AS url_key
            , DATALENGTH(zb.value) AS description_length
+           , zd.value AS budget_type
         FROM magento.catalog_product_entity AS a
         LEFT JOIN magento.catalog_product_entity_varchar AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
@@ -87,11 +88,15 @@
           AND za.store_id = 1
         LEFT JOIN magento.catalog_product_entity_text AS zb
           ON w.parent_id = zb.entity_id AND zb.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'description' AND entity_type_id = 4)
+        LEFT JOIN magento.catalog_product_entity_int AS zc
+          ON a.entity_id = zc.entity_id AND zc.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'budget_type' AND entity_type_id = 4) AND zc.store_id = 0
+        LEFT JOIN magento.eav_attribute_option_value AS zd
+          ON zc.value = zd.option_id AND zd.store_id = 0
         WHERE a.type_id IN ('simple','ugiftcert','giftcert','giftvoucher')
-        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value, DATALENGTH(zb.value)
+        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value, DATALENGTH(zb.value), zd.value
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
-        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
     indexes: [sku, entity_id, url_key]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -161,6 +166,11 @@
     description: "Identical to GTIN dimension"
     type: string
     sql: ${gtin}
+
+  - dimension: budget_type
+    description: "Budget type of product"
+    type: string
+    sql: ${TABLE}.budget_type
     
   - dimension: gtin
     description: "Real supplier GTIN/UPC for a product (null if we don't know it)"

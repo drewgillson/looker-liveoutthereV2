@@ -85,6 +85,7 @@
     drill_fields: [category, department]
 
   - dimension: budget_type
+    hidden: true
     type: string
     sql: |
       CASE WHEN ${TABLE}.budget_type IS NOT NULL THEN ${TABLE}.budget_type
@@ -92,9 +93,7 @@
            WHEN ${source_sheet} = 'Kids' THEN 'Kids'
            WHEN ${category} LIKE '%Footwear%' THEN 'Footwear'
            WHEN ${category} LIKE '%Gear%' THEN 'Gear'
-           ELSE 'Apparel'
       END
-    drill_fields: [category, brand, department]
 
   - dimension: brand_logo
     type: string

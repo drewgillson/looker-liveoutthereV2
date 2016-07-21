@@ -135,6 +135,10 @@
       from: personalization_affinity_8_weeks
       sql_on: people.email = personalization_affinity_over_8_weeks_2.email
       relationship: one_to_many
+    - join: warranties
+      sql_on: people.email = warranties.customer_email
+      type: full_outer
+      relationship: one_to_many
 
 - explore: reconciliation
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels

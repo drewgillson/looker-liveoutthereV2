@@ -71,7 +71,18 @@
 
   - dimension: status
     type: string
-    sql: ${TABLE}.status
+    sql: | 
+      CASE WHEN ${TABLE}.status = 'pending_ra' THEN 'Needs RA'
+           WHEN ${TABLE}.status = 'pending' THEN 'Waiting for Supplier'
+           WHEN ${TABLE}.status = 'repaired' THEN 'To be Repaired'
+           WHEN ${TABLE}.status = 'credited' THEN 'To be Credited'
+           WHEN ${TABLE}.status = 'replaced' THEN 'To be Replaced'
+           WHEN ${TABLE}.status = 'resolved_denied' THEN 'Resolved - Denied'
+           WHEN ${TABLE}.status = 'resolved_shipped_customer' THEN 'Resolved - Replaced'
+           WHEN ${TABLE}.status = 'resolved_shipped_store' THEN 'Resolved - Repaired'
+           WHEN ${TABLE}.status = 'resolved_refunded' THEN 'Resolved - Credited'
+           ELSE ${TABLE}.status
+      END
 
   - dimension: supplier_id
     type: number

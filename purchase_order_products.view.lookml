@@ -61,7 +61,13 @@
   - dimension: predicted_invoice
     type: time
     description: "Date the 1st invoice will probably arrive, based on terms"
-    sql: CASE WHEN ISNUMERIC(${TABLE}.po_terms) = 1 THEN DATEADD(dd,CAST(${TABLE}.po_terms AS int),${TABLE}.po_ship_date) END
+    sql: |
+      CASE WHEN ISNUMERIC(${TABLE}.po_terms) = 1
+           THEN DATEADD(dd,CAST(${TABLE}.po_terms AS int),CASE WHEN ${TABLE}.po_status = 'New' AND ${TABLE}.po_ship_date < GETDATE()
+                                                               THEN GETDATE()
+                                                               ELSE ${TABLE}.po_ship_date
+                                                          END)
+      END
 
   - dimension: order_number
     description: "Purchase order number in Magento"

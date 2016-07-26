@@ -413,3 +413,7 @@
 - explore: removed_products
   hidden: true
   from: elasticsearch_products_removed_this_week
+  
+- explore: item_master
+  label: "Supplier Item Masters"
+  from: orderforms_item_master

@@ -62,9 +62,11 @@
     type: time
     description: "Date the 1st invoice will probably arrive, based on terms"
     sql: |
-      CASE WHEN ISNUMERIC(${TABLE}.po_terms) = 1
+      CASE WHEN ISNUMERIC(${TABLE}.po_terms) = 1 AND ${TABLE}.po_status <> 'cancelled'
            THEN DATEADD(dd,CAST(${TABLE}.po_terms AS int),CASE WHEN ${TABLE}.po_status = 'New' AND ${TABLE}.po_ship_date < GETDATE()
                                                                THEN GETDATE()
+                                                               WHEN ${TABLE}.po_arrival_date IS NOT NULL
+                                                               THEN ${TABLE}.po_arrival_date
                                                                ELSE ${TABLE}.po_ship_date
                                                           END)
       END

@@ -12,6 +12,9 @@
       UNION ALL
       SELECT 'Best Use' AS affinity_type, email, best_use, score, page_views
       FROM ${personalization_best_use_affinity.SQL_TABLE_NAME}
+      UNION ALL
+      SELECT 'Budget Type' AS affinity_type, email, budget_type, score, page_views
+      FROM ${personalization_budget_type_affinity.SQL_TABLE_NAME}
     indexes: [email,affinity_type,score]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -25,7 +28,7 @@
       sql: ${TABLE}.email
 
     - dimension: type
-      description: "Currently either 'Brand', 'Category', 'Department', or 'Best Use'"
+      description: "Currently either 'Brand', 'Category', 'Department', 'Budget Type', or 'Best Use'"
       type: string
       sql: ${TABLE}.affinity_type
       

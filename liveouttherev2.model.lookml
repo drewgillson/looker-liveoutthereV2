@@ -158,7 +158,7 @@
       from: transactions_tax
       sql_on: |
         reconciliation.entity_id = tax.order_id
-      relationship: many_to_one
+      relationship: one_to_many
       required_joins: [magento_map, payment_transaction]
 #   used to map Magento invoices and credit memos to PayPal transactions (the view above would have been unnecessary had Demac built the Optimal Payments extension properly)
     - join: payment_transaction

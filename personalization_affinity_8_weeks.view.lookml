@@ -13,7 +13,7 @@
       SELECT 'Best Use' AS affinity_type, email, best_use, score, page_views
       FROM ${personalization_best_use_affinity_8_weeks.SQL_TABLE_NAME}
       UNION ALL
-      SELECT 'Budget Type' AS affinity_type, email, best_use, score, page_views
+      SELECT 'Budget Type' AS affinity_type, email, budget_type, score, page_views
       FROM ${personalization_budget_type_affinity_8_weeks.SQL_TABLE_NAME}
     indexes: [email,affinity_type,score]
     sql_trigger_value: |

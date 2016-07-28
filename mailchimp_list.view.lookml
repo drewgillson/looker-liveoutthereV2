@@ -23,7 +23,7 @@
 
   - dimension_group: signup
     type: time
-    sql: NULLIF(${TABLE}.timestamp_signup,'')
+    sql: ISNULL(CAST(NULLIF(REPLACE(LEFT(${TABLE}.timestamp_signup,15),'T',' '),'') AS datetime),'1970-01-01')
 
   - dimension_group: last_changed
     type: time

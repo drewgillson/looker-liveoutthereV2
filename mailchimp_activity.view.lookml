@@ -75,7 +75,7 @@
     sql: ${TABLE}.status
 
   - dimension_group: signup
-    label: "Subscriber: Signup Time"
+    label: "Subscriber: Signup"
     type: time
     sql: ${TABLE}.signup
 
@@ -85,7 +85,7 @@
     sql: ${TABLE}.action
 
   - dimension_group: activity
-    label: "Activity: Time"
+    label: "Activity: "
     type: time
     sql: ${TABLE}.activity
 

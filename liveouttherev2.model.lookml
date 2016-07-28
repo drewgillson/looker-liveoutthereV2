@@ -216,6 +216,10 @@
       from: catalog_product_facts
       sql_on: products.entity_id = product_facts.product_id
       relationship: one_to_one
+    - join: bucketed_sellthrough
+      from: catalog_product_bucketed_sellthrough
+      sql_on: products.entity_id = bucketed_sellthrough.product_id
+      relationship: one_to_one
     - join: inventory_history
       from: catalog_product_inventory_history
       sql_on: products.entity_id = inventory_history.product_id

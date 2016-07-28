@@ -22,11 +22,7 @@
         , MAX(average_cost.value) AS average_cost
         , (MAX(catalog_product.price) - COALESCE(MAX(average_cost.value),MAX(cost.value))) / NULLIF(MAX(catalog_product.price),0) AS opening_margin
         , MAX(quantity_on_order) AS quantity_on_order
-        , MAX(inventory_history_20160103.quantity_on_hand) AS quantity_on_hand_20160103
-        , MAX(returns_since_20160103.quantity_returned) AS quantity_returned_since_20160103
-        , MAX(sales_since_20160103.quantity_sold) AS quantity_sold_since_20160103
-        , MAX(receipts_since_20160103.quantity_received) AS quantity_received_since_20160103
-        
+
       FROM magento.cataloginventory_stock_item AS a
       
       LEFT JOIN (
@@ -139,48 +135,6 @@
       ) AS quantity_on_order
       ON a.product_id = quantity_on_order.product_id
       
-      LEFT JOIN (
-        SELECT 
-          products.entity_id,
-          COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(inventory_history.quantity,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS quantity_on_hand
-        FROM ${catalog_products_links.SQL_TABLE_NAME} AS products
-        LEFT JOIN ${catalog_product_inventory_history.SQL_TABLE_NAME} AS inventory_history ON products.entity_id = inventory_history.product_id
-        WHERE 
-          (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2016-01-03', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2016-01-03', 120) )))))
-        GROUP BY products.entity_id
-      ) AS inventory_history_20160103
-      ON a.product_id = inventory_history_20160103.entity_id
-
-      LEFT JOIN (
-        SELECT sm_product_id AS product_id
-             , SUM(sm_qty) AS quantity_received
-        FROM magento.stock_movement
-        WHERE sm_date >= '2016-01-03'
-        AND (sm_type = 'supply')
-        GROUP BY sm_product_id
-      ) AS receipts_since_20160103
-      ON a.product_id = receipts_since_20160103.product_id
-
-      LEFT JOIN (
-        SELECT sm_product_id AS product_id
-             , SUM(sm_qty) AS quantity_sold
-        FROM magento.stock_movement
-        WHERE sm_date >= '2016-01-03'
-        AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
-        GROUP BY sm_product_id
-      ) AS sales_since_20160103
-      ON a.product_id = sales_since_20160103.product_id
-
-      LEFT JOIN (
-        SELECT sm_product_id AS product_id
-             , SUM(sm_qty) AS quantity_returned
-        FROM magento.stock_movement
-        WHERE sm_date >= '2016-01-03'
-        AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
-        GROUP BY sm_product_id
-      ) AS returns_since_20160103
-      ON a.product_id = returns_since_20160103.product_id
-      
       GROUP BY a.product_id
     indexes: [product_id]
     sql_trigger_value: |
@@ -260,42 +214,6 @@
     description: "Quantity currently on hand / in stock"
     type: sum
     sql: ${TABLE}.quantity_on_hand
-
-  - measure: quantity_on_hand_20160103
-    description: "Quantity on hand on the date 2016-01-03"
-    type: sum
-    sql: ${TABLE}.quantity_on_hand_20160103
-
-  - measure: quantity_sold_since_20160103
-    description: "Quantity sold since 2016-01-03"
-    type: sum
-    sql: ${TABLE}.quantity_sold_since_20160103
-
-  - measure: quantity_received_since_20160103
-    description: "Quantity received on purchase orders since 2016-01-03"
-    type: sum
-    sql: ${TABLE}.quantity_received_since_20160103
-
-  - measure: quantity_returned_since_20160103
-    description: "Quantity returned since 2016-01-03"
-    type: sum
-    sql: ${TABLE}.quantity_returned_since_20160103
-
-  - measure: net_sold_quantity_since_20160103
-    description: "Quantity sold since 2016-01-03 minus the quantity returned since 2016-01-03"
-    type: number
-    sql: ${quantity_sold_since_20160103} - ${quantity_returned_since_20160103}
-
-  - measure: quantity_on_hand_received_since_20160103
-    description: "Quantity received since 2016-01-03 minus net sold quantity since 2016-01-03"
-    type: number
-    sql: ${quantity_received_since_20160103} - ${net_sold_quantity_since_20160103}
-      
-  - measure: sell_through_rate_bucket_1
-    description: "Net sold quantity since 2016-01-03 / (quantity on hand received since 2016-01-03 + net sold quantity since 2016-01-03)"
-    type: number
-    value_format: '0\%'
-    sql: 100.00 * ((${net_sold_quantity_since_20160103}) / NULLIF(CAST(${quantity_on_hand_received_since_20160103} AS float) + (${net_sold_quantity_since_20160103}),0))
 
   - measure: total_discounted_cost
     description: "Total cost of the inventory we have on hand (at average cost after discounts)"

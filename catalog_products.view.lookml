@@ -28,6 +28,7 @@
            , DATALENGTH(zb.value) AS description_length
            , zd.value AS budget_type
            , ze.value AS best_use
+           , zf.value AS special_price
         FROM magento.catalog_product_entity AS a
         LEFT JOIN magento.catalog_product_entity_varchar AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
@@ -95,11 +96,13 @@
           ON zc.value = zd.option_id AND zd.store_id = 0
         LEFT JOIN magento.catalog_product_entity_varchar AS ze
           ON w.parent_id = ze.entity_id AND ze.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'best_use' AND entity_type_id = 4)
+        LEFT JOIN magento.catalog_product_entity_decimal AS zf
+          ON a.entity_id = zf.entity_id AND zf.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'special_price' AND entity_type_id = 4)
         WHERE a.type_id IN ('simple','ugiftcert','giftcert','giftvoucher')
-        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value
+        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
-        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
     indexes: [sku, entity_id, url_key]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -250,6 +253,13 @@
     type: number
     value_format: '$#,##0.00'
     sql: ${TABLE}.price
+
+  - dimension: special_price
+    description: "Special price for a product"
+    label: "Special Price $"
+    type: number
+    value_format: '$#,##0.00'
+    sql: ${TABLE}.special_price
 
   - measure: average_price
     description: "Average MSRP/price for a product"

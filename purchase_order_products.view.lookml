@@ -131,7 +131,7 @@
       'Shipped': ${TABLE}.po_status = 'waiting_for_delivery'
       'Arrived': ${TABLE}.po_status = 'waiting_to_receive'
       'In Progress': ${TABLE}.po_status = 'in_progress'
-      'In Progress/Partial Receipt': ${TABLE}.po_status = 'in_progress_partial'
+      'Partial Receipt': ${TABLE}.po_status = 'in_progress_partial'
       'Complete': ${TABLE}.po_status = 'complete'
       'Cancelled': ${TABLE}.po_status = 'cancelled'
       'Closed': ${TABLE}.po_status = 'closed'

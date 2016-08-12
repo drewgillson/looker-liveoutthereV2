@@ -179,8 +179,7 @@
         THEN ${TABLE}.last_receipt
         ELSE '9999-01-01'
       END
-    drill_fields: [categories.short_category, categories.long_category, products.brand, products.long_product_name, products.department]
-    
+
 #    sql: ${TABLE}.last_receipt
 
   - dimension_group: last_sold

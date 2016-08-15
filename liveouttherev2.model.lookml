@@ -15,6 +15,12 @@
     - join: people_facts
       sql_on: people.email = ${people_facts.email}
       relationship: one_to_one
+    - join: people_favourite_brands
+      sql_on: people.email = ${people_favourite_brands.email}
+      relationship: one_to_many
+    - join: people_favourite_budget_types
+      sql_on: people.email = ${people_favourite_budget_types.email}
+      relationship: one_to_many
     - join: customers
       sql_on: people.email = customers.email
       relationship: one_to_one

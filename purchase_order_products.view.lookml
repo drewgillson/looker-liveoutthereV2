@@ -136,6 +136,7 @@
       'Cancelled': ${TABLE}.po_status = 'cancelled'
       'Closed': ${TABLE}.po_status = 'closed'
       'Unresolved Discrepancies': ${TABLE}.po_status = 'discrepancy'
+      'Waiting for RA': ${TABLE}.po_status = 'waiting_for_supplier'
       else: unknown
       
   - dimension: inventory_type

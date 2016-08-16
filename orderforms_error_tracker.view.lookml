@@ -1,6 +1,11 @@
 
 - view: orderforms_error_tracker
-  sql_table_name: orderform.error_tracker
+  derived_table: 
+    sql: |
+      SELECT a.*, b.po_author
+      FROM orderform.error_tracker AS a
+      LEFT JOIN magento.purchase_order AS b
+      ON a.po_number = b.po_order_id
 
   fields:
   - measure: count
@@ -10,6 +15,10 @@
   - dimension: date
     type: string
     sql: ${TABLE}.date
+    
+  - dimension: po_author
+    type: string
+    sql: ${TABLE}.po_author
 
   - dimension: brand
     type: string

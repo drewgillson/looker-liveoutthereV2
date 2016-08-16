@@ -380,6 +380,11 @@
       from: catalog_product_facts
       sql_on: products.entity_id = product_facts.product_id
       relationship: one_to_many
+    - join: errors
+      from: orderforms_error_tracker
+      sql_on: assortment_planning.season = errors.brand
+      type: full_outer
+      relationship: one_to_many
 
 - explore: orderforms_data_tracker
   hidden: true

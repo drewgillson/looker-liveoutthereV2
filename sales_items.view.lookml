@@ -194,6 +194,10 @@
     type: time
     sql: ${TABLE}.order_created
 
+  - measure: last_order
+    type: time
+    sql: MAX(${TABLE}.order_created)
+
   - dimension: order_id
     description: "Order ID from Magento or Shopify (includes links to backends)"
     type: string

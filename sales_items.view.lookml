@@ -194,6 +194,10 @@
     type: time
     sql: ${TABLE}.order_created
 
+  - measure: first_order
+    type: time
+    sql: MIN(${TABLE}.order_created)
+
   - measure: last_order
     type: time
     sql: MAX(${TABLE}.order_created)

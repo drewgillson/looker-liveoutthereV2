@@ -222,7 +222,7 @@
         THEN ${TABLE}.brand
         ELSE 'All Other Brands'
       END
-    drill_fields: [short_product_name, long_product_name, department, colour, colour_family, categories.long_category, categories.short_category]
+    drill_fields: [short_product_name, long_product_name, department, colour, colour_family, categories.long_category, categories.short_category, purchase_orders.order_number]
 
   - dimension: has_image
     description: "Will be 'Yes' if a product has an image"

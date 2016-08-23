@@ -73,6 +73,7 @@
     type: string
     sql: | 
       CASE WHEN ${TABLE}.status = 'pending_ra' THEN 'Needs RA'
+           WHEN ${TABLE}.status = 'open_claim' THEN 'Open Claim'
            WHEN ${TABLE}.status = 'pending' THEN 'Waiting for Supplier'
            WHEN ${TABLE}.status = 'repaired' THEN 'To be Repaired'
            WHEN ${TABLE}.status = 'credited' THEN 'To be Credited'

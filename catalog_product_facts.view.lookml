@@ -170,7 +170,22 @@
     type: time
     sql: ${TABLE}.reached_minimum_desired_quantity
 
-  - measure: last_receipt
+  - dimension: last_receipt
+    description: "Date we last received a product"
+    type: time
+    sql: |
+      CASE
+        WHEN {% condition last_receipt_date_filter %} LEFT(CONVERT(VARCHAR, ${TABLE}.last_receipt, 120), 10) {% endcondition %}
+        THEN ${TABLE}.last_receipt
+        ELSE '9999-01-01'
+      END
+
+  - dimension: last_sold
+    description: "Date we lost sold a product"
+    type: time
+    sql: ${TABLE}.last_sold
+
+  - measure: max_last_receipt
     description: "Date we last received a product"
     type: time
     sql: |
@@ -180,7 +195,7 @@
         ELSE '9999-01-01'
       END
 
-  - measure: last_sold
+  - measure: max_last_sold
     description: "Date we lost sold a product"
     type: time
     sql: MAX(${TABLE}.last_sold)

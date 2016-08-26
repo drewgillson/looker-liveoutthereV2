@@ -12,9 +12,6 @@
   symmetric_aggregates: true
   persist_for: 12 hours
   joins:
-    - join: people_inactive_20160822
-      sql_on: people.email = people_inactive_20160822."Email Address"
-      relationship: one_to_one
     - join: people_facts
       sql_on: people.email = ${people_facts.email}
       relationship: one_to_one

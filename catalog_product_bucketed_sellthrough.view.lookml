@@ -195,17 +195,12 @@
     type: number
     sql: ${quantity_sold_since_bucket1} - ${quantity_returned_since_bucket1}
 
-  - measure: quantity_on_hand_received_since_bucket1
-    description: "Quantity received since 2016-07-01 minus net sold quantity since 2016-07-01"
-    type: number
-    sql: ${quantity_received_since_bucket1} - ${net_sold_quantity_since_bucket1}
-      
   - measure: sell_through_rate_bucket_1
     label: "% (Bucket 1)"
-    description: "Net sold quantity since 2016-07-01 / (quantity on hand received since 2016-07-01 + net sold quantity since 2016-07-01)"
+    description: "Net sold quantity since 2016-07-01 / (quantity on hand as of 2016-07-01 + quantity received since 2016-07-01)"
     type: number
     value_format: '0\%'
-    sql: 100.00 * ((${net_sold_quantity_since_bucket1}) / NULLIF(CAST(${quantity_on_hand_received_since_bucket1} AS float) + (${net_sold_quantity_since_bucket1}),0))
+    sql: 100.00 * ((${net_sold_quantity_since_bucket1}) / NULLIF(CAST(${quantity_on_hand_bucket1} AS float) + (${quantity_received_since_bucket1}),0))
     
     
     
@@ -237,17 +232,12 @@
     type: number
     sql: ${quantity_sold_since_bucket2} - ${quantity_returned_since_bucket2}
 
-  - measure: quantity_on_hand_received_since_bucket2
-    description: "Quantity received from 2016-01-03 to 2017-07-01 minus net sold quantity from 2016-01-03 to 2017-07-01"
-    type: number
-    sql: ${quantity_received_since_bucket2} - ${net_sold_quantity_since_bucket2}
-      
   - measure: sell_through_rate_bucket_2
     label: "% (Bucket 2)"
-    description: "Net sold quantity from 2016-01-03 to 2017-07-01 / (quantity on hand received from 2016-01-03 to 2017-07-01 + net sold quantity from 2016-01-03 to 2017-07-01)"
+    description: "Net sold quantity from 2016-01-03 to 2017-07-01 / (quantity on hand as of 2016-01-03 + quantity received between 2016-01-03 and 2017-07-01)"
     type: number
     value_format: '0\%'
-    sql: 100.00 * ((${net_sold_quantity_since_bucket2}) / NULLIF(CAST(${quantity_on_hand_received_since_bucket2} AS float) + (${net_sold_quantity_since_bucket2}),0))
+    sql: 100.00 * ((${net_sold_quantity_since_bucket2}) / NULLIF(CAST(${quantity_on_hand_bucket2} AS float) + (${quantity_received_since_bucket2}),0))
         
     
     
@@ -279,14 +269,9 @@
     type: number
     sql: ${quantity_sold_since_bucket3} - ${quantity_returned_since_bucket3}
 
-  - measure: quantity_on_hand_received_since_bucket3
-    description: "Quantity received from 2015-07-01 to 2016-01-01 minus net sold quantity from 2015-07-01 to 2016-01-01"
-    type: number
-    sql: ${quantity_received_since_bucket3} - ${net_sold_quantity_since_bucket3}
-      
   - measure: sell_through_rate_bucket_3
     label: "% (Bucket 3)"
-    description: "Net sold quantity from 2015-07-01 to 2016-01-01 / (quantity on hand received from 2015-07-01 to 2016-01-01 + net sold quantity from 2015-07-01 to 2016-01-01)"
+    description: "Net sold quantity from 2015-07-01 to 2016-01-01 / (quantity on hand as of 2015-07-01 + quantity received between 2015-07-01 to 2016-01-01)"
     type: number
     value_format: '0\%'
-    sql: 100.00 * ((${net_sold_quantity_since_bucket3}) / NULLIF(CAST(${quantity_on_hand_received_since_bucket3} AS float) + (${net_sold_quantity_since_bucket3}),0))
+    sql: 100.00 * ((${net_sold_quantity_since_bucket3}) / NULLIF(CAST(${quantity_on_hand_bucket3} AS float) + (${quantity_received_since_bucket3}),0))

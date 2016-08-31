@@ -109,9 +109,14 @@
     sql: ${TABLE}.po_cancel_date
 
   - dimension_group: 2_weeks_after_cancel
-    description: "Date 2 weeks after the cancel date (used for calculating Open to Buy)"
+    description: "Date 2 weeks after the cancel date"
     type: time
     sql: DATEADD(week,2,${TABLE}.po_cancel_date)
+
+  - dimension_group: 4_weeks_after_cancel
+    description: "Date 4 weeks after the cancel date"
+    type: time
+    sql: DATEADD(week,4,${TABLE}.po_cancel_date)
 
   - dimension: is_past_cancel_date
     description: "Is 'Yes' if the purchase order is past its cancel date"

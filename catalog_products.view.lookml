@@ -348,7 +348,7 @@
                          'Zanerobe M')
                          
   - dimension: is_fashion_brand
-    label: "Is Fashion Brand"
+    label: "Is Fashion"
     type: yesno
     sql: |
       ${TABLE}.brand IN ('Add',
@@ -393,51 +393,39 @@
                          'Cole Haan')
                          
   - dimension: is_kids_brand
-    label: "Is Kids Brand"
+    label: "Is Kids"
     type: yesno
     sql: |
-      ${TABLE}.brand IN ('Columbia',
-                         'Icebreaker',
-                         'The North Face',
-                         'Deux par Deux',
-                         'Helly Hansen',
-                         'Marmot',
-                         'Sorel',
-                         'Bogs',
-                         'Converse',
-                         'Laundromat',
-                         'Patagonia',
-                         'Sanuk',
-                         'SmartWool',
-                         'Fjallraven',
-                         'Instance',
-                         'Dakine',
-                         'Bridgedale',
-                         'Hunter',
+      ${TABLE}.department IN ('Boys','Girls','Boys^Girls','Toddler','Infant','Kids')
+      
+  - dimension: is_city_collection_brand
+    label: "Is City Collection"
+    type: yesno
+    sql: |
+      ${TABLE}.brand IN ('7 For All Mankind',
+                         'Add',
                          'Aigle',
-                         'UGG',
-                         'Native',
+                         'Bellroy',
+                         'Boxfresh',
+                         'Converse',
                          'Herschel',
-                         'Heelys',
-                         'Michael Kors',
-                         'Stuart Weitzman',
-                         'Havaianas',
-                         'Sam Edelman',
-                         'Stonz',
-                         'Under Armour',
-                         'Fjallraven',
-                         'Geox',
-                         'UMI',
+                         'Indygena',
+                         'John Rich Bros',
+                         'Mackage',
+                         'Maians',
+                         'Native',
+                         'Pajar',
                          'People',
-                         'Hestra',
-                         'Tom Tailor',
-                         'Robeez',
-                         'Petit Lem',
-                         'Calvin Klein',
-                         'Puma',
-                         'MunsterKid',
-                         'Ambler',
-                         'Kombi',
-                         'Billabong',
-                         'Blu',
-                         'luvmother')
+                         'Repeat',
+                         'Sam Edelman',
+                         'Scotch & Soda',
+                         'SOIA & KYO',
+                         'Splendid',
+                         'Splendid & Mills',
+                         'Stance',
+                         'Stuart Weitzman',
+                         'Stutterheim',
+                         'Vilebrequin',
+                         'White + Warren')
+
+      

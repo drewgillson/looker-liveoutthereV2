@@ -29,6 +29,8 @@
           ON po.po_sup_num = sup.sup_id
         LEFT JOIN magento.catalog_product_entity_decimal AS price
           ON p.pop_product_id = price.entity_id AND price.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'price' AND entity_type_id = 4)
+    indexes: [pop_product_id, po_order_id]
+    persist_for: 2 hours
 
   fields:
 

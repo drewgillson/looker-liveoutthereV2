@@ -130,6 +130,10 @@
     type: time
     sql: ${TABLE}.first_activity
 
+  - measure: avg_receiving_time_in_days
+    type: avg
+    sql: DATEDIFF(dd,${arrival_time},${first_activity_time})
+
   - dimension: receiving_time_in_days
     type: number
     sql: DATEDIFF(dd,${arrival_time},${first_activity_time})

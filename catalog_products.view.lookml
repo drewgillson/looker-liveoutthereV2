@@ -426,6 +426,12 @@
                          'Stuart Weitzman',
                          'Stutterheim',
                          'Vilebrequin',
+                         'Vince',
+                         'Woolrich John Rich & Bros',
+                         'Sorel',
+                         'Fjallraven',
+                         'Nau',
+                         'Bogs',
                          'White + Warren')
 
       

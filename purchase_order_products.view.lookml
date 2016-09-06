@@ -21,7 +21,7 @@
            , p.pop_supplied_qty * price.value AS delivered_amount_msrp
            , sup.sup_name AS supplier
            , po.po_author
-           , 1 AS a
+           , COALESCE(first_stock_movement_created_at, o.created_at) AS first_activity
         FROM magento.purchase_order_product AS p
         LEFT JOIN magento.purchase_order AS po
           ON p.pop_order_num = po.po_num
@@ -29,6 +29,13 @@
           ON po.po_sup_num = sup.sup_id
         LEFT JOIN magento.catalog_product_entity_decimal AS price
           ON p.pop_product_id = price.entity_id AND price.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'price' AND entity_type_id = 4)
+        LEFT JOIN ${organizers.SQL_TABLE_NAME} AS o
+          ON o.entity_type = 'purchase_order'
+          AND o.entity_id = po.po_num
+          AND o.author = 'ryan.hamilton'
+          AND o.sequence = 1
+        LEFT JOIN (SELECT sm_po_num, MIN(sm_date) AS first_stock_movement_created_at FROM magento.stock_movement GROUP BY sm_po_num) AS sm
+          ON sm.sm_po_num = po.po_num
     indexes: [pop_product_id, po_order_id]
     persist_for: 2 hours
 
@@ -117,6 +124,15 @@
     description: "Date 4 weeks after the cancel date"
     type: time
     sql: DATEADD(week,4,${TABLE}.po_cancel_date)
+
+  - dimension_group: first_activity
+    description: "Date the first organizer note or stock movement for a PO was created by Ryan"
+    type: time
+    sql: ${TABLE}.first_activity
+
+  - dimension: receiving_time_in_days
+    type: number
+    sql: DATEDIFF(dd,${arrival_time},${first_activity_time})
 
   - dimension: is_past_cancel_date
     description: "Is 'Yes' if the purchase order is past its cancel date"

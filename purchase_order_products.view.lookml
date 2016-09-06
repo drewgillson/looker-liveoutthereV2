@@ -134,6 +134,15 @@
     type: number
     sql: DATEDIFF(dd,${arrival_time},${first_activity_time})
 
+  - dimension: receiving_time_in_days_tier
+    type: tier
+    tiers: [3]
+    sql: ${receiving_time_in_days}
+    
+  - measure: count_purchase_orders_percent_of_total
+    type: percent_of_total
+    sql: ${count_purchase_orders}
+
   - dimension: is_past_cancel_date
     description: "Is 'Yes' if the purchase order is past its cancel date"
     type: yesno

@@ -11,7 +11,27 @@
            , po.po_arrival_date
            , po.po_cancel_date
            , po.po_terms
-           , p.*
+           , p.pop_num
+           , p.pop_order_num
+           , p.pop_product_id
+           , p.pop_product_name
+           , p.pop_qty
+           , p.pop_supplied_qty
+           , p.pop_price_ht
+           , p.pop_price_ht_base
+           , p.pop_supplier_ref
+           , p.pop_eco_tax
+           , p.pop_eco_tax_base
+           , p.pop_extended_costs
+           , p.pop_extended_costs_base
+           , p.pop_tax_rate
+           , p.pop_packaging_id
+           , p.pop_packaging_value
+           , p.pop_packaging_name
+           , p.pop_weight
+           , p.pop_discount
+           , p.pop_delivery_date
+           , p.pop_updated_date
            , p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100) AS discounted_cost
            , p.pop_qty * (p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100)) AS ordered_amount
            , p.pop_supplied_qty * (p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100)) AS delivered_amount
@@ -36,6 +56,54 @@
           AND o.sequence = 1
         LEFT JOIN (SELECT sm_po_num, MIN(sm_date) AS first_stock_movement_created_at FROM magento.stock_movement GROUP BY sm_po_num) AS sm
           ON sm.sm_po_num = po.po_num
+        UNION ALL
+        SELECT po.po_date
+           , po.po_order_id
+           , po.po_status
+           , po.po_data_status
+           , po.po_type
+           , po.po_carrier
+           , po.po_ship_date
+           , po.po_arrival_date
+           , po.po_cancel_date
+           , po.po_terms
+           , NULL AS pop_num
+           , NULL AS pop_order_num
+           , -1 AS pop_product_id
+           , NULL AS pop_product_name
+           , NULL AS pop_qty
+           , NULL AS pop_supplied_qty
+           , NULL AS pop_price_ht
+           , NULL AS pop_price_ht_base
+           , NULL AS pop_supplier_ref
+           , NULL AS pop_eco_tax
+           , NULL AS pop_eco_tax_base
+           , NULL AS pop_extended_costs
+           , NULL AS pop_extended_costs_base
+           , NULL AS pop_tax_rate
+           , NULL AS pop_packaging_id
+           , NULL AS pop_packaging_value
+           , NULL AS pop_packaging_name
+           , NULL AS pop_weight
+           , NULL AS pop_discount
+           , NULL AS pop_delivery_date
+           , NULL AS pop_updated_date
+           , NULL AS discounted_cost
+           , NULL AS ordered_amount
+           , NULL AS delivered_amount
+           , NULL AS ordered_amount_cost
+           , NULL AS delivered_amount_cost
+           , NULL AS ordered_amount_msrp
+           , NULL AS delivered_amount_msrp
+           , sup.sup_name AS supplier
+           , po.po_author
+           , NULL AS first_activity
+        FROM magento.purchase_order AS po
+        LEFT JOIN magento.purchase_order_product AS pop
+          ON pop.pop_order_num = po.po_num
+        LEFT JOIN magento.purchase_supplier AS sup
+          ON po.po_sup_num = sup.sup_id
+        WHERE pop.pop_order_num IS NULL
     indexes: [pop_product_id, po_order_id]
     persist_for: 2 hours
 

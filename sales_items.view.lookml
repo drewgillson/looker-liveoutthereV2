@@ -339,6 +339,14 @@
     value_format: '$#,##0'
     sql: ${TABLE}.customer_credit_amount
 
+  - dimension: discount_tier
+    label: "Discount %"
+    type: tier
+    tiers: [0,0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+    style: interval
+    value_format: '#%' 
+    sql: ${TABLE}.discount_percentage_from_msrp
+
   - measure: discount
     label: "Discount %"
     type: avg

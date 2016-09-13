@@ -16,9 +16,9 @@
          , ROUND(AVG((pop_price_ht * (1-(CASE WHEN pop_discount > 0 THEN pop_discount ELSE 0 END / 100)))), 2) AS avg_cost
       FROM magento.stock_movement AS sm
       LEFT JOIN (
-        SELECT DISTINCT CAST(sm_date AS date) AS sm_date
-        FROM magento.stock_movement
-        WHERE sm_date >= '2015-02-01' AND (DATEPART(dd,sm_date) = 1 OR DATEPART(dw,sm_date) = 1)
+        SELECT DISTINCT CAST(DateFull AS date) AS sm_date
+        FROM lut_Date
+        WHERE DateFull >= '2015-02-01' AND DateFull <= GETDATE() AND (DATEPART(dd,DateFull) = 1 OR DATEPART(dw,DateFull) = 1)
       ) AS dates
         ON sm.sm_date <= dates.sm_date
       LEFT JOIN magento.purchase_order_product AS pop

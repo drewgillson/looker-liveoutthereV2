@@ -31,10 +31,10 @@
           )
         )
       ))
-      AND pop_price_ht <> 0 
-      AND pop_supplied_qty > 0 
-      AND pop_discount <> 100 
-      GROUP BY dates.sm_date, sm_product_id        
+      AND pop_price_ht <> 0
+      AND pop_supplied_qty > 0
+      AND pop_discount <> 100
+      GROUP BY dates.sm_date, sm_product_id
     indexes: [sm_date, product_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

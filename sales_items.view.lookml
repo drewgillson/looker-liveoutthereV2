@@ -61,6 +61,7 @@
           ) AS d
             ON a.sku = d.sku
           WHERE row_total > 0
+          AND c.customer_email != 'pk_cs@liveoutthere.com'
         ) AS a
         UNION ALL
         -- insert rows for shipping charges
@@ -195,11 +196,11 @@
     sql: ${TABLE}.order_created
 
   - measure: first_order
-    type: time
+    type: date
     sql: MIN(${TABLE}.order_created)
 
   - measure: last_order
-    type: time
+    type: date
     sql: MAX(${TABLE}.order_created)
 
   - dimension: order_id
@@ -327,7 +328,7 @@
     value_format: '$#,##0'
     sql: ${TABLE}.tax_amount
 
-  - dimension: redeemed_customer_credit
+  - measure: redeemed_customer_credit
     description: "Was there any store credit / customer credit redeemed for the order?"
     type: yesno
     sql: ${customer_credit_amount} > 0

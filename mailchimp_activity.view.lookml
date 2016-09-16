@@ -91,7 +91,7 @@
 
   - measure: last_activity
     label: "Subscriber: Last Activity"
-    type: time
+    type: date
     sql: MAX(${TABLE}.activity)
 
   - dimension: url

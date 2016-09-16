@@ -245,7 +245,7 @@
     description: "Either Apparel, Gear, or Footwear. This is associated to the Purchase Order, not the product."
     sql: ${TABLE}.po_type
 
-  - dimension: is_fully_delivered
+  - measure: is_fully_delivered
     description: "Has the purchase order been fully delivered? i.e. there is no remaining quantity to receive"
     type: yesno
     sql: ${remaining_qty} = 0

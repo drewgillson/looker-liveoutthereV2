@@ -52,7 +52,7 @@
     type: count_distinct
     sql: ${long_product_name_discount_value}
 
-  - dimension: has_multiple_discount_values
+  - measure: has_multiple_discount_values
     type: yesno
     sql: ${count_distinct_long_product_name_discount_value} > 1
 

@@ -187,7 +187,7 @@
 
   - measure: max_last_receipt
     description: "Date we last received a product"
-    type: time
+    type: date
     sql: |
       CASE
         WHEN {% condition last_receipt_date_filter %} LEFT(CONVERT(VARCHAR, MAX(${TABLE}.last_receipt), 120), 10) {% endcondition %}
@@ -197,7 +197,7 @@
 
   - measure: max_last_sold
     description: "Date we lost sold a product"
-    type: time
+    type: date
     sql: MAX(${TABLE}.last_sold)
     
   - dimension: ideal_desired_quantity

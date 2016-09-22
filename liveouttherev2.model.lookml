@@ -352,8 +352,12 @@
       required_joins: [categories]
 
 - explore: assortment_planning
-  from: orderforms_budgets
+  from: orderforms_seasons
   joins:
+    - join: budgets
+      from: orderforms_budgets
+      sql_on: assortment_planning.season = budgets.season
+      relationship: many_to_many
     - join: items
       from: orderforms_po_items
       sql_on: assortment_planning.season = items.season
@@ -366,10 +370,10 @@
     - join: items_for_budget
       from: orderforms_po_items
       sql_on: |
-        assortment_planning.season = items_for_budget.season
-        AND LEFT(${assortment_planning.month},7) = ${items_for_budget.ship_month}
-        AND assortment_planning.department = CASE WHEN items_for_budget.department IN ('Boys','Girls','Kids') THEN 'Unisex' WHEN items_for_budget.inventory_type = 'Gear' THEN 'Unisex' ELSE items_for_budget.department END
-        AND (assortment_planning.type = ${items_for_budget.budget_type} OR assortment_planning.type = ${items_for_budget.inventory_type})
+        budgets.season = items_for_budget.season
+        AND LEFT(${budgets.month},7) = ${items_for_budget.ship_month}
+        AND budgets.department = CASE WHEN items_for_budget.department IN ('Boys','Girls','Kids') THEN 'Unisex' WHEN items_for_budget.inventory_type = 'Gear' THEN 'Unisex' ELSE items_for_budget.department END
+        AND (budgets.type = ${items_for_budget.budget_type} OR budgets.type = ${items_for_budget.inventory_type})
       relationship: one_to_many
     - join: products
       from: catalog_products_links

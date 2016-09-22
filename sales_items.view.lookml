@@ -27,6 +27,10 @@
            , coupon_rule_name
            , discount_description
            , coupon_code
+           , kount_ris_score
+           , CASE WHEN state = 'complete' AND status = 'complete' THEN 'A' ELSE kount_ris_response END AS kount_ris_response
+           , kount_ris_rule
+           , kount_ris_description
         FROM (
           SELECT c.customer_email AS email
             , c.created_at AS order_created
@@ -49,6 +53,10 @@
             , c.coupon_rule_name
             , c.discount_description
             , c.coupon_code
+            , CAST(c.kount_ris_score AS nvarchar(max)) AS kount_ris_score
+            , CAST(c.kount_ris_response AS nvarchar(max)) AS kount_ris_response
+            , CAST(c.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
+            , CAST(c.kount_ris_description AS nvarchar(max)) AS kount_ris_description
           FROM magento.sales_flat_invoice_item AS a
           INNER JOIN magento.sales_flat_invoice AS b
             ON a.parent_id = b.entity_id
@@ -84,6 +92,10 @@
           , NULL
           , NULL
           , NULL
+          , CAST(b.kount_ris_score AS nvarchar(max)) AS kount_ris_score
+          , CAST(b.kount_ris_response AS nvarchar(max)) AS kount_ris_response
+          , CAST(b.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
+          , CAST(b.kount_ris_description AS nvarchar(max)) AS kount_ris_description
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id
@@ -109,6 +121,10 @@
           , NULL
           , NULL
           , NULL
+          , CAST(a.kount_ris_score AS nvarchar(max)) AS kount_ris_score
+          , CAST(a.kount_ris_response AS nvarchar(max)) AS kount_ris_response
+          , CAST(a.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
+          , CAST(a.kount_ris_description AS nvarchar(max)) AS kount_ris_description
         FROM magento.sales_flat_order AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.entity_id = b.order_id
@@ -117,7 +133,7 @@
         LEFT JOIN magento.sales_flat_invoice AS d
           ON a.entity_id = d.order_id
         WHERE c.entity_id IS NULL AND a.marketplace_order_id IS NULL
-        GROUP BY a.customer_email, a.created_at, a.entity_id, a.increment_id, a.marketplace_order_id, a.custom_storefront
+        GROUP BY a.customer_email, a.created_at, a.entity_id, a.increment_id, a.marketplace_order_id, a.custom_storefront, CAST(a.kount_ris_score AS nvarchar(max)), CAST(a.kount_ris_response AS nvarchar(max)), CAST(a.kount_ris_rule AS nvarchar(max)), CAST(a.kount_ris_description AS nvarchar(max))
         UNION ALL
         -- Shopify sales
         SELECT a.[order-email] AS email
@@ -133,6 +149,10 @@
             , NULL AS deferred_revenue
             , COALESCE(b.entity_id, -1) AS product_id
             , 'TheVan.ca' AS storefront
+            , NULL
+            , NULL
+            , NULL
+            , NULL
             , NULL
             , NULL
             , NULL
@@ -243,6 +263,27 @@
   - dimension: coupon_rule_description
     type: string
     sql: ${TABLE}.discount_description
+    
+  - dimension: kount_score
+    type: number
+    sql: ${TABLE}.kount_ris_score
+
+  - dimension: kount_response
+    type: string
+    sql_case:
+      escalated: ${TABLE}.kount_ris_response = 'E'
+      approved: ${TABLE}.kount_ris_response = 'A' OR ${TABLE}.kount_ris_response IS NULL
+      declined: ${TABLE}.kount_ris_response = 'D'
+      review: ${TABLE}.kount_ris_response = 'R'
+      else: unknown
+
+  - dimension: kount_rule
+    type: string
+    sql: ${TABLE}.kount_ris_rule
+
+  - dimension: kount_description
+    type: string
+    sql: ${TABLE}.kount_ris_description
     
   - measure: total_collected
     description: "Total charged to the customer, including taxes"

@@ -15,6 +15,7 @@
         , MAX(d.inventory_type) AS inventory_type
         , c.po_ship_date AS ship
         , c.po_discount AS discount
+        , c.po_status AS po_status
       FROM orderform.po_items AS a
       LEFT JOIN orderform.loadfiles AS b
         ON a.sku = b.sku
@@ -22,7 +23,7 @@
         ON a.purchase_order = c.po_order_id
       LEFT JOIN lut_messy_category_data AS d
         ON b.category = d.category
-      GROUP BY a.id, a.purchase_order, a.sku, a.qty, a.season, c.po_ship_date, c.po_discount
+      GROUP BY a.id, a.purchase_order, a.sku, a.qty, a.season, c.po_ship_date, c.po_discount, c.po_status
     indexes: [purchase_order, sku, season]
     persist_for: 1 hour
 
@@ -37,6 +38,11 @@
   - dimension: purchase_order
     type: string
     sql: ${TABLE}.purchase_order
+
+  - dimension: po_status
+    label: "PO Status"
+    type: string
+    sql: ${TABLE}.po_status
 
   - dimension: inventory_type
     type: string

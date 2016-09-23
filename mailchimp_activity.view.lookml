@@ -2,7 +2,7 @@
 - view: mailchimp_activity
   derived_table:
     sql: |
-      SELECT ROW_NUMBER() OVER (ORDER BY [activity]) AS row, a.*, b.* FROM (
+      SELECT ROW_NUMBER() OVER (ORDER BY [activity]) AS row, a.*, b.*, c.transactions, c.revenue FROM (
         SELECT a.[email_address] AS email
            , a.[status] AS activity_status
            , a.avg_open_rate
@@ -20,6 +20,8 @@
       ) AS a
       LEFT JOIN mailchimp.v3api_liveoutthere_campaigns AS b
         ON a.activity_campaign_id = b.campaign_id
+      LEFT JOIN ga.email_transactions AS c
+        ON a.activity_title = c.campaign
     indexes: [email, activity, action, title]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -174,3 +176,13 @@
     description: "Use to get the number of individual activities at the subscriber level"
     type: count
     
+  - measure: transactions
+    type: sum_distinct
+    sql_distinct_key: ${TABLE}.activity_title
+    sql: ${TABLE}.transactions
+    
+  - measure: revenue
+    type: sum_distinct
+    sql_distinct_key: ${TABLE}.activity_title
+    value_format: '$#,##0'
+    sql: ${TABLE}.revenue

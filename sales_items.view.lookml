@@ -182,6 +182,7 @@
       ON a.product_id = cost.entity_id
       LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS msrp
       ON a.product_id = msrp.entity_id
+      WHERE 1=1
     indexes: [email, order_entity_id, order_increment_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -347,8 +348,8 @@
     value_format: '0\%' 
     sql: |
       100.00 * CASE
-        WHEN ${net_sold} = 0 AND ${gross_margin} = 0 THEN NULL
-        WHEN ${net_sold} > 0 THEN ${gross_margin} / ${net_sold}
+        WHEN FLOOR(${net_sold}) = 0 AND ${gross_margin} = 0 THEN NULL
+        WHEN FLOOR(${net_sold}) > 0 THEN ${gross_margin} / ${net_sold}
       END
 
   - measure: gross_gross_margin_percent
@@ -358,8 +359,8 @@
     value_format: '0\%' 
     sql: |
       100.00 * CASE
-        WHEN ${subtotal} = 0 AND ${gross_gross_margin} = 0 THEN NULL
-        WHEN ${subtotal} > 0 THEN ${gross_gross_margin} / ${subtotal}
+        WHEN FLOOR(${subtotal}) = 0 AND ${gross_gross_margin} = 0 THEN NULL
+        WHEN FLOOR(${subtotal}) > 0 THEN ${gross_gross_margin} / ${subtotal}
       END
       
   - measure: tax_collected

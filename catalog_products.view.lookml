@@ -214,6 +214,10 @@
     type: yesno
     sql: ${TABLE}.description_length > 0 AND ${TABLE}.description_length IS NOT NULL
 
+  - measure: unique_brands
+    type: count_distinct
+    sql: ${TABLE}.brand
+
   - dimension: brand
     description: "Brand/manufacturer for a product. Will also show brands selected in the 'Brand Filter' compared to all other brands if desired."
     sql: |

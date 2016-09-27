@@ -18,7 +18,7 @@
       LEFT JOIN (
         SELECT DISTINCT CAST(DateFull AS date) AS sm_date
         FROM lut_Date
-        WHERE DateFull >= '2012-02-01' AND DateFull <= GETDATE() AND (DATEPART(dd,DateFull) = 1 OR DATEPART(dw,DateFull) = 1)
+        WHERE DateFull >= '2015-02-01' AND DateFull <= GETDATE() AND (DATEPART(dd,DateFull) = 1 OR DATEPART(dw,DateFull) = 1)
       ) AS dates
         ON sm.sm_date <= dates.sm_date
       LEFT JOIN magento.purchase_order_product AS pop

@@ -12,7 +12,6 @@
         , MAX(b.department) AS department
         , MAX(b.budget_type) AS budget_type
         , MAX(b.source_sheet) AS source_sheet
-        , MAX(d.inventory_type) AS inventory_type
         , c.po_ship_date AS ship
         , c.po_discount AS discount
         , c.po_status AS po_status
@@ -21,8 +20,6 @@
         ON a.sku = b.sku
       LEFT JOIN magento.purchase_order AS c
         ON a.purchase_order = c.po_order_id
-      LEFT JOIN lut_messy_category_data AS d
-        ON b.category = d.category
       GROUP BY a.id, a.purchase_order, a.sku, a.qty, a.season, c.po_ship_date, c.po_discount, c.po_status
     indexes: [purchase_order, sku, season]
     persist_for: 1 hour
@@ -44,11 +41,6 @@
     type: string
     sql: ${TABLE}.po_status
 
-  - dimension: inventory_type
-    type: string
-    hidden: true
-    sql: ${TABLE}.inventory_type
-
   - dimension: source_sheet
     type: string
     hidden: true
@@ -56,15 +48,16 @@
     
   - dimension: budget_type
     type: string
-    hidden: true
-    sql: |
-      CASE WHEN ${TABLE}.budget_type IS NOT NULL THEN ${TABLE}.budget_type
-           WHEN ${source_sheet} = 'Fashion' THEN 'Fashion'
-           WHEN ${source_sheet} = 'Kids' THEN 'Kids'
-           WHEN ${category} LIKE '%Footwear%' THEN 'Footwear'
-           WHEN ${category} LIKE '%Gear%' THEN 'Gear'
-           ELSE 'Apparel'
-      END
+    sql: ${TABLE}.budget_type
+#    hidden: true
+#    sql: |
+#      CASE WHEN ${TABLE}.budget_type IS NOT NULL THEN ${TABLE}.budget_type
+#           WHEN ${source_sheet} = 'Fashion' THEN 'Fashion'
+#           WHEN ${source_sheet} = 'Kids' THEN 'Kids'
+#           WHEN ${category} LIKE '%Footwear%' THEN 'Footwear'
+#           WHEN ${category} LIKE '%Gear%' THEN 'Gear'
+#           ELSE 'Apparel'
+#      END
 
   - dimension: category
     type: string

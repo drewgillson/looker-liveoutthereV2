@@ -372,8 +372,8 @@
       sql_on: |
         budgets.season = items_for_budget.season
         AND LEFT(${budgets.month},7) = ${items_for_budget.ship_month}
-        AND budgets.department = CASE WHEN items_for_budget.department IN ('Boys','Girls','Kids') THEN 'Unisex' WHEN items_for_budget.inventory_type = 'Gear' THEN 'Unisex' ELSE items_for_budget.department END
-        AND (budgets.type = ${items_for_budget.budget_type} OR budgets.type = ${items_for_budget.inventory_type})
+        AND budgets.department = CASE WHEN items_for_budget.department IN ('Boys','Girls','Kids','Men^Women','Infant','Toddler','Toddler^Infant') THEN 'Unisex' ELSE items_for_budget.department END
+        AND budgets.type = ${items_for_budget.budget_type}
       relationship: one_to_many
     - join: products
       from: catalog_products_links
@@ -411,8 +411,8 @@
       sql_on: | 
         budgets.season = items.season
         AND LEFT(${budgets.month},7) = ${items.ship_month}
-        AND budgets.department = CASE WHEN assortment_planning_not_mapped_to_budget.department IN ('Boys','Girls','Kids') THEN 'Unisex' WHEN ${categories.inventory_type} = 'Gear' THEN 'Unisex' ELSE assortment_planning_not_mapped_to_budget.department END
-        AND (budgets.type = ${assortment_planning_not_mapped_to_budget.budget_type} OR budgets.type = ${categories.inventory_type})
+        AND budgets.department = CASE WHEN assortment_planning_not_mapped_to_budget.department IN ('Boys','Girls','Kids','Men^Women','Infant','Toddler','Toddler^Infant') THEN 'Unisex' ELSE assortment_planning_not_mapped_to_budget.department END
+        AND budgets.type = ${assortment_planning_not_mapped_to_budget.budget_type}
       relationship: one_to_one
       required_joins: [categories]
 

@@ -6,9 +6,12 @@
         , a.product_id
         , a.qty
         , b.sku
+        , c.value AS barcode
       FROM magento.aw_rma_entity_items AS a
       LEFT JOIN magento.sales_flat_order_item AS b
         ON a.product_id = b.item_id
+      LEFT JOIN magento.catalog_product_entity_varchar AS c
+        ON b.product_id = c.entity_id AND c.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'ean' AND entity_type_id = 4) AND c.store_id = 0
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
     indexes: [rma_entity_id]
@@ -34,6 +37,10 @@
     label: "SKU"
     type: string
     sql: ${TABLE}.sku
+
+  - dimension: barcode
+    type: string
+    sql: ${TABLE}.barcode
 
   - measure: returning_quantity
     type: sum

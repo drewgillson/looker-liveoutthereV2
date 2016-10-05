@@ -139,9 +139,9 @@
     sql: |
       CASE WHEN ISNUMERIC(${TABLE}.po_terms) = 1 AND ${TABLE}.po_status <> 'cancelled'
            THEN DATEADD(dd,CAST(${TABLE}.po_terms AS int),CASE WHEN ${TABLE}.po_status = 'New' AND ${TABLE}.po_ship_date < GETDATE()
-                                                               THEN GETDATE()
+                                                               THEN DATEADD(dd,7,GETDATE())
                                                                WHEN ${TABLE}.po_arrival_date IS NOT NULL
-                                                               THEN ${TABLE}.po_arrival_date
+                                                               THEN DATEADD(dd,7,${TABLE}.po_arrival_date)
                                                                ELSE ${TABLE}.po_ship_date
                                                           END)
       END

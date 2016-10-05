@@ -5,6 +5,7 @@
         , a.*
         , (qty * COALESCE(average_cost.value, cost.value)) AS extended_cost
         , 1 - (row_total / (qty * msrp.price)) AS discount_percentage_from_msrp
+        , qty * msrp.price AS gross_sold_msrp
       FROM (
         SELECT email 
            , order_created
@@ -291,6 +292,19 @@
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.row_total_incl_tax
+
+  - measure: gross_sold_msrp
+    label: "Gross Sold MSRP $"
+    type: sum
+    value_format: '$#,##0'
+    sql: ${TABLE}.gross_sold_msrp
+    
+  - measure: net_sold_opportunity
+    description: "Gross Sold MSRP $ - Refunded MSRP $"
+    label: "Net Sold Opportunity $"
+    type: number
+    value_format: '$#,##0'
+    sql: ${gross_sold_msrp} - ${credits.refunded_msrp}
 
   - measure: subtotal
     description: "Total sold (does not include tax or redeemed customer credit)"

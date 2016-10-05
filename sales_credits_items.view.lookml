@@ -1,7 +1,7 @@
 - view: sales_credits_items
   derived_table:
     sql: |
-      SELECT ROW_NUMBER() OVER (ORDER BY creditmemo_created) AS row, a.*, (refunded_qty * average_cost.value) AS extended_cost FROM (
+      SELECT ROW_NUMBER() OVER (ORDER BY creditmemo_created) AS row, a.*, (refunded_qty * average_cost.value) AS extended_cost, (refunded_qty * msrp.price) AS refunded_msrp FROM (
         SELECT [type], storefront, creditmemo_created, order_entity_id, creditmemo_increment_id, creditmemo_entity_id, request_type, product_id, refunded_qty, refund_for_return - adjustment_tax_amount AS refund_for_return, refund_for_other_reason - adjustment_tax_amount AS refund_for_other_reason, refund_for_shipping - shipping_tax_amount AS refund_for_shipping, adjustment_tax_amount + shipping_tax_amount AS refunded_tax, ISNULL(refund_for_return,0) + ISNULL(refund_for_other_reason,0) + ISNULL(refund_for_shipping,0) AS refunded_total FROM (
           SELECT 'credit' AS [type]
           , 'LiveOutThere.com' AS storefront
@@ -87,6 +87,8 @@
         GROUP BY pop_product_id
       ) AS average_cost
       ON a.product_id = average_cost.pop_product_id
+      LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS msrp
+      ON a.product_id = msrp.entity_id
     indexes: [storefront, order_entity_id, product_id]
     sql_trigger_value: |
       SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -146,6 +148,13 @@
     description: "Quantity of units refunded (will not include independent refunds not associated to a product)"
     type: sum
     sql: ${TABLE}.refunded_qty
+
+  - measure: refunded_msrp
+    label: "Refunded MSRP $"
+    description: "MSRP $ of units refunded"
+    type: sum
+    value_format: '$#,##0'
+    sql: ${TABLE}.refunded_msrp
 
   - measure: extended_cost
     label: "Extended Cost $"

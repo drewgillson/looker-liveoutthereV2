@@ -34,6 +34,17 @@
     type: string
     sql: ${TABLE}.Service
 
+  - dimension: service_type
+    type: string
+    sql_case:
+      'Outbound': ${service} = 'Handling' OR ${service} = 'Label Application' OR ${service} = 'Order Manual Data Entry' OR ${service} = 'Order Processing' OR ${service} = 'Order Restocking' OR ${service} = 'Outbound Shipment Materials' OR ${service} = 'Shipment Cancellation' OR ${service} = '' OR ${service} = '' OR ${service} = ''
+      'Inbound':  ${service} = 'Inbound Pallets' OR ${service} = 'Project Labour' OR ${service} = 'Receipt Processing' OR ${service} = 'Receiving' OR ${service} = 'Restock' OR ${service} = 'Tagging'
+      'Returns': ${service} = 'Returns' OR ${service} = 'Service Center Labor' OR ${service} = 'Shop Supplies'
+      'Freight': ${service} = 'Inbound Freight' OR ${service} = 'Outbound Freight' OR ${service} = 'Returns Freight'
+      'Labour': ${service} = 'Warehouse Labour'
+      'Storage': ${service} = 'Storage' OR ${service} = 'Storage Carton Shipped'
+      else: unknown
+
   - dimension_group: doc_date
     type: time
     sql: ${TABLE}.DocDate
@@ -51,6 +62,11 @@
     type: sum
     value_format: "$#,##0"
     sql: ${TABLE}.Value
+
+  - measure: average_charge
+    type: avg
+    value_format: "$#,##0.00"
+    sql: ${TABLE}.Charges
 
   - measure: charges
     type: sum

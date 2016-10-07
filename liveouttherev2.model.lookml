@@ -436,3 +436,7 @@
 - explore: item_master
   label: "Supplier Item Masters"
   from: orderforms_item_master
+  
+- explore: nri
+  label: "NRI Invoices"
+  from: nri_invoice_details  

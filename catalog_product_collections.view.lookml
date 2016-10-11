@@ -32,4 +32,5 @@
 
   - dimension: value
     type: string
+    drill_fields: [products.brand, products.department, products.long_product_name, categories.short_category, associations.configurable_sku]
     sql: ${TABLE}.value

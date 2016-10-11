@@ -195,6 +195,12 @@
             END = netbanx_transactions.tran_type
       relationship: one_to_many
       required_joins: [magento_map, shopify_map]
+    - join: braintree
+      from: transactions_braintree
+      type: full_outer
+      sql_on: |
+        reconciliation.transaction_id = braintree."Transaction ID"
+      relationship: one_to_many
 #   used to pull PayPal transactions into the explore
     - join: paypal_settlement
       from: transactions_paypal_settlement

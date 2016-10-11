@@ -356,6 +356,10 @@
       sql_on: products.sku = loadfiles.sku
       relationship: one_to_one
       required_joins: [categories]
+    - join: collections
+      from: catalog_product_collections
+      sql_on: products.sku = collections.sku
+      relationship: one_to_many
 
 - explore: assortment_planning
   from: orderforms_seasons

@@ -350,92 +350,10 @@
                          'VINCE.',
                          'White + Warren',
                          'Zanerobe M')
-                         
-  - dimension: is_fashion_brand
-    label: "Is Fashion"
-    type: yesno
-    sql: |
-      ${TABLE}.brand IN ('Add',
-                         'Pajar',
-                         'Parajumpers',
-                         'Belstaff',
-                         'Mackage',
-                         'SOIA & KYO',
-                         'Sorel',
-                         'Colmar Originals',
-                         'Indygena',
-                         'John Rich Bros',
-                         'CP Company',
-                         'Honns',
-                         'Blauer',
-                         'Denham',
-                         'CMFR',
-                         'Fred Perry',
-                         'White + Warren',
-                         '7Seasons',
-                         'Repeat',
-                         'Hunter',
-                         'Vince',
-                         'Zanerobe',
-                         'UGG',
-                         'Andrew Marc',
-                         'Sam',
-                         'Diego M',
-                         'Todd Synder + Champion',
-                         'Scotch & Soda',
-                         'Maison Scotch',
-                         'Splendid',
-                         'Splendid & Mills',
-                         'Ilse Jacobsen',
-                         'Stutterheim',
-                         'Vilebrequin',
-                         'Rains',
-                         'Ransom',
-                         '7 For All Mankind',
-                         'AG',
-                         'Superdry',
-                         'Cole Haan')
-                         
+
   - dimension: is_kids_brand
     label: "Is Kids"
     type: yesno
     sql: |
       ${TABLE}.department IN ('Boys','Girls','Boys^Girls','Toddler','Infant','Kids')
-      
-  - dimension: is_city_collection_brand
-    label: "Is City Collection"
-    type: yesno
-    sql: |
-      ${TABLE}.brand IN ('7 For All Mankind',
-                         'Add',
-                         'Aigle',
-                         'Bellroy',
-                         'Boxfresh',
-                         'Converse',
-                         'Herschel',
-                         'Indygena',
-                         'John Rich Bros',
-                         'Mackage',
-                         'Maians',
-                         'Native',
-                         'Pajar',
-                         'People',
-                         'Repeat',
-                         'Sam Edelman',
-                         'Scotch & Soda',
-                         'SOIA & KYO',
-                         'Splendid',
-                         'Splendid & Mills',
-                         'Stance',
-                         'Stuart Weitzman',
-                         'Stutterheim',
-                         'Vilebrequin',
-                         'Vince',
-                         'Woolrich John Rich & Bros',
-                         'Sorel',
-                         'Fjallraven',
-                         'Nau',
-                         'Bogs',
-                         'White + Warren')
-
       

@@ -322,21 +322,21 @@
     description: "Remaining amount (Discounted Cost) from purchase order line item"
     label: "Remaining Discounted $"
     type: number
-    sql: ${row_net_ordered_amount} - ${row_net_delivered_amount}
+    sql: CASE WHEN ${TABLE}.po_status NOT IN ('cancelled','complete','closed') THEN ${row_net_ordered_amount} - ${row_net_delivered_amount} ELSE 0 END
     value_format: '$#,##0.00'
 
   - measure: remaining_amount_cost
     description: "Remaining amount (Wholesale Cost) from purchase order line item"
     label: "Remaining Wholesale $"
     type: number
-    sql: ${row_net_ordered_amount_cost} - ${row_net_delivered_amount_cost}
+    sql: CASE WHEN ${TABLE}.po_status NOT IN ('cancelled','complete','closed') THEN ${row_net_ordered_amount_cost} - ${row_net_delivered_amount_cost} ELSE 0 END
     value_format: '$#,##0.00'
     
   - measure: remaining_amount_msrp
     description: "Remaining amount (Retail Price) from purchase order line item"
     label: "Remaining Retail $"
     type: number
-    sql: ${row_net_ordered_amount_msrp} - ${row_net_delivered_amount_msrp}
+    sql: CASE WHEN ${TABLE}.po_status NOT IN ('cancelled','complete','closed') THEN ${row_net_ordered_amount_msrp} - ${row_net_delivered_amount_msrp} ELSE 0 END
     value_format: '$#,##0.00'
 
   - measure: row_qty

@@ -9,7 +9,7 @@
            , a.avg_click_rate
            , ISNULL(CAST(NULLIF(REPLACE(LEFT(a.timestamp_signup,15),'T',' '),'') AS datetime),'1970-01-01') AS signup
            , a.member_rating
-           , CASE WHEN CAST(NULLIF(REPLACE(LEFT(a.timestamp_signup,15),'T',' '),'') AS date) = CAST(REPLACE(LEFT(b.[timestamp],15),'T',' ') AS datetime) THEN 'subscribe' ELSE b.action END AS action
+           , CASE WHEN CAST(NULLIF(REPLACE(LEFT(a.timestamp_signup,15),'T',' '),'') AS date) = CAST(REPLACE(LEFT(b.[timestamp],15),'T',' ') AS date) THEN 'subscribe' ELSE b.action END AS action
            , DATEADD(hh,-7,CAST(REPLACE(LEFT(b.[timestamp],15),'T',' ') AS datetime)) AS [activity]
            , b.url
            , b.campaign_id AS activity_campaign_id

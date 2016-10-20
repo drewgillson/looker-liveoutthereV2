@@ -24,7 +24,7 @@
         ON a.activity_title = c.campaign
     indexes: [email, activity, action, title]
     sql_trigger_value: |
-      SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
+      SELECT CAST(DATEADD(hh,-7,GETDATE()) AS date)
 
   fields:
 

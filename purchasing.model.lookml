@@ -1,9 +1,11 @@
+- label: "2. Purchasing"
 - connection: mssql
 
 - include: "*.view.lookml"       # include all views in this project
 - include: "*.dashboard.lookml"  # include all dashboards in this project
 
 - explore: assortment_planning
+  description: "Use to explore the order line item data entered in Google Sheets order forms"
   from: orderforms_seasons
   joins:
     - join: budgets
@@ -43,6 +45,7 @@
       relationship: one_to_many
 
 - explore: assortment_planning_not_mapped_to_budget
+  description: "Hidden explore to complement the explore above, but with a slightly different join predicate to find ordered items that don't map to a budget."
   hidden: true
   from: orderforms_loadfiles
   joins:
@@ -65,5 +68,6 @@
       required_joins: [categories]
 
 - explore: item_master
+  description: "Use to explore the raw supplier item master data entered in (old) Google Sheets item masters. Replaced by in-order-form item masters for SS17 and forward."
   label: "Supplier Item Masters"
   from: orderforms_item_master

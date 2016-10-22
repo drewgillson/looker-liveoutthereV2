@@ -1,21 +1,21 @@
+- label: "1. General"
 - connection: mssql
 
 - include: "*.view.lookml"       # include all the views
 - include: "*.dashboard.lookml"  # include all the dashboards
 
 - explore: new_products
+  description: "Hidden explore used to power a report that communicates changes in the product catalog to Adviso"
   hidden: true
   from: elasticsearch_products_new_this_week
 
-- explore: nri
-  label: "NRI Invoices"
-  from: nri_invoice_details  
-  
 - explore: orderforms_data_tracker
+  description: "Hidden explore that surfaces product data enrichment status filled in to a Google Sheet by Suntec"
   hidden: true
   from: orderforms_data_tracker
 
 - explore: people
+  description: "Use to answer questions about visitor & prospect behaviour (pre-sale)"
   from: people
   symmetric_aggregates: true
   persist_for: 12 hours
@@ -155,6 +155,7 @@
       relationship: one_to_many
 
 - explore: predictions
+  description: "Hidden explore that implements 'People who bought this buy these products too'"
   hidden: true
   from: jaccard_product_view_affinity
 
@@ -307,11 +308,11 @@
       relationship: one_to_many
 
 - explore: removed_products
+  description: "Hidden explore used to power a report that communicates changes in the product catalog to Adviso"
   hidden: true
   from: elasticsearch_products_removed_this_week
 
 - explore: snowplow
-  hidden: true
   symmetric_aggregates: true
   description: "Use this explore to investigate how people behave on our website: where do they come from? what do they do?"
   persist_for: 24 hours
@@ -340,6 +341,7 @@
       - snowplow.event_type
 
 - explore: weekly_business_review
+  description: "Hidden explore used to power Anshuman's weekly business review Google sheets app"
   from: reports_weekly_business_review
   hidden: true
   joins:

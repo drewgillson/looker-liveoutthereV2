@@ -1,9 +1,16 @@
+- label: "3. Finance"
 - connection: mssql
 
 - include: "*.view.lookml"       # include all views in this project
 - include: "*.dashboard.lookml"  # include all dashboards in this project
 
+- explore: nri
+  description: "Use to figure out exactly what we're paying NRI on a line-item level"
+  label: "NRI Invoices"
+  from: nri_invoice_details  
+
 - explore: reconciliation
+  description: "Use to match sales and credits from Magento to corresponding transactions in merchant accounts"
   from: transactions # this root view contains an amalgamation of invoices and credit memos from all sales channels
   description: "Use to assist with transaction & account reconciliation"
   symmetric_aggregates: true

@@ -1,5 +1,5 @@
-- view: catalog_products_links
-  extends: catalog_products
+- view: catalog_product_links
+  extends: catalog_product
   
   fields:
   

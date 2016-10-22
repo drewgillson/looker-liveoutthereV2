@@ -23,12 +23,12 @@
           ) AS op2
             ON op1.email = op2.email
           JOIN (SELECT DISTINCT url_key
-            FROM ${catalog_products.SQL_TABLE_NAME}
+            FROM ${catalog_product.SQL_TABLE_NAME}
             WHERE url_key IS NOT NULL
           ) AS p1
             ON op1.url_key = p1.url_key
           JOIN (SELECT DISTINCT url_key
-            FROM ${catalog_products.SQL_TABLE_NAME}
+            FROM ${catalog_product.SQL_TABLE_NAME}
             WHERE url_key IS NOT NULL
           ) AS p2
             ON op2.url_key = p2.url_key

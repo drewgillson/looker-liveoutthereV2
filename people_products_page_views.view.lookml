@@ -7,7 +7,7 @@
            , a.page_urlpath AS url_key
            , COUNT(DISTINCT CONVERT(VARCHAR, (CONVERT(VARCHAR(19),a.mdt_timestamp,120)), 120) + a.domain_userid) AS page_views
         FROM snowplow.events AS a
-        INNER JOIN (SELECT DISTINCT url_key FROM ${catalog_products.SQL_TABLE_NAME}) AS b
+        INNER JOIN (SELECT DISTINCT url_key FROM ${catalog_product.SQL_TABLE_NAME}) AS b
           ON a.page_urlpath = b.url_key
         WHERE a.mdt_timestamp > DATEADD(d,-56,GETDATE())
         GROUP BY CONVERT(date, a.mdt_timestamp, 120), a.page_urlpath, a.[user_id]

@@ -105,7 +105,7 @@
       ) AS returns_180_days
       ON a.product_id = returns_180_days.product_id
 
-      LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS catalog_product
+      LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS catalog_product
       ON a.product_id = catalog_product.entity_id
       
       LEFT JOIN (

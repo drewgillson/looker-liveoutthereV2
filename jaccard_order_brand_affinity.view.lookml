@@ -14,9 +14,9 @@
           FROM ${sales_items.SQL_TABLE_NAME} as op1
           JOIN ${sales_items.SQL_TABLE_NAME} op2
             ON op1.order_entity_id = op2.order_entity_id
-          JOIN ${catalog_products.SQL_TABLE_NAME} AS p1
+          JOIN ${catalog_product.SQL_TABLE_NAME} AS p1
             ON op1.product_id = p1.entity_id
-          JOIN ${catalog_products.SQL_TABLE_NAME} AS p2
+          JOIN ${catalog_product.SQL_TABLE_NAME} AS p2
             ON op2.product_id = p2.entity_id
           GROUP BY p1.brand, p2.brand
         ) as prop

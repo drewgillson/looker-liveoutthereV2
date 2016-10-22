@@ -25,7 +25,7 @@
         SELECT 
           products.entity_id,
           COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(inventory_history.quantity,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS quantity_on_hand
-        FROM ${catalog_products_links.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product_links.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_inventory_history.SQL_TABLE_NAME} AS inventory_history ON products.entity_id = inventory_history.product_id
         WHERE 
           (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2016-07-01', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2016-07-01', 120) )))))
@@ -67,7 +67,7 @@
         SELECT 
           products.entity_id,
           COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(inventory_history.quantity,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS quantity_on_hand
-        FROM ${catalog_products_links.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product_links.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_inventory_history.SQL_TABLE_NAME} AS inventory_history ON products.entity_id = inventory_history.product_id
         WHERE 
           (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2016-01-03', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2016-01-03', 120) )))))
@@ -109,7 +109,7 @@
         SELECT 
           products.entity_id,
           COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(inventory_history.quantity,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, CAST(inventory_history.product_id AS varchar(20)) + CONVERT(VARCHAR, inventory_history.sm_date, 120))),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS quantity_on_hand
-        FROM ${catalog_products_links.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product_links.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_inventory_history.SQL_TABLE_NAME} AS inventory_history ON products.entity_id = inventory_history.product_id
         WHERE 
           (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2015-07-01', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2015-07-01', 120) )))))

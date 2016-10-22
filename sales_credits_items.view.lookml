@@ -87,7 +87,7 @@
         GROUP BY pop_product_id
       ) AS average_cost
       ON a.product_id = average_cost.pop_product_id
-      LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS msrp
+      LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS msrp
       ON a.product_id = msrp.entity_id
     indexes: [storefront, order_entity_id, product_id]
     sql_trigger_value: |
@@ -226,4 +226,3 @@
       - refund_for_shipping
       - refunded_tax
       - refunded_total
-

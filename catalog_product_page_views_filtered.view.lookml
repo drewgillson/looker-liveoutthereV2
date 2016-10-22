@@ -1,7 +1,7 @@
-- view: catalog_products_page_views_filtered
+- view: catalog_product_page_views_filtered
   derived_table:
     sql: |
-      SELECT * FROM ${catalog_products_page_views.SQL_TABLE_NAME}
+      SELECT * FROM ${catalog_product_page_views.SQL_TABLE_NAME}
       WHERE {% condition sales.order_created_date %} visit {% endcondition %}
 
   fields:

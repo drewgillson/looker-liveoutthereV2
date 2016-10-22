@@ -6,7 +6,7 @@
         , COUNT(DISTINCT p.url_key + CAST(oi.email AS varchar(20))) AS frequency
       FROM ${people_products_page_views.SQL_TABLE_NAME} AS oi
       JOIN (SELECT DISTINCT parent_id, url_key
-            FROM ${catalog_products.SQL_TABLE_NAME}
+            FROM ${catalog_product.SQL_TABLE_NAME}
       ) AS p
         ON oi.url_key = p.url_key
       GROUP BY p.url_key, p.parent_id

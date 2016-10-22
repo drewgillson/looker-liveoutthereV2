@@ -29,7 +29,7 @@
            , quantity_on_order.next_ship_date
            , quantity_on_order.quantity_on_order
       
-      FROM ${catalog_products.SQL_TABLE_NAME} AS products
+      FROM ${catalog_product.SQL_TABLE_NAME} AS products
       
       LEFT JOIN (
         SELECT 
@@ -43,8 +43,8 @@
                SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_page_views.row)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_page_views.row)),1,8) )) AS DECIMAL(38,0)))
             )/(1000000*1.0)
         ,0),0) AS value
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
-        LEFT JOIN ${catalog_products_page_views.SQL_TABLE_NAME} AS product_page_views ON products.url_key = product_page_views.url_key
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
+        LEFT JOIN ${catalog_product_page_views.SQL_TABLE_NAME} AS product_page_views ON products.url_key = product_page_views.url_key
         WHERE 
           (((product_page_views.visit) >= (DATEADD(day,-14, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND (product_page_views.visit) < (DATEADD(day,7, DATEADD(day,-14, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
         GROUP BY products.parent_id, products.colour
@@ -63,8 +63,8 @@
                SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_page_views.row)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, product_page_views.row)),1,8) )) AS DECIMAL(38,0)))
             )/(1000000*1.0)
         ,0),0) AS value
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
-        LEFT JOIN ${catalog_products_page_views.SQL_TABLE_NAME} AS product_page_views ON products.url_key = product_page_views.url_key
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
+        LEFT JOIN ${catalog_product_page_views.SQL_TABLE_NAME} AS product_page_views ON products.url_key = product_page_views.url_key
         WHERE 
           (((product_page_views.visit) >= (DATEADD(day,-7, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND (product_page_views.visit) < (DATEADD(day,7, DATEADD(day,-7, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
         GROUP BY products.parent_id, products.colour
@@ -93,7 +93,7 @@
                    SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sales.row)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sales.row)),1,8) )) AS DECIMAL(38,0)))
                 )/(1000000*1.0)
           ,0),0) AS dollars
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
         LEFT JOIN ${sales_items.SQL_TABLE_NAME} AS sales ON products.entity_id = sales.product_id
         WHERE 
           (((sales.invoice_created) >= (DATEADD(day,-7, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND (sales.invoice_created) < (DATEADD(day,7, DATEADD(day,-7, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
@@ -124,7 +124,7 @@
                    SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sales.row)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sales.row)),1,8) )) AS DECIMAL(38,0)))
                 )/(1000000*1.0)
           ,0),0) AS dollars
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
         LEFT JOIN ${sales_items.SQL_TABLE_NAME} AS sales ON products.entity_id = sales.product_id
         WHERE 
           (((sales.invoice_created) >= (DATEADD(day,-14, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND (sales.invoice_created) < (DATEADD(day,7, DATEADD(day,-14, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
@@ -155,7 +155,7 @@
                    SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sales.row)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sales.row)),1,8) )) AS DECIMAL(38,0)))
                 )/(1000000*1.0)
           ,0),0) AS dollars
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
         LEFT JOIN ${sales_items.SQL_TABLE_NAME} AS sales ON products.entity_id = sales.product_id
         WHERE 
           (((sales.invoice_created) >= (DATEADD(day,-21, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND (sales.invoice_created) < (DATEADD(day,7, DATEADD(day,-14, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
@@ -186,7 +186,7 @@
                    SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sales.row)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sales.row)),1,8) )) AS DECIMAL(38,0)))
                 )/(1000000*1.0)
         ,0),0) AS dollars
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
         LEFT JOIN ${sales_items.SQL_TABLE_NAME} AS sales ON products.entity_id = sales.product_id
         WHERE 
           (((sales.invoice_created) >= (DATEADD(day,-28, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND (sales.invoice_created) < (DATEADD(day,7, DATEADD(day,-14, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ) ))))
@@ -201,7 +201,7 @@
           products.colour,
           (COALESCE(SUM(product_facts.quantity_on_hand),0)) - (COALESCE(SUM(product_facts.quantity_reserved),0)) AS quantity_available_to_sell,
           COALESCE(SUM(product_facts.total_sales_opportunity),0) AS sales_opportunity
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
         WHERE product_facts.last_receipt >= (DATEADD(day,-89, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) )) AND product_facts.last_receipt < (DATEADD(day,90, DATEADD(day,-89, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME))))
         GROUP BY products.parent_id, products.colour
@@ -215,7 +215,7 @@
           products.colour,
           (COALESCE(SUM(product_facts.quantity_on_hand),0)) - (COALESCE(SUM(product_facts.quantity_reserved),0)) AS quantity_available_to_sell,
           COALESCE(SUM(product_facts.total_sales_opportunity),0) AS sales_opportunity
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
         WHERE product_facts.last_receipt < (DATEADD(day,-90, CAST(CONVERT(VARCHAR, CURRENT_TIMESTAMP, 102) AS DATETIME) ))
         GROUP BY products.parent_id, products.colour
@@ -229,7 +229,7 @@
           products.colour,
           MAX(CONVERT(VARCHAR(10),product_facts.last_receipt,120)) AS last_receipt_date,
           MAX(CONVERT(VARCHAR(10),product_facts.last_sold,120)) AS last_sold_date
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
         LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id
         WHERE 
@@ -320,7 +320,7 @@
                    SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0)))
                 )/(1000000*1.0)
           ,0),0) AS quantity_on_order
-        FROM ${catalog_products.SQL_TABLE_NAME} AS products
+        FROM ${catalog_product.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
         LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id
         

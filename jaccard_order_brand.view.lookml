@@ -4,7 +4,7 @@
       SELECT p.brand
       , COUNT(DISTINCT p.brand + CAST(oi.order_entity_id AS varchar(20))) AS frequency
       FROM ${sales_items.SQL_TABLE_NAME} AS oi
-      JOIN ${catalog_products.SQL_TABLE_NAME} AS p
+      JOIN ${catalog_product.SQL_TABLE_NAME} AS p
         ON oi.product_id = p.entity_id
       GROUP BY p.brand
     indexes: [brand]

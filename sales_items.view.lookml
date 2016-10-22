@@ -181,7 +181,7 @@
         SELECT entity_id, value FROM magento.catalog_product_entity_decimal WHERE attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'cost')
       ) AS cost
       ON a.product_id = cost.entity_id
-      LEFT JOIN ${catalog_products.SQL_TABLE_NAME} AS msrp
+      LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS msrp
       ON a.product_id = msrp.entity_id
     indexes: [email, order_entity_id, order_increment_id]
     sql_trigger_value: |

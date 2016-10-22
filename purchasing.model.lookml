@@ -30,7 +30,7 @@
         AND budgets.type = ${items_for_budget.budget_type}
       relationship: one_to_many
     - join: products
-      from: catalog_products_links
+      from: catalog_product_links
       sql_on: loadfile.sku = products.sku
       relationship: many_to_one
       required_joins: [loadfile]

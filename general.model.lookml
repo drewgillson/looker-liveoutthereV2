@@ -149,7 +149,7 @@
   description: "Use to answer supply-side questions (i.e. how many units do we have available to sell and from what categories?)"
   symmetric_aggregates: true
   persist_for: 12 hours
-  from: catalog_products_links
+  from: catalog_product_links
   joins:
     - join: associations
       from: catalog_product_associations
@@ -234,7 +234,7 @@
       relationship: one_to_one
       required_joins: [shipping_tracking]
     - join: product_page_views
-      from: catalog_products_page_views_filtered
+      from: catalog_product_page_views_filtered
       sql_on: products.url_key = product_page_views.url_key
       relationship: many_to_many
     - join: brand_similarity
@@ -242,7 +242,7 @@
       sql_on: products.brand = brand_similarity.brand_a
       relationship: many_to_one
     - join: alternate_images
-      from: catalog_products_alternate_images
+      from: catalog_product_alternate_images
       sql_on: associations.parent_sku = alternate_images.sku
       relationship: one_to_one
       required_joins: [associations]

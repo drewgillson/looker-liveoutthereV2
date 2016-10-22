@@ -1,4 +1,4 @@
-- view: catalog_products_alternate_images
+- view: catalog_product_alternate_images
   derived_table:
     sql: |
       SELECT sku, COUNT(*) - 1 AS count_of_alternate_images FROM (

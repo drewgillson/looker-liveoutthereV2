@@ -3,7 +3,8 @@
     sql: |
       SELECT * FROM ${catalog_product_page_views.SQL_TABLE_NAME}
       WHERE {% condition sales.order_created_date %} visit {% endcondition %}
-
+      AND {% condition sales.invoice_created_date %} visit {% endcondition %}
+      
   fields:
 
   - dimension: row

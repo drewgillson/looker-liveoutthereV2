@@ -3,6 +3,7 @@
     sql: |
       SELECT * FROM ${catalog_product_impressions.SQL_TABLE_NAME}
       WHERE {% condition sales.order_created_date %} period {% endcondition %}
+      AND {% condition sales.invoice_created_date %} visit {% endcondition %}
 
   fields:
 

@@ -178,8 +178,7 @@
       relationship: one_to_many
     - join: product_impressions
       from: catalog_product_impressions_filtered
-      sql_on: associations.parent_id = product_impressions.product_id
-      required_joins: [associations]
+      sql_on: products.url_key = product_impressions.url_key
       relationship: one_to_many
     - join: applied_catalog_price_rules
       from: catalog_price_rules

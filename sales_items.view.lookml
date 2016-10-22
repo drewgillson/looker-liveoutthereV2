@@ -312,6 +312,7 @@
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.row_total
+    drill_fields: [configurable_products_sales_summary*]
     
   - measure: average_sale_price
     label: "Average Sale Price $"
@@ -474,3 +475,16 @@
   - measure: unique_products_ordered
     type: count_distinct
     sql: ${TABLE}.product_id
+    
+  sets:
+      configurable_products_sales_summary:
+        - products.budget_type
+        - gross_sold_quantity
+        - average_sale_price
+        - subtotal
+        - discount
+        - gross_gross_margin
+        - gross_gross_margin_percent
+        - product_page_views.count
+        - product_page_views.conversion_rate
+        

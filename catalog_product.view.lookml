@@ -181,6 +181,7 @@
     description: "Budget type of product"
     type: string
     sql: ${TABLE}.budget_type
+    drill_fields: [department]
     
   - dimension: gtin
     description: "Real supplier GTIN/UPC for a product (null if we don't know it)"
@@ -197,7 +198,7 @@
     description: "Department/gender for a product"
     type: string
     sql: ${TABLE}.department
-    drill_fields: [brand]
+    drill_fields: [categories.category_1]
 
   - dimension: url_key
     description: "URL key for a product"
@@ -356,4 +357,3 @@
     type: yesno
     sql: |
       ${TABLE}.department IN ('Boys','Girls','Boys^Girls','Toddler','Infant','Kids')
-      

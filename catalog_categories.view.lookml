@@ -55,7 +55,7 @@
   - dimension: inventory_type
     description: "Either Apparel, Gear, or Footwear"
     sql: ${TABLE}.inventory_type
-    drill_fields: [short_category, long_category, inventory.brand]
+    drill_fields: [short_category, long_category, products.brand]
 
   - dimension: raw_category_path
     description: "The raw category value from Magento, this may or may not match to a category in our master list, so if this has a value but the other dimensions are NULL, a row needs to be added to lut_Messy_Category_Data."
@@ -65,25 +65,25 @@
     description: "i.e. Gear"
     label: "1st-Level Category"
     sql: ${TABLE}.reporting_category_level1
-    drill_fields: [short_category, long_category, category_2, inventory.brand]
+    drill_fields: [long_category, category_2, products.brand]
 
   - dimension: category_2
     description: "i.e. Equipment"
     label: "2nd-Level Category"
     sql: ${TABLE}.reporting_category_level2
-    drill_fields: [category_3, inventory.brand]
+    drill_fields: [category_3, products.brand]
 
   - dimension: category_3
     description: "i.e. Poles"
     label: "3rd-Level Category"
     sql: ${TABLE}.reporting_category_level3
-    drill_fields: [category_4, inventory.brand]
+    drill_fields: [category_4, products.brand]
 
   - dimension: category_4
     description: "i.e. Ski Poles"
     label: "4th-Level Category"
     sql: ${TABLE}.reporting_category_level4
-    drill_fields: [category_5, inventory.brand]
+    drill_fields: [category_5, products.brand]
 
   - dimension: category_5
     description: "i.e. Collapsible Ski Poles"
@@ -93,9 +93,9 @@
   - dimension: long_category
     description: "i.e. Accessories/Mitts/Waterproof Mitts"
     sql: ${category_1} + ISNULL('/' + NULLIF(${category_2},''),'') + ISNULL('/' + NULLIF(${category_3},''),'') + ISNULL('/' + NULLIF(${category_4},''),'') + ISNULL('/' + NULLIF(${category_5},''),'')
-    drill_fields: [inventory.brand, inventory.short_product_name, inventory.long_product_name]
+    drill_fields: [inventory.brand, inventory.short_product_name, products.long_product_name, products.brand]
 
   - dimension: short_category
     description: "i.e. Accessories/Mitts"
     sql: ${category_1} + ISNULL('/' + NULLIF(${category_2},''),'') 
-    drill_fields: [long_category, inventory.brand, inventory.short_product_name, inventory.long_product_name]
+    drill_fields: [long_category, products.brand, products.long_product_name]

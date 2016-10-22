@@ -249,7 +249,7 @@
     value_format: '$#,##0'
     sql: ${TABLE}.total_sales_opportunity
     drill_fields: [inventory_facts*]
-    
+
   - measure: opening_margin
     label: "Opening Margin %"
     type: avg
@@ -258,9 +258,9 @@
 
   - measure: percent_of_total_sales_opportunity
     description: "Percentage of sales opportunity compared to total"
-    label: "% of Sales Opportunity"
+    label: "Sales Opportunity $ (% of Total)"
     type: percent_of_total
-    value_format: '0.00\%'
+    value_format: '0\%'
     sql: ${total_sales_opportunity}
 
   - measure: skus_reserved
@@ -374,7 +374,6 @@
       - products.budget_type
       - products.department
       - categories.category_1
-      - products.brand
       - total_sales_opportunity
       - percent_of_total_sales_opportunity
       - sell_through_rate

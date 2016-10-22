@@ -19,3 +19,9 @@
    - dimension: number
      type: number
      sql: ${TABLE}.sequence
+     
+   - dimension: new_or_repeat
+     label: "New or Repeat Customer"
+     type: string
+     sql: |
+      CASE WHEN ${number} = 1 THEN 'New' WHEN ${number} > 1 THEN 'Repeat' END

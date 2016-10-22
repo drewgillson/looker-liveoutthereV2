@@ -314,6 +314,11 @@
     sql: ${TABLE}.row_total
     drill_fields: [configurable_products_sales_summary*]
     
+  - measure: gross_sold_percent_of_total
+    label: "Gross Sold $ (% of Total)"
+    type: percent_of_total
+    sql: ${subtotal}
+    
   - measure: average_sale_price
     label: "Average Sale Price $"
     description: "Average gross sold price per unit"
@@ -423,6 +428,11 @@
     value_format: '0' 
     sql: ${TABLE}.qty
     
+  - measure: cumulative_gross_sold_quantity
+    type: running_total
+    direction: column
+    sql: ${gross_sold_quantity}
+    
   - measure: net_sold_quantity
     description: "Number of units ordered less number of units refunded"
     type: number
@@ -467,6 +477,11 @@
     description: "Number of orders placed"
     type: count_distinct
     sql: ${order_id}
+
+  - measure: cumulative_orders
+    type: running_total
+    sql: ${orders}
+    direction: column
     
   - measure: percent_of_total_orders
     type: percent_of_total

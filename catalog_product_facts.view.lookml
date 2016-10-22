@@ -226,6 +226,7 @@
     description: "Quantity currently on hand / in stock"
     type: sum
     sql: ${TABLE}.quantity_on_hand
+    drill_fields: [inventory_facts*]
 
   - measure: total_discounted_cost
     description: "Total cost of the inventory we have on hand (at average cost after discounts)"
@@ -247,6 +248,7 @@
     type: sum
     value_format: '$#,##0'
     sql: ${TABLE}.total_sales_opportunity
+    drill_fields: [inventory_facts*]
     
   - measure: opening_margin
     label: "Opening Margin %"
@@ -348,7 +350,7 @@
     description: "Quantity on hand minus quantity reserved for orders that haven't shipped"
     type: number
     sql: ${quantity_on_hand} - ${quantity_reserved}
-    drill_fields: [products.long_product_name, products.sku, quantity_available_to_sell]
+    drill_fields: [inventory_facts*]
 
   - measure: is_in_stock_or_created_within_last_year
     description: "Will return SKUs that are either in stock, or have been added to Magento within the last 3 years. This is used to produce an item master for NRI."
@@ -366,3 +368,18 @@
 #    type: number
 #    value_format: '0%'
 #    sql: ${quantity_returned_all_time} / NULLIF(CAST(${quantity_sold_all_time} AS float),0)
+
+  sets:
+    inventory_facts:
+      - products.budget_type
+      - products.department
+      - categories.category_1
+      - products.brand
+      - total_sales_opportunity
+      - percent_of_total_sales_opportunity
+      - sell_through_rate
+      - quantity_on_hand
+      - quantity_sold_last_180_days
+      - quantity_returned_last_180_days
+      - net_sold_quantity_last_180_days
+      - days_of_inventory_remaining

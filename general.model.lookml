@@ -150,7 +150,7 @@
   symmetric_aggregates: true
   persist_for: 12 hours
   from: catalog_product_links
-  always_join: [product_facts, product_page_views, categories]
+  always_join: [product_facts, categories]
   joins:
     - join: associations
       from: catalog_product_associations

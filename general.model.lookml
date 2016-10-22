@@ -234,7 +234,7 @@
       relationship: one_to_one
       required_joins: [shipping_tracking]
     - join: product_page_views
-      from: catalog_products_page_views
+      from: catalog_products_page_views_filtered
       sql_on: products.url_key = product_page_views.url_key
       relationship: many_to_many
     - join: brand_similarity

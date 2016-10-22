@@ -176,7 +176,7 @@
       sql_on: products.entity_id = categories.product_id
       relationship: one_to_many
     - join: product_impressions
-      from: catalog_product_impressions
+      from: catalog_product_impressions_filtered
       sql_on: associations.parent_id = product_impressions.product_id
       required_joins: [associations]
       relationship: one_to_many

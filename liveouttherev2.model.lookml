@@ -426,6 +426,35 @@
       relationship: one_to_one
       required_joins: [categories]
 
+- explore: snowplow
+  hidden: true
+  symmetric_aggregates: true
+  description: "Use this explore to investigate how people behave on our website: where do they come from? what do they do?"
+  persist_for: 24 hours
+  joins:
+    - join: domain_userid_facts
+      from: snowplow_domain_userid_facts
+      sql_on: snowplow.domain_userid = domain_userid_facts.domain_userid
+      relationship: many_to_one
+    - join: event_sequence
+      from: snowplow_event_sequences
+      sql_on: snowplow.event_id = event_sequence.event_id
+      relationship: one_to_one
+    - join: reverse_utm_sequences
+      from: snowplow_utm_sequences_for_orders
+      sql_on: snowplow.event_id = reverse_utm_sequences.event_id
+      relationship: one_to_many
+  conditionally_filter:
+    snowplow.app_id: 'lot-production'
+    snowplow.event_type: 'page_view'
+    snowplow.live_out_there_user_id: '-NULL'
+    snowplow.snowplow_user_id: '-NULL'
+    unless:
+      - snowplow.snowplow_user_id
+      - snowplow.live_out_there_user_id
+      - snowplow.app_id
+      - snowplow.event_type
+
 - explore: weekly_business_review
   from: reports_weekly_business_review
   hidden: true

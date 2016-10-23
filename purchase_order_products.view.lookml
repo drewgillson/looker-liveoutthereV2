@@ -2,7 +2,7 @@
   derived_table:
     sql: |
         SELECT po.po_date
-           , REPLACE(po.po_order_id,CHAR(9),'') AS po_order_id -- replace tabs with nothing
+           , po.po_order_id
            , po.po_status
            , po.po_data_status
            , po.po_type
@@ -39,7 +39,7 @@
            , p.pop_supplied_qty * p.pop_price_ht AS delivered_amount_cost
            , p.pop_qty * price.value AS ordered_amount_msrp
            , p.pop_supplied_qty * price.value AS delivered_amount_msrp
-           , sup.sup_name AS supplier
+           , REPLACE(sup.sup_name,CHAR(9),'') AS supplier -- replace tabs with nothing
            , po.po_author
            , COALESCE(first_stock_movement_created_at, o.created_at) AS first_activity
         FROM magento.purchase_order_product AS p

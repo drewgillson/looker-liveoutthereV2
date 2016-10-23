@@ -2,7 +2,7 @@
   derived_table:
     sql: |
         SELECT po.po_date
-           , po.po_order_id
+           , REPLACE(po.po_order_id,CHAR(9),'') AS po_order_id -- replace tabs with nothing
            , po.po_status
            , po.po_data_status
            , po.po_type

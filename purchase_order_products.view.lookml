@@ -17,6 +17,7 @@
            , p.pop_product_name
            , p.pop_qty
            , p.pop_supplied_qty
+           , CASE WHEN po.po_status NOT IN ('complete','cancelled','closed') THEN p.pop_qty - p.pop_supplied_qty END AS remaining_qty
            , p.pop_price_ht
            , p.pop_price_ht_base
            , p.pop_supplier_ref
@@ -42,6 +43,9 @@
            , REPLACE(sup.sup_name,CHAR(9),'') AS supplier -- replace tabs with nothing
            , po.po_author
            , COALESCE(first_stock_movement_created_at, o.created_at) AS first_activity
+           , CASE WHEN po.po_status NOT IN ('complete','cancelled','closed') THEN (p.pop_qty * (p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100))) - (p.pop_supplied_qty * (p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100))) END AS remaining_amount
+           , CASE WHEN po.po_status NOT IN ('complete','cancelled','closed') THEN (p.pop_qty * p.pop_price_ht) - (p.pop_supplied_qty * p.pop_price_ht) END AS remaining_amount_cost
+           , CASE WHEN po.po_status NOT IN ('complete','cancelled','closed') THEN (p.pop_qty * price.value) - (p.pop_supplied_qty * price.value) END AS remaining_amount_msrp
         FROM magento.purchase_order_product AS p
         LEFT JOIN magento.purchase_order AS po
           ON p.pop_order_num = po.po_num
@@ -73,6 +77,7 @@
            , NULL AS pop_product_name
            , NULL AS pop_qty
            , NULL AS pop_supplied_qty
+           , NULL AS remaining_qty
            , NULL AS pop_price_ht
            , NULL AS pop_price_ht_base
            , NULL AS pop_supplier_ref
@@ -98,6 +103,9 @@
            , sup.sup_name AS supplier
            , po.po_author
            , NULL AS first_activity
+           , NULL
+           , NULL
+           , NULL
         FROM magento.purchase_order AS po
         LEFT JOIN magento.purchase_order_product AS pop
           ON pop.pop_order_num = po.po_num
@@ -321,22 +329,22 @@
   - measure: remaining_amount
     description: "Remaining amount (Discounted Cost) from purchase order line item"
     label: "Remaining Discounted $"
-    type: number
-    sql: ${row_net_ordered_amount} - ${row_net_delivered_amount}
+    type: sum
+    sql: ${TABLE}.remaining_amount
     value_format: '$#,##0.00'
 
   - measure: remaining_amount_cost
     description: "Remaining amount (Wholesale Cost) from purchase order line item"
     label: "Remaining Wholesale $"
-    type: number
-    sql: ${row_net_ordered_amount_cost} - ${row_net_delivered_amount_cost}
+    type: sum
+    sql: ${TABLE}.remaining_amount_cost
     value_format: '$#,##0.00'
     
   - measure: remaining_amount_msrp
     description: "Remaining amount (Retail Price) from purchase order line item"
     label: "Remaining Retail $"
-    type: number
-    sql: ${row_net_ordered_amount_msrp} - ${row_net_delivered_amount_msrp}
+    type: sum
+    sql: ${TABLE}.remaining_amount_msrp
     value_format: '$#,##0.00'
 
   - measure: row_qty
@@ -359,8 +367,8 @@
   - measure: remaining_qty
     label: "Remaining Quantity"
     description: "Number of units that are remaining to be delivered"
-    type: number
-    sql: ${row_qty} - ${row_delivered_qty}
+    type: sum
+    sql: ${TABLE}.remaining_qty
 
   - measure: percent_of_total_delivered_msrp
     description: "Percent of total delivered amount (Retail Price) of this result vs. all results"

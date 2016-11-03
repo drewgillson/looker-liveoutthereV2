@@ -41,8 +41,9 @@
       'Inbound':  ${service} = 'Inbound Pallets' OR ${service} = 'Project Labour' OR ${service} = 'Receipt Processing' OR ${service} = 'Receiving' OR ${service} = 'Restock' OR ${service} = 'Tagging'
       'Returns': ${service} = 'Returns' OR ${service} = 'Service Center Labor' OR ${service} = 'Shop Supplies'
       'Freight': ${service} = 'Inbound Freight' OR ${service} = 'Outbound Freight' OR ${service} = 'Returns Freight'
-      'Labour': ${service} = 'Warehouse Labour'
-      'Storage': ${service} = 'Storage' OR ${service} = 'Storage Carton Shipped'
+      'Labour': ${service} = 'Warehouse Labour' OR ${service} = 'Data Entry Labour'
+      'Storage': ${service} = 'Storage' OR ${service} = 'Storage Carton Shipped' OR ${service} = 'Quality Control'
+      'IT': ${service} = 'IT Time'
       else: unknown
 
   - dimension_group: doc_date
@@ -90,7 +91,7 @@
   - measure: cost_per_order
     type: number
     value_format: "$#,##0.00"
-    sql: ${charges} / ${orders}
+    sql: ${charges} / NULLIF(${orders},0)
 
   - measure: count
     type: count

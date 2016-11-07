@@ -558,6 +558,13 @@ view: sales_items {
     sql: ${orders} ;;
   }
 
+  measure:  percent_of_net_sold {
+    label: "% of Net Sold $"
+    type:  percent_of_total
+    sql:  ${net_sold} ;;
+    value_format: "0.00\%"
+  }
+
   measure: unique_products_ordered {
     type: count_distinct
     sql: ${TABLE}.product_id ;;

@@ -467,3 +467,57 @@ explore: snowplow {
     unless: [snowplow.snowplow_user_id, snowplow.live_out_there_user_id, snowplow.app_id, snowplow.event_type]
   }
 }
+
+explore: sort_order {
+  from: sort_order_opportunity
+  hidden: yes
+
+  join: orders {
+    from: sort_order_orders
+    sql_on:  ${sort_order.configurable_sku} = ${orders.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
+  join: conversion_rate {
+    from: sort_order_conversion_rate
+    sql_on:  ${sort_order.configurable_sku} = ${conversion_rate.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
+  join: quantity {
+    from: sort_order_quantity
+    sql_on:  ${sort_order.configurable_sku} = ${quantity.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
+  join: page_views {
+    from: sort_order_page_views
+    sql_on:  ${sort_order.configurable_sku} = ${page_views.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
+  join: price {
+    from: sort_order_price
+    sql_on:  ${sort_order.configurable_sku} = ${price.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
+  join: reviews {
+    from: sort_order_reviews
+    sql_on:  ${sort_order.configurable_sku} = ${reviews.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
+  join: days_since_last_receipt {
+    from: sort_order_days_since_last_receipt
+    sql_on:  ${sort_order.configurable_sku} = ${days_since_last_receipt.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
+  always_filter: {
+    filters: {
+      field: sort_order.configurable_sku
+      value: "-NULL"
+    }
+  }
+}

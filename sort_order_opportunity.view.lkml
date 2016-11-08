@@ -31,9 +31,10 @@ view: sort_order_opportunity {
     value_format: "$#,##0"
   }
 
+  # Use ISNULL to assign a default score to null values, this puts products that we don't have information about somewhere up near the top - but not at the top!
   dimension: weighted_score_default {
+    description: "Anshuman's default sort order with weights as described in LOT Sort Order - Algo Description"
     type: number
-    # ISNULL assigns a default score to null values, this puts products that we don't have information about somewhere up near the top - but not at the top!
     sql: (ISNULL(${page_views.score},100) * 0.20) +
          (ISNULL(${conversion_rate.score},1000) * 0.30) +
          (ISNULL(${sort_order.opportunity_score},100) * 0.30) +
@@ -43,6 +44,7 @@ view: sort_order_opportunity {
   }
 
   dimension: weighted_score_alt_1 {
+    description: "An example alternate sort order heavily weighted towards the Sales Opportunity $ rank/score"
     type: number
     sql: (ISNULL(${conversion_rate.score},1000) * 0.20) +
          (ISNULL(${sort_order.opportunity_score},100) * 0.65) +
@@ -51,6 +53,7 @@ view: sort_order_opportunity {
   }
 
   dimension: weighted_score_alt_2 {
+    description: "Another example sort order heavily weighted towards the conversion rate rank, but also factoring in days since last receipt"
     type: number
     sql: (ISNULL(${conversion_rate.score},1000) * 0.75) +
          (ISNULL(${days_since_last_receipt.score},100) * 0.25);;

@@ -15,7 +15,6 @@ view: sort_order_opportunity {
 
   dimension: configurable_sku {
     type: string
-    hidden: yes
     sql: ${TABLE}.configurable_sku ;;
   }
 

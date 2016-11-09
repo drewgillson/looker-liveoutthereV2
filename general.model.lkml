@@ -514,6 +514,12 @@ explore: sort_order {
     relationship: one_to_one
   }
 
+  join: gross_sold_quantity {
+    from: sort_order_gross_sold_quantity
+    sql_on:  ${sort_order.configurable_sku} = ${gross_sold_quantity.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
   always_filter: {
     filters: {
       field: sort_order.configurable_sku

@@ -314,6 +314,13 @@ explore: products {
     required_joins: [credits]
   }
 
+  join: organizers {
+    from:  organizers
+    sql_on:  sales.order_entity_id = organizers.entity_id AND organizers.entity_type = 'order' AND organizers.caption NOT LIKE 'Credit memo created with reason%' ;;
+    relationship: one_to_many
+    required_joins: [sales]
+  }
+
   join: shipping_charges {
     from: sales_shipping_charges
     sql_on: sales.order_entity_id = shipping_charges.order_id ;;

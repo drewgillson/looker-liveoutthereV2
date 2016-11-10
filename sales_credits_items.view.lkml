@@ -258,6 +258,6 @@ view: sales_credits_items {
   }
 
   set: credits_detail {
-    fields: [credit_memo_id, mailed_date, refunded_subtotal, refund_for_shipping, refund_for_other_reason, refund_for_return]
+    fields: [credit_memo_id, mailed_date, organizers.caption, organizers.author, organizers.sequence, refunded_subtotal, refund_for_shipping, refund_for_other_reason, refund_for_return]
   }
 }

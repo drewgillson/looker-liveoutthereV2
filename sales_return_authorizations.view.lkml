@@ -123,6 +123,15 @@ view: sales_return_authorizations {
         label: "Refund - Found Better Price"
       }
     }
+
+    html:
+      {% if value == 'Warranty Issue' %}
+        <font color="red"><strong>{{ rendered_value }}</strong></font>
+      {% elsif value == 'Other' %}
+        <font color="red"><strong>{{rendered_value}}</strong></font>
+      {% else %}
+        {{rendered_value}}
+      {% endif %} ;;
   }
 
   dimension: return_service {

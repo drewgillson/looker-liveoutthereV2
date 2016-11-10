@@ -49,7 +49,7 @@ view: catalog_product {
           ON a.entity_id = k.entity_id AND k.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'choose_size' AND entity_type_id = 4) AND k.store_id = 0
         LEFT JOIN magento.eav_attribute_option_value AS l
           ON k.value = l.option_id AND l.store_id = 0
-        LEFT JOIN magento.catalog_product_entity_varchar AS m
+        LEFT JOIN magento.catalog_product_entity_text AS m
           ON a.entity_id = m.entity_id AND m.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'department' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_varchar AS n
           ON a.entity_id = n.entity_id AND n.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
@@ -65,7 +65,7 @@ view: catalog_product {
           ON a.entity_id = s.entity_id AND s.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'season_id' AND entity_type_id = 4) AND s.store_id = 0
         LEFT JOIN magento.eav_attribute_option_value AS t
           ON s.value = t.option_id AND t.store_id = 0
-        LEFT JOIN magento.catalog_product_entity_varchar AS u
+        LEFT JOIN magento.catalog_product_entity_text AS u
           ON a.entity_id = u.entity_id AND u.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'color_family' AND entity_type_id = 4) AND u.store_id = 0
         LEFT JOIN magento.eav_attribute_option_value AS v
           -- only join the label value for the first colour family if the varchar table contains a comma-separated string of colour family value IDs

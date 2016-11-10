@@ -6,7 +6,7 @@ view: catalog_product_collections {
         ON a.option_id = b.option_id
         WHERE a.attribute_id = 327 AND b.store_id = 0
       ) AS collections
-      LEFT JOIN magento.catalog_product_entity_varchar AS a
+      LEFT JOIN magento.catalog_product_entity_text AS a
       ON a.value LIKE '%' + CAST(collections.option_id AS varchar(10)) + '%'
       LEFT JOIN magento.catalog_product_entity AS b
       ON a.entity_id = b.entity_id

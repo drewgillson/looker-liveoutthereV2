@@ -12,7 +12,7 @@ view: catalog_product {
            , i.value AS image
            , j.value AS barcode
            , l.value AS size
-           , CASE WHEN m.value = '17215' THEN 'Men' WHEN m.value = '17216' THEN 'Women' WHEN m.value = '17215,17216' OR m.value = '17216,17215' THEN 'Men^Women' WHEN m.value = '17213' THEN 'Boys' WHEN m.value = '17214' THEN 'Girls' WHEN m.value = '17213,17214' OR m.value = '17214,17213' THEN 'Boys^Girls' WHEN m.value = '42206' THEN 'Infant' WHEN m.value = '64480' THEN 'Kids' WHEN m.value = '41763' THEN 'Toddler' END AS department
+           , CASE WHEN CAST(m.value AS nvarchar(255)) = '17215' THEN 'Men' WHEN CAST(m.value AS nvarchar(255)) = '17216' THEN 'Women' WHEN CAST(m.value AS nvarchar(255)) = '17215,17216' OR CAST(m.value AS nvarchar(255)) = '17216,17215' THEN 'Men^Women' WHEN CAST(m.value AS nvarchar(255)) = '17213' THEN 'Boys' WHEN CAST(m.value AS nvarchar(255)) = '17214' THEN 'Girls' WHEN CAST(m.value AS nvarchar(255)) = '17213,17214' OR CAST(m.value AS nvarchar(255)) = '17214,17213' THEN 'Boys^Girls' WHEN CAST(m.value AS nvarchar(255)) = '42206' THEN 'Infant' WHEN CAST(m.value AS nvarchar(255)) = '64480' THEN 'Kids' WHEN CAST(m.value AS nvarchar(255)) = '41763' THEN 'Toddler' END AS department
            -- strip tabs and line breaks from product names (they cause issues with CSV/TSV exports)
            , LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(n.value,CHAR(10),''),CHAR(13),''),CHAR(9),''))) AS product
            , p.value AS brand
@@ -69,7 +69,7 @@ view: catalog_product {
           ON a.entity_id = u.entity_id AND u.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'color_family' AND entity_type_id = 4) AND u.store_id = 0
         LEFT JOIN magento.eav_attribute_option_value AS v
           -- only join the label value for the first colour family if the varchar table contains a comma-separated string of colour family value IDs
-          ON CASE WHEN u.value LIKE '%,%' THEN LEFT(u.value,CHARINDEX(',',u.value)-1) ELSE u.value END = v.option_id AND v.store_id = 0
+          ON CASE WHEN CAST(u.value AS nvarchar(255)) LIKE '%,%' THEN LEFT(CAST(u.value AS nvarchar(255)),CHARINDEX(',',CAST(u.value AS nvarchar(255)))-1) ELSE CAST(u.value AS nvarchar(255)) END = v.option_id AND v.store_id = 0
         -- then eliminate multiple configurable parents for one simple product (otherwise we get dupes in our result set)
         LEFT JOIN (
           SELECT MAX(parent_id) AS parent_id
@@ -98,7 +98,7 @@ view: catalog_product {
         LEFT JOIN magento.catalog_product_entity_decimal AS zf
           ON a.entity_id = zf.entity_id AND zf.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'special_price' AND entity_type_id = 4)
         WHERE a.type_id IN ('simple','ugiftcert','giftcert','giftvoucher')
-        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, m.value, n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value
+        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, CAST(m.value AS nvarchar(255)), n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
         SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL

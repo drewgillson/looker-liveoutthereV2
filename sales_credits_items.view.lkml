@@ -1,7 +1,7 @@
 view: sales_credits_items {
   derived_table: {
     sql: SELECT ROW_NUMBER() OVER (ORDER BY creditmemo_created) AS row, a.*, (refunded_qty * average_cost.value) AS extended_cost, (refunded_qty * msrp.price) AS refunded_msrp FROM (
-        SELECT [type], storefront, creditmemo_created, order_entity_id, creditmemo_increment_id, creditmemo_entity_id, request_type, product_id, refunded_qty, refund_for_return - adjustment_tax_amount AS refund_for_return, refund_for_other_reason - adjustment_tax_amount AS refund_for_other_reason, refund_for_shipping - shipping_tax_amount AS refund_for_shipping, adjustment_tax_amount + shipping_tax_amount AS refunded_tax, ISNULL(refund_for_return,0) + ISNULL(refund_for_other_reason,0) + ISNULL(refund_for_shipping,0) AS refunded_total FROM (
+        SELECT [type], storefront, creditmemo_created, order_entity_id, creditmemo_increment_id, creditmemo_entity_id, request_type, product_id, refunded_qty, refund_for_return - adjustment_tax_amount AS refund_for_return, refund_for_other_reason - adjustment_tax_amount AS refund_for_other_reason, refund_for_shipping - shipping_tax_amount AS refund_for_shipping, adjustment_tax_amount + shipping_tax_amount AS refunded_tax, ISNULL(refund_for_return,0) + ISNULL(refund_for_other_reason,0) + ISNULL(refund_for_shipping,0) AS refunded_total, mailed, mailed_description FROM (
           SELECT 'credit' AS [type]
           , 'LiveOutThere.com' AS storefront
           , a.created_at AS creditmemo_created
@@ -16,6 +16,8 @@ view: sales_credits_items {
           , a.shipping_amount AS refund_for_shipping
           , CAST(a.adjustment_positive - (a.adjustment_positive / (1 + (f.[percent] / 100))) AS money) AS adjustment_tax_amount
           , CAST(a.shipping_amount - (a.shipping_amount / (1 + (f.[percent] / 100))) AS money) AS shipping_tax_amount
+          , h.ot_created_at AS mailed
+          , h.ot_description AS mailed_description
           FROM magento.sales_flat_creditmemo AS a
           LEFT JOIN magento.sales_flat_creditmemo_item AS b
             ON a.entity_id = b.parent_id
@@ -29,8 +31,10 @@ view: sales_credits_items {
             ON a.order_id = f.order_id AND f.position = 1
           LEFT JOIN magento.sales_flat_order_item AS g
             ON a.order_id = g.order_id AND a.adjustment_positive = (g.row_total - ISNULL(g.discount_amount,0) + g.tax_amount)
+          LEFT JOIN (SELECT ot_entity_id, ot_created_at, CAST(ot_description AS nvarchar(1024)) AS ot_description FROM magento.organizer_task WHERE ot_caption = 'Return item accepted at Post Office') AS h
+            ON a.order_id = h.ot_entity_id
           WHERE (a.adjustment_positive > 0 OR a.shipping_amount > 0) AND a.created_at > '2014-02-01'
-          GROUP BY a.created_at, a.increment_id, a.entity_id, a.adjustment_positive, a.shipping_amount, c.entity_id, CAST(d.comment AS varchar(255)), f.[percent]
+          GROUP BY a.created_at, a.increment_id, a.entity_id, a.adjustment_positive, a.shipping_amount, c.entity_id, CAST(d.comment AS varchar(255)), f.[percent], h.ot_created_at, h.ot_description
         ) AS a
         UNION ALL
         SELECT 'credit' AS [type]
@@ -39,7 +43,7 @@ view: sales_credits_items {
         , c.entity_id AS order_entity_id
         , b.increment_id AS creditmemo_increment_id
         , b.entity_id AS creditmemo_entity_id
-        , 'Return' AS request_type
+        , CAST(e.comment AS varchar(255)) AS request_type
         , COALESCE(a.product_id,-1)
         , a.qty AS refunded_qty
         , a.row_total - ISNULL(a.discount_amount,0) AS refund_for_return
@@ -47,11 +51,17 @@ view: sales_credits_items {
         , NULL AS refund_for_shipping
         , a.tax_amount
         , (a.row_total - ISNULL(a.discount_amount,0)) + a.tax_amount AS total_refunded
+        , d.ot_created_at AS mailed
+        , d.ot_description AS mailed_description
         FROM magento.sales_flat_creditmemo_item AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.parent_id = b.entity_id
         LEFT JOIN magento.sales_flat_order AS c
           ON b.order_id = c.entity_id
+        LEFT JOIN (SELECT ot_entity_id, ot_created_at, CAST(ot_description AS nvarchar(1024)) AS ot_description FROM magento.organizer_task WHERE ot_caption = 'Return item accepted at Post Office') AS d
+          ON b.order_id = d.ot_entity_id
+        LEFT JOIN magento.sales_flat_creditmemo_comment AS e
+          ON b.entity_id = e.parent_id
         WHERE a.row_total > 0
         UNION ALL
         SELECT 'credit' AS [type]
@@ -68,6 +78,8 @@ view: sales_credits_items {
         , NULL AS refund_for_shipping
         , CAST([order-line_items-total_refunded] - ([order-line_items-total_refunded] / (1 + [order-tax_lines-rate])) AS money) AS tax_amount
         , [order-line_items-total_refunded] AS refunded_total
+        , NULL
+        , NULL
         FROM shopify.order_items AS a
         INNER JOIN shopify.transactions AS b
           ON a.[order-order_number] = b.[order-order_number]
@@ -114,6 +126,16 @@ view: sales_credits_items {
   dimension_group: created {
     type: time
     sql: ${TABLE}.creditmemo_created ;;
+  }
+
+  dimension_group: mailed {
+    type: time
+    sql: ${TABLE}.mailed ;;
+  }
+
+  dimension: mailed_description {
+    type: string
+    sql: ${TABLE}.mailed_description ;;
   }
 
   dimension: order_entity_id {
@@ -217,6 +239,7 @@ view: sales_credits_items {
     type: sum
     value_format: "$#,##0"
     sql: ${TABLE}.refunded_total ;;
+    drill_fields: [credits_detail*]
   }
 
   measure: refunded_subtotal {
@@ -225,11 +248,16 @@ view: sales_credits_items {
     type: number
     value_format: "$#,##0"
     sql: ${refunded_total} - ${refunded_tax} ;;
+    drill_fields: [credits_detail*]
   }
 
   measure: unique_products_refunded {
     description: "Unique number of SKUs refunded"
     type: count_distinct
     sql: ${TABLE}.product_id ;;
+  }
+
+  set: credits_detail {
+    fields: [credit_memo_id, mailed_date, refunded_subtotal, refund_for_shipping, refund_for_other_reason, refund_for_return]
   }
 }

@@ -19,7 +19,7 @@ view: catalog_product {
            , q.value AS cost
            , r.value AS price
            , t.value AS season
-           , v.value AS colour_family
+           , CAST(v.value AS nvarchar(255)) AS colour_family
            , MAX(w.parent_id) AS parent_id
            , COUNT(DISTINCT w.parent_id) AS parent_count
            , MIN(CAST(y.value AS int)) AS merchandise_priority
@@ -98,7 +98,7 @@ view: catalog_product {
         LEFT JOIN magento.catalog_product_entity_decimal AS zf
           ON a.entity_id = zf.entity_id AND zf.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'special_price' AND entity_type_id = 4)
         WHERE a.type_id IN ('simple','ugiftcert','giftcert','giftvoucher')
-        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, CAST(m.value AS nvarchar(255)), n.value, p.value, q.value, r.value, t.value, v.value, z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value
+        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, CAST(m.value AS nvarchar(255)), n.value, p.value, q.value, r.value, t.value, CAST(v.value AS nvarchar(255)), z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
         SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL

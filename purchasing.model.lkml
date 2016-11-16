@@ -8,6 +8,18 @@ include: "*.view"
 # include all dashboards in this project
 include: "*.dashboard"
 
+explore: fw17_plan {
+  view_label: "FW17 Plan"
+  hidden: yes
+  from: plan_weekly_inventory
+
+  join: sales {
+    from: plan_weekly_sales
+    sql_on: fw17_plan.parent_id = sales.parent_id AND fw17_plan.inventory_balance = sales.order_created;;
+    relationship: one_to_one
+  }
+}
+
 explore: assortment_planning {
   description: "Use to explore the order line item data entered in Google Sheets order forms"
   from: orderforms_seasons

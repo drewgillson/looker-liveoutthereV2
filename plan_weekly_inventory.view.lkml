@@ -2,7 +2,7 @@ view: plan_weekly_inventory {
   derived_table: {
     sql: SELECT
         products.parent_id AS parent_id,
-        CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,inventory_history.sm_date ) - 1) - 1 + 7) % (7))), inventory_history.sm_date  ),120), 120) AS inventory_balance,
+        DATEADD(ww,1,CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,inventory_history.sm_date ) - 1) - 1 + 7) % (7))), inventory_history.sm_date  ),120), 120)) AS inventory_balance,
         products.budget_type AS budget_type,
         products.department AS department,
         products.brand AS brand,
@@ -17,9 +17,9 @@ view: plan_weekly_inventory {
 
       WHERE ((inventory_history.sm_date  >= CONVERT(DATETIME,'2016-01-01', 120))) AND ((((DATEPART(dw,inventory_history.sm_date ) - 1) - 1 + 7) % (7)) = 6)
       AND (categories.sequence = 1)
-      GROUP BY products.parent_id ,CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,inventory_history.sm_date ) - 1) - 1 + 7) % (7))), inventory_history.sm_date  ),120), 120),products.budget_type ,products.department ,products.brand ,products.product ,categories.reporting_category_level1 ,categories.reporting_category_level2;;
+      GROUP BY products.parent_id ,DATEADD(ww,1,CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,inventory_history.sm_date ) - 1) - 1 + 7) % (7))), inventory_history.sm_date  ),120), 120)),products.budget_type ,products.department ,products.brand ,products.product ,categories.reporting_category_level1 ,categories.reporting_category_level2;;
     indexes: ["parent_id", "budget_type", "brand", "department", "category_1"]
-    sql_trigger_value: SELECT CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,GETDATE() ) - 1) - 1 + 7) % (7))), GETDATE()  ),120), 120)
+    sql_trigger_value: SELECT DATEADD(ww,1,CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,GETDATE() ) - 1) - 1 + 7) % (7))), GETDATE()  ),120), 120))
       ;;
   }
 

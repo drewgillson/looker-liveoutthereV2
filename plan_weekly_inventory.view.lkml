@@ -37,7 +37,7 @@ view: plan_weekly_inventory {
   dimension: budget_type {
     type: string
     sql: ${TABLE}.budget_type ;;
-    drill_fields: [department]
+    drill_fields: [department, category, brand]
   }
 
   dimension: department {

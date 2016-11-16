@@ -66,6 +66,7 @@ view: plan_weekly_inventory {
   dimension: subcategory {
     type: string
     sql: ${TABLE}.category_2 ;;
+    drill_fields: [brand, product]
   }
 
   measure: qoh {

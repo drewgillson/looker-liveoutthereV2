@@ -27,6 +27,11 @@ view: catalog_product_associations {
     sql: ${TABLE}.parent_sku ;;
   }
 
+  dimension: amazon_sku {
+    label: "Amazon SKU"
+    sql:  LOWER(CONVERT(VARCHAR(32), HashBytes('MD5', CAST(${TABLE}.parent_sku AS varchar(255))), 2)) ;;
+  }
+
   dimension: configurable_department {
     sql: ${TABLE}.department ;;
   }

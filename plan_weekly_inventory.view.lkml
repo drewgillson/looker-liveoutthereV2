@@ -60,7 +60,7 @@ view: plan_weekly_inventory {
   dimension: category {
     type: string
     sql: ${TABLE}.category_1 ;;
-    drill_fields: [subcategory]
+    drill_fields: [subcategory, brand, product]
   }
 
   dimension: subcategory {

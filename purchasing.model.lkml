@@ -9,7 +9,7 @@ include: "*.view"
 include: "*.dashboard"
 
 explore: fw17_plan {
-  view_label: "FW17 Plan"
+  view_label: "Weekly Inventory Performance"
   hidden: yes
   from: plan_weekly_inventory
 

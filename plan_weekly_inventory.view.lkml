@@ -16,7 +16,7 @@ view: plan_weekly_inventory {
       LEFT JOIN ${catalog_product_inventory_history.SQL_TABLE_NAME} AS inventory_history ON products.entity_id = inventory_history.product_id
       LEFT JOIN ${catalog_categories.SQL_TABLE_NAME} AS categories ON products.entity_id = categories.product_id
 
-      WHERE ((inventory_history.sm_date  >= CONVERT(DATETIME,'2016-01-01', 120))) AND ((((DATEPART(dw,inventory_history.sm_date ) - 1) - 1 + 7) % (7)) = 6)
+      WHERE ((inventory_history.sm_date  >= CONVERT(DATETIME,'2015-01-01', 120))) AND ((((DATEPART(dw,inventory_history.sm_date ) - 1) - 1 + 7) % (7)) = 6)
       AND (categories.sequence = 1)
       GROUP BY products.parent_id ,DATEADD(ww,1,CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,inventory_history.sm_date ) - 1) - 1 + 7) % (7))), inventory_history.sm_date  ),120), 120)),products.budget_type ,products.department ,products.brand ,products.product ,categories.reporting_category_level1 ,categories.reporting_category_level2;;
     indexes: ["parent_id", "budget_type", "brand", "department", "category_1"]

@@ -15,7 +15,7 @@ view: plan_weekly_sales {
       LEFT JOIN ${sales_credits_items.SQL_TABLE_NAME} AS credits ON sales.order_entity_id = credits.order_entity_id
             AND sales.product_id = credits.product_id
       WHERE
-        (((sales.order_created ) >= (CONVERT(DATETIME,'2016-01-01', 120))))
+        (((sales.order_created ) >= (CONVERT(DATETIME,'2015-01-01', 120))))
       GROUP BY products.parent_id ,CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,sales.order_created ) - 1) - 1 + 7) % (7))), sales.order_created  ),120), 120),products.product;;
     indexes: ["parent_id", "order_created"]
     sql_trigger_value: SELECT CONVERT(VARCHAR(10), CONVERT(VARCHAR(10),DATEADD(day,(0 - (((DATEPART(dw,GETDATE() ) - 1) - 1 + 7) % (7))), GETDATE()  ),120), 120)

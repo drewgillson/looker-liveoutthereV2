@@ -1,6 +1,6 @@
 view: sales_order_address {
   derived_table: {
-    sql: SELECT ROW_NUMBER() OVER (ORDER BY entity_id) AS row, a.*, b.latitude, b.longitude FROM (
+    sql: SELECT ROW_NUMBER() OVER (ORDER BY entity_id) AS row, a.*, CAST(b.latitude AS decimal(9,6)) AS latitude, CAST(b.longitude AS decimal(9,6)) AS longitude FROM (
         SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence, UPPER(REPLACE(REPLACE(postcode,' ',''),'-','')) AS postal_code
         FROM magento.sales_flat_order_address
         WHERE address_type = 'shipping'

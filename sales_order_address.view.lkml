@@ -1,14 +1,16 @@
 view: sales_order_address {
   derived_table: {
-    sql: SELECT ROW_NUMBER() OVER (ORDER BY entity_id) AS row, * FROM (
-        SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence
+    sql: SELECT ROW_NUMBER() OVER (ORDER BY entity_id) AS row, a.*, b.latitude, b.longitude FROM (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence, UPPER(REPLACE(REPLACE(postcode,' ',''),'-','')) AS postal_code
         FROM magento.sales_flat_order_address
         WHERE address_type = 'shipping'
         UNION ALL
-        SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence, UPPER(REPLACE(REPLACE(postcode,' ',''),'-','')) AS postal_code
         FROM magento.sales_flat_order_address
         WHERE address_type = 'billing'
       ) AS a
+      LEFT JOIN lut_Canadian_Cities AS b
+      ON b.postal_code = a.postal_code
       WHERE sequence = 1
        ;;
     indexes: ["email", "address_type"]
@@ -89,5 +91,11 @@ view: sales_order_address {
     type: string
     value_format: "###-###-####"
     sql: ${TABLE}.telephone ;;
+  }
+
+  dimension: map_location {
+    type: location
+    sql_latitude: ${TABLE}.latitude ;;
+    sql_longitude: ${TABLE}.longitude ;;
   }
 }

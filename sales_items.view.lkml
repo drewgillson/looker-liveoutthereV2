@@ -31,6 +31,7 @@ view: sales_items {
            , CASE WHEN state = 'complete' AND status = 'complete' THEN 'A' ELSE kount_ris_response END AS kount_ris_response
            , kount_ris_rule
            , kount_ris_description
+           , email_sent
         FROM (
           SELECT c.customer_email AS email
             , c.created_at AS order_created
@@ -57,6 +58,7 @@ view: sales_items {
             , CAST(c.kount_ris_response AS nvarchar(max)) AS kount_ris_response
             , CAST(c.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
             , CAST(c.kount_ris_description AS nvarchar(max)) AS kount_ris_description
+            , c.email_sent
           FROM magento.sales_flat_invoice_item AS a
           INNER JOIN magento.sales_flat_invoice AS b
             ON a.parent_id = b.entity_id
@@ -96,6 +98,7 @@ view: sales_items {
           , CAST(b.kount_ris_response AS nvarchar(max)) AS kount_ris_response
           , CAST(b.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
           , CAST(b.kount_ris_description AS nvarchar(max)) AS kount_ris_description
+          , b.email_sent
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id
@@ -125,6 +128,7 @@ view: sales_items {
           , CAST(a.kount_ris_response AS nvarchar(max)) AS kount_ris_response
           , CAST(a.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
           , CAST(a.kount_ris_description AS nvarchar(max)) AS kount_ris_description
+          , a.email_sent
         FROM magento.sales_flat_order AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.entity_id = b.order_id
@@ -133,7 +137,7 @@ view: sales_items {
         LEFT JOIN magento.sales_flat_invoice AS d
           ON a.entity_id = d.order_id
         WHERE c.entity_id IS NULL AND a.marketplace_order_id IS NULL
-        GROUP BY a.customer_email, a.created_at, a.entity_id, a.increment_id, a.marketplace_order_id, a.custom_storefront, CAST(a.kount_ris_score AS nvarchar(max)), CAST(a.kount_ris_response AS nvarchar(max)), CAST(a.kount_ris_rule AS nvarchar(max)), CAST(a.kount_ris_description AS nvarchar(max))
+        GROUP BY a.customer_email, a.created_at, a.entity_id, a.increment_id, a.marketplace_order_id, a.custom_storefront, CAST(a.kount_ris_score AS nvarchar(max)), CAST(a.kount_ris_response AS nvarchar(max)), CAST(a.kount_ris_rule AS nvarchar(max)), CAST(a.kount_ris_description AS nvarchar(max)), a.email_sent
         UNION ALL
         -- Shopify sales
         SELECT a.[order-email] AS email
@@ -149,6 +153,7 @@ view: sales_items {
             , NULL AS deferred_revenue
             , COALESCE(b.entity_id, -1) AS product_id
             , 'TheVan.ca' AS storefront
+            , NULL
             , NULL
             , NULL
             , NULL
@@ -257,6 +262,11 @@ view: sales_items {
   dimension: email {
     type: string
     sql: ${TABLE}.email ;;
+  }
+
+  dimension: email_sent {
+    type: yesno
+    sql: ${TABLE}.email_sent IS NOT NULL;;
   }
 
   dimension: status {

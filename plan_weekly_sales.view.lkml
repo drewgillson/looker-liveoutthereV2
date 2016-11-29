@@ -35,7 +35,7 @@ view: plan_weekly_sales {
   measure: net_sold {
     label: "Net Sold $"
     type: sum
-    sql: ${TABLE}.gross_profit ;;
+    sql: ${TABLE}.net_sold ;;
     value_format: "$#,##0"
   }
 

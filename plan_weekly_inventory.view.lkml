@@ -31,7 +31,7 @@ view: plan_weekly_inventory {
 
   dimension_group: inventory_balance {
     type: time
-    timeframes: [week, week_of_year]
+    timeframes: [week, week_of_year, year]
     sql: ${TABLE}.inventory_balance ;;
   }
 

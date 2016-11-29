@@ -18,6 +18,12 @@ explore: fw17_plan {
     sql_on: fw17_plan.parent_id = sales.parent_id AND fw17_plan.inventory_balance = sales.order_created;;
     relationship: one_to_one
   }
+
+  join: last_receipt {
+    from: catalog_product_parent_last_receipt
+    sql_on: fw17_plan.parent_id = last_receipt.parent_id ;;
+    relationship: many_to_one
+  }
 }
 
 explore: assortment_planning {

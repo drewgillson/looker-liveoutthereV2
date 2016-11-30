@@ -93,4 +93,10 @@ explore: reconciliation {
     relationship: one_to_many
     required_joins: [payment_transaction]
   }
+
+  join: address {
+    from: sales_order_address
+    sql_on: ${reconciliation.entity_id} = address.parent_id ;;
+    relationship: many_to_one
+  }
 }

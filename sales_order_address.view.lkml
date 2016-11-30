@@ -12,11 +12,20 @@ view: sales_order_address {
         SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence, UPPER(REPLACE(REPLACE(postcode,' ',''),'-','')) AS postal_code
         FROM magento.sales_flat_order_address
         WHERE address_type = 'billing'
-      ) AS a
+        UNION ALL
+        SELECT [order-id], [order-id], NULL, NULL, NULL, NULL, NULL, [order-billing_address-province], NULL, NULL, NULL, [order-billing_address-city], [order-email], NULL, CASE WHEN [order-billing_address-country] = 'Canada' THEN 'CA' ELSE [order-billing_address-country] END, NULL, 'billing', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ROW_NUMBER() OVER (PARTITION BY [order-email] ORDER BY [order-order_number] DESC), NULL
+        FROM (SELECT DISTINCT c.[order-id], a.[order-order_number], a.[order-billing_address-province], a.[order-billing_address-city], a.[order-billing_address-country], a.[order-email] FROM shopify.order_items AS a
+        LEFT JOIN shopify.transactions AS c
+                  ON a.[order-order_number] = c.[order-order_number] AND c.[order-transactions-kind] = 'sale' AND c.[order-transactions-status] = 'success') AS x
+        UNION ALL
+        SELECT [order-id], [order-id], NULL, NULL, NULL, NULL, NULL, [order-billing_address-province], NULL, NULL, NULL, [order-billing_address-city], [order-email], NULL, CASE WHEN [order-billing_address-country] = 'Canada' THEN 'CA' ELSE [order-billing_address-country] END, NULL, 'shipping', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ROW_NUMBER() OVER (PARTITION BY [order-email] ORDER BY [order-order_number] DESC), NULL
+        FROM (SELECT DISTINCT c.[order-id], a.[order-order_number], a.[order-billing_address-province], a.[order-billing_address-city], a.[order-billing_address-country], a.[order-email] FROM shopify.order_items AS a
+        LEFT JOIN shopify.transactions AS c
+                  ON a.[order-order_number] = c.[order-order_number] AND c.[order-transactions-kind] = 'sale' AND c.[order-transactions-status] = 'success') AS x
+        ) AS a
       LEFT JOIN lut_Canadian_Cities AS b
       ON b.postal_code = a.postal_code
-      WHERE sequence = 1
-       ;;
+      ;;
     indexes: ["email", "address_type"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       ;;

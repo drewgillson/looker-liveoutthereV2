@@ -105,7 +105,7 @@ explore: people {
 
   join: customer_address {
     from: sales_order_address
-    sql_on: people.email = customer_address.email ;;
+    sql_on: people.email = customer_address.email AND customer_address.sequence = 1 ;;
     relationship: one_to_many
   }
 
@@ -389,7 +389,7 @@ explore: products {
 
   join: customer_address {
     from: sales_order_address
-    sql_on: sales.email = customer_address.email ;;
+    sql_on: sales.order_entity_id = customer_address.parent_id ;;
     relationship: one_to_many
   }
 

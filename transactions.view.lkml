@@ -1,7 +1,7 @@
 view: transactions {
   derived_table: {
     sql: SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, * FROM (
-        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, a.entity_id, a.created_at, a.increment_id, NULL AS credit_memo_id, NULL AS authorization_number, a.giftcert_amount, a.customer_credit_amount, b.amount_paid AS grand_total, a.subtotal, a.tax_amount, a.shipping_amount, b.method AS payment_method, CASE WHEN b.method = 'optimal_hosted' AND b.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',b.additional_information) ELSE b.cc_type END AS cc_type, b.cc_trans_id AS transaction_id
+        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, a.entity_id, a.created_at, a.increment_id, NULL AS credit_memo_id, NULL AS authorization_number, ISNULL(a.giftcert_amount,0) + ISNULL(a.gift_voucher_discount,0) AS giftcert_amount, ISNULL(a.customer_credit_amount,0) + ISNULL(a.use_gift_credit_amount,0) AS customer_credit_amount, b.amount_paid AS grand_total, a.subtotal, a.tax_amount, a.shipping_amount, b.method AS payment_method, CASE WHEN b.method = 'optimal_hosted' AND b.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',b.additional_information) ELSE b.cc_type END AS cc_type, b.cc_trans_id AS transaction_id
         FROM magento.sales_flat_order AS a
         LEFT JOIN magento.sales_flat_order_payment AS b
           ON a.entity_id = b.parent_id

@@ -1,11 +1,12 @@
 view: transactions {
   derived_table: {
     sql: SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, * FROM (
-        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, a.entity_id, a.created_at, a.increment_id, NULL AS credit_memo_id, NULL AS authorization_number, ISNULL(a.giftcert_amount,0) + ISNULL(a.gift_voucher_discount,0) AS giftcert_amount, ISNULL(a.customer_credit_amount,0) + ISNULL(a.use_gift_credit_amount,0) AS customer_credit_amount, b.amount_paid AS grand_total, a.subtotal, a.tax_amount, a.shipping_amount, b.method AS payment_method, CASE WHEN b.method = 'optimal_hosted' AND b.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',b.additional_information) ELSE b.cc_type END AS cc_type, b.cc_trans_id AS transaction_id
+        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, a.entity_id, a.created_at, a.increment_id, NULL AS credit_memo_id, NULL AS authorization_number, ISNULL(a.giftcert_amount,0) + ISNULL(a.gift_voucher_discount,0) AS giftcert_amount, ISNULL(a.customer_credit_amount,0) + ISNULL(a.use_gift_credit_amount,0) AS customer_credit_amount, b.amount_paid - ISNULL(a.use_gift_credit_amount,0) AS grand_total, a.subtotal, CASE WHEN b.amount_paid - ISNULL(a.use_gift_credit_amount,0) < 0 THEN 0 ELSE a.tax_amount END AS tax_amount, a.shipping_amount, b.method AS payment_method, CASE WHEN b.method = 'optimal_hosted' AND b.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',b.additional_information) ELSE b.cc_type END AS cc_type, b.cc_trans_id AS transaction_id
         FROM magento.sales_flat_order AS a
         LEFT JOIN magento.sales_flat_order_payment AS b
           ON a.entity_id = b.parent_id
         WHERE a.marketplace_order_id IS NULL
+        AND a.customer_email != 'pk_cs@liveoutthere.com'
         UNION ALL
         SELECT 'credit', 'LiveOutThere.com', a.order_id, a.created_at, a.increment_id, a.entity_id, NULL, -a.giftcert_amount, -a.customer_credit_amount, -a.grand_total, -a.subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -a.shipping_amount, c.method, CASE WHEN c.method = 'optimal_hosted' AND c.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',c.additional_information) ELSE c.cc_type END AS cc_type, a.transaction_id
         FROM magento.sales_flat_creditmemo AS a
@@ -93,13 +94,13 @@ view: transactions {
        ;;
   }
 
-  dimension: reference {
-    type: string
-    sql: CASE WHEN ${netbanx_transactions.transaction_number} IS NOT NULL THEN ${netbanx_transactions.transaction_number}
-           WHEN ${paypal_settlement.transaction_id} IS NOT NULL THEN ${paypal_settlement.transaction_id}
-      END
-       ;;
-  }
+#  dimension: reference {
+#    type: string
+#    sql: CASE WHEN ${netbanx_transactions.transaction_number} IS NOT NULL THEN ${netbanx_transactions.transaction_number}
+#           WHEN ${paypal_settlement.transaction_id} IS NOT NULL THEN ${paypal_settlement.transaction_id}
+#      END
+#       ;;
+#  }
 
   measure: total_expected {
     description: "Total amount charged to customer, including taxes, shipping, redeemed gift cards, and customer credit"
@@ -107,6 +108,14 @@ view: transactions {
     type: number
     value_format: "$#,##0.00;($#,##0.00)"
     sql: ${grand_total} + ${redeemed_amount} ;;
+  }
+
+  measure: sales {
+    description: "Total Charged $ less Tax Charged $"
+    label: "Sales $"
+    type: number
+    value_format: "$#,##0;($#,##0)"
+    sql: ${total_expected} - ${tax_expected} ;;
   }
 
   measure: grand_total {

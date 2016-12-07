@@ -425,6 +425,11 @@ explore: products {
     sql_on: products.sku = collections.sku ;;
     relationship: one_to_many
   }
+
+  join: transactions {
+    sql_on: ${sales.order_entity_id} = ${transactions.entity_id} ;;
+    relationship: one_to_one
+  }
 }
 
 explore: snowplow {

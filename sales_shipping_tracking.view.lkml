@@ -50,9 +50,13 @@ view: sales_shipping_tracking {
     sql: ${TABLE}.created_at ;;
   }
 
-  dimension: email_sent {
-    label: "Email Sent?"
+  dimension: has_tracking_number {
     type: yesno
-    sql: ${TABLE}.email_sent = 1 ;;
+    sql: ${tracking_number} IS NOT NULL ;;
+  }
+
+  measure: email_sent {
+    type:  count_distinct
+    sql: ${TABLE}.order_id ;;
   }
 }

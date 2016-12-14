@@ -32,6 +32,7 @@ view: sales_items {
            , kount_ris_rule
            , kount_ris_description
            , email_sent
+           , marketplace_order_id
         FROM (
           SELECT c.customer_email AS email
             , c.created_at AS order_created
@@ -59,6 +60,7 @@ view: sales_items {
             , CAST(c.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
             , CAST(c.kount_ris_description AS nvarchar(max)) AS kount_ris_description
             , c.email_sent
+            , marketplace_order_id
           FROM magento.sales_flat_invoice_item AS a
           INNER JOIN magento.sales_flat_invoice AS b
             ON a.parent_id = b.entity_id
@@ -99,6 +101,7 @@ view: sales_items {
           , CAST(b.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
           , CAST(b.kount_ris_description AS nvarchar(max)) AS kount_ris_description
           , b.email_sent
+          , NULL
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id
@@ -129,6 +132,7 @@ view: sales_items {
           , CAST(a.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
           , CAST(a.kount_ris_description AS nvarchar(max)) AS kount_ris_description
           , a.email_sent
+          , NULL
         FROM magento.sales_flat_order AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.entity_id = b.order_id
@@ -153,6 +157,7 @@ view: sales_items {
             , NULL AS deferred_revenue
             , COALESCE(b.entity_id, -1) AS product_id
             , 'TheVan.ca' AS storefront
+            , NULL
             , NULL
             , NULL
             , NULL
@@ -335,6 +340,12 @@ view: sales_items {
   dimension: kount_description {
     type: string
     sql: ${TABLE}.kount_ris_description ;;
+  }
+
+  dimension: amazon_order_id {
+    label: "Amazon Order ID"
+    type: string
+    sql: ${TABLE}.marketplace_order_id ;;
   }
 
   measure: total_collected {

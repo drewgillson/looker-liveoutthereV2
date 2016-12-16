@@ -1,34 +1,34 @@
 view: people_other_page_views {
-  derived_table: {
-    sql: SELECT ROW_NUMBER() OVER (ORDER BY visit) AS row
-        , a.*
-        , COUNT(DISTINCT b.brand) AS brand_plp
-        , COUNT(DISTINCT c.url_key) AS category_plp
-      FROM (
-        SELECT CONVERT(date, a.mdt_timestamp, 120) AS visit
-           , a.[user_id] AS email
-           , a.page_urlpath AS url_key
-           , COUNT(DISTINCT CONVERT(VARCHAR, (CONVERT(VARCHAR(19),a.mdt_timestamp,120)), 120) + a.domain_userid) AS page_views
-        FROM snowplow.events AS a
-        LEFT JOIN (SELECT DISTINCT url_key FROM ${catalog_product.SQL_TABLE_NAME}) AS b
-          ON a.page_urlpath = b.url_key
-        WHERE a.mdt_timestamp > DATEADD(d,-28,GETDATE())
-        AND b.url_key IS NULL
-        AND a.[user_id] LIKE '%@%.%'
-        GROUP BY CONVERT(date, a.mdt_timestamp, 120), a.page_urlpath, a.[user_id]
-      ) AS a
-      LEFT JOIN (SELECT DISTINCT REPLACE(REPLACE(LOWER(brand),' ','-'),'''','') AS brand
-        FROM ${catalog_product.SQL_TABLE_NAME}
-      ) AS b
-        ON a.url_key LIKE '%' + b.brand + '%'
-      LEFT JOIN (SELECT url_key FROM magento.catalog_category_flat_store_1) AS c
-        ON a.url_key LIKE '%' + c.url_key + '%'
-      GROUP BY a.visit, a.email, a.url_key, a.page_views
-       ;;
-    indexes: ["visit", "url_key", "email"]
-    sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
-      ;;
-  }
+#  derived_table: {
+#    sql: SELECT ROW_NUMBER() OVER (ORDER BY visit) AS row
+#        , a.*
+#        , COUNT(DISTINCT b.brand) AS brand_plp
+#        , COUNT(DISTINCT c.url_key) AS category_plp
+#      FROM (
+#        SELECT CONVERT(date, a.mdt_timestamp, 120) AS visit
+#           , a.[user_id] AS email
+#           , a.page_urlpath AS url_key
+#           , COUNT(DISTINCT CONVERT(VARCHAR, (CONVERT(VARCHAR(19),a.mdt_timestamp,120)), 120) + a.domain_userid) AS page_views
+#        FROM snowplow.events AS a
+#        LEFT JOIN (SELECT DISTINCT url_key FROM ${catalog_product.SQL_TABLE_NAME}) AS b
+#          ON a.page_urlpath = b.url_key
+#        WHERE a.mdt_timestamp > DATEADD(d,-28,GETDATE())
+#        AND b.url_key IS NULL
+#        AND a.[user_id] LIKE '%@%.%'
+#        GROUP BY CONVERT(date, a.mdt_timestamp, 120), a.page_urlpath, a.[user_id]
+#      ) AS a
+#      LEFT JOIN (SELECT DISTINCT REPLACE(REPLACE(LOWER(brand),' ','-'),'''','') AS brand
+#        FROM ${catalog_product.SQL_TABLE_NAME}
+#      ) AS b
+#        ON a.url_key LIKE '%' + b.brand + '%'
+#      LEFT JOIN (SELECT url_key FROM magento.catalog_category_flat_store_1) AS c
+#        ON a.url_key LIKE '%' + c.url_key + '%'
+#      GROUP BY a.visit, a.email, a.url_key, a.page_views
+#       ;;
+#    indexes: ["visit", "url_key", "email"]
+#    sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
+#      ;;
+#  }
 
   dimension: row {
     primary_key: yes

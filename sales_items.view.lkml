@@ -256,6 +256,11 @@ view: sales_items {
       url: "https://thevan.myshopify.com/admin/orders/{{ sales.order_entity_id._value | encode_uri }}"
       icon_url: "https://cdn.shopify.com/shopify-marketing_assets/static/shopify-favicon.png"
     }
+
+    #link: {
+    #  label: "NRI Order Detail"
+    #  url: "http://23.99.80.118/OrderDetailsGrid.aspx?OrderNumber={{ sales.order_entity_id._value | encode_uri }}"
+    #}
   }
 
   dimension: storefront {

@@ -19,6 +19,7 @@ view: orderforms_po_items {
         ON a.sku = b.sku
       LEFT JOIN magento.purchase_order AS c
         ON a.purchase_order = c.po_order_id
+      WHERE 3=3
       GROUP BY a.id, a.purchase_order, a.sku, a.qty, a.season, c.po_ship_date, c.po_discount, c.po_status
        ;;
     indexes: ["purchase_order", "sku", "season"]

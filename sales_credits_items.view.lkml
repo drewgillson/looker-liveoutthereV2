@@ -190,7 +190,7 @@ view: sales_credits_items {
     label: "Refunded MSRP $"
     description: "MSRP $ of units refunded"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.refunded_msrp ;;
   }
 
@@ -198,7 +198,7 @@ view: sales_credits_items {
     label: "Extended Cost $"
     description: "Cost of returned goods, calculating by multiplying the refunded quantity by the average landed cost"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.extended_cost ;;
   }
 
@@ -206,7 +206,7 @@ view: sales_credits_items {
     label: "Refund for Return $"
     description: "Amount refunded in exchange for items that were returned"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.refund_for_return ;;
   }
 
@@ -214,7 +214,7 @@ view: sales_credits_items {
     label: "Refund for Other Reason $"
     description: "Amount refunded for price matches, out of stock refunds, forgotten coupon codes, etc."
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.refund_for_other_reason ;;
   }
 
@@ -222,7 +222,7 @@ view: sales_credits_items {
     label: "Refund for Shipping $"
     description: "Amount refunded for shipping"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.refund_for_shipping ;;
   }
 
@@ -230,7 +230,7 @@ view: sales_credits_items {
     label: "Refunded Tax $"
     description: "Amount of tax refunded"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.refunded_tax ;;
   }
 
@@ -238,7 +238,7 @@ view: sales_credits_items {
     label: "Refunded Total $"
     description: "Total amount refunded to customers (includes tax)"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.refunded_total ;;
     drill_fields: [credits_detail*]
   }
@@ -247,7 +247,7 @@ view: sales_credits_items {
     label: "Refunded $"
     description: "Amount refunded to customers (does not include tax). This is equal to Refund for Return + Refund for Other Reason + Refund for Shipping"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${refunded_total} - ${refunded_tax} ;;
     drill_fields: [credits_detail*]
   }

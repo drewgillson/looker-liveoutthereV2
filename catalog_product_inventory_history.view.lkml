@@ -70,7 +70,7 @@ view: catalog_product_inventory_history {
     label: "Ext. Cost $"
     description: "Extended (discounted) cost of inventory, using average cost of product as of inventory balance date"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.quantity * ${TABLE}.avg_cost ;;
   }
 
@@ -78,7 +78,7 @@ view: catalog_product_inventory_history {
     label: "Ext. Retail $"
     description: "Extended retail value of inventory (calculated using most recent MSRP $)"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.quantity * ${products.price} ;;
   }
 }

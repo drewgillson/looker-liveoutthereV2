@@ -115,7 +115,7 @@ view: orderforms_po_items {
   measure: extended_cost {
     label: "Ext. Cost $"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${extended_cost_item} ;;
   }
 
@@ -128,7 +128,7 @@ view: orderforms_po_items {
   measure: extended_discounted_cost {
     label: "Ext. Discounted Cost $"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${extended_discounted_cost_item} ;;
   }
 
@@ -142,7 +142,7 @@ view: orderforms_po_items {
   measure: extended_msrp {
     label: "Ext. MSRP $"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${extended_msrp_item} ;;
   }
 

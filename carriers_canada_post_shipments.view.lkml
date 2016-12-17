@@ -71,7 +71,7 @@ view: carriers_canada_post_shipments {
 
   measure: additional_coverage_charge {
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.Additional_Coverage_Charge ;;
   }
 

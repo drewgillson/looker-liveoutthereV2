@@ -428,7 +428,7 @@ explore: products {
 
   join: transactions {
     sql_on: ${sales.order_entity_id} = ${transactions.entity_id} ;;
-    relationship: one_to_one
+    relationship: many_to_one
   }
 
   join: magento_map {

@@ -209,7 +209,7 @@ view: mailchimp_activity {
   measure: revenue {
     type: sum_distinct
     sql_distinct_key: ${TABLE}.activity_title ;;
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.revenue ;;
   }
 }

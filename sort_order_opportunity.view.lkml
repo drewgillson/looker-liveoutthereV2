@@ -27,7 +27,7 @@ view: sort_order_opportunity {
   measure: opportunity {
     type: sum
     sql: ${TABLE}.opportunity ;;
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
   }
 
   # Use ISNULL to assign a default score to null values, this puts products that we don't have information about somewhere up near the top - but not at the top!

@@ -82,7 +82,7 @@ view: plan_weekly_inventory {
     label: "Cost On Hand $"
     type: sum
     sql: ${TABLE}.extended_cost ;;
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     drill_fields: [products*]
   }
 
@@ -91,7 +91,7 @@ view: plan_weekly_inventory {
     label: "Sales Opportunity $"
     type: sum
     sql: ${TABLE}.extended_retail ;;
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     drill_fields: [products*]
   }
 

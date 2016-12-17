@@ -245,7 +245,7 @@ view: catalog_product_facts {
     description: "Total cost of the inventory we have on hand (at average cost after discounts)"
     label: "Discounted Cost On Hand $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.total_discounted_cost ;;
   }
 
@@ -253,7 +253,7 @@ view: catalog_product_facts {
     description: "Total cost of the inventory we have on hand (at wholesale cost before discounts)"
     label: "Wholesale Cost On Hand $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.total_cost ;;
   }
 
@@ -261,7 +261,7 @@ view: catalog_product_facts {
     description: "Total sales opportunity of the inventory we have on hand"
     label: "Sales Opportunity On Hand $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.total_sales_opportunity ;;
     drill_fields: [inventory_facts*]
   }

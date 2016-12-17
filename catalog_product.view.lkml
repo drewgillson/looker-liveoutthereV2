@@ -276,7 +276,7 @@ view: catalog_product {
   dimension: cost {
     description: "Wholesale cost for a product"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.cost ;;
   }
 
@@ -300,7 +300,7 @@ view: catalog_product {
     description: "Average MSRP/price for a product"
     label: "Average Price (MSRP) $"
     type: average
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.price ;;
   }
 

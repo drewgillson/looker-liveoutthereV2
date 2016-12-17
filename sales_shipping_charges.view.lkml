@@ -60,7 +60,7 @@ view: sales_shipping_charges {
     label: "Outbound Shipping Charge $"
     description: "Cost of shipping to the customer"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.outbound_shipping_charge ;;
   }
 
@@ -68,7 +68,7 @@ view: sales_shipping_charges {
     label: "Return Shipping Charge $"
     description: "Cost of return shipping back to us"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.return_shipping_charge ;;
   }
 
@@ -76,7 +76,7 @@ view: sales_shipping_charges {
     label: "Total Shipping Charge $"
     description: "Total cost of shipping including adjustments"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${outbound_shipping_charge} + ${return_shipping_charge} ;;
   }
 

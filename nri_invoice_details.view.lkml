@@ -101,7 +101,7 @@ view: nri_invoice_details {
 
   measure: value {
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.Value ;;
   }
 
@@ -113,19 +113,19 @@ view: nri_invoice_details {
 
   measure: charges {
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.Charges ;;
   }
 
   measure: taxes {
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.Taxes ;;
   }
 
   measure: invoice_amount {
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.InvoiceAmount ;;
   }
 

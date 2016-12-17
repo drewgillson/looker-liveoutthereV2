@@ -1,12 +1,11 @@
 view: transactions {
   derived_table: {
     sql: SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, * FROM (
-        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, a.entity_id, a.created_at, a.increment_id, NULL AS credit_memo_id, NULL AS authorization_number, ISNULL(a.giftcert_amount,0) + ISNULL(a.gift_voucher_discount,0) AS giftcert_amount, ISNULL(a.customer_credit_amount,0) + ISNULL(a.use_gift_credit_amount,0) AS customer_credit_amount, b.amount_paid - ISNULL(a.use_gift_credit_amount,0) AS grand_total, a.subtotal, CASE WHEN b.amount_paid - ISNULL(a.use_gift_credit_amount,0) < 0 THEN 0 ELSE a.tax_amount END AS tax_amount, a.shipping_amount, b.method AS payment_method, CASE WHEN b.method = 'optimal_hosted' AND b.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',b.additional_information) ELSE b.cc_type END AS cc_type, b.cc_trans_id AS transaction_id
+        SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, a.entity_id, a.created_at, a.increment_id, NULL AS credit_memo_id, NULL AS authorization_number, ISNULL(a.giftcert_amount,0) + ISNULL(a.gift_voucher_discount,0) AS giftcert_amount, ISNULL(a.customer_credit_amount,0) + ISNULL(a.use_gift_credit_amount,0) AS customer_credit_amount, a.grand_total AS grand_total, a.subtotal, a.tax_amount AS tax_amount, a.shipping_amount, b.method AS payment_method, CASE WHEN b.method = 'optimal_hosted' AND b.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',b.additional_information) ELSE b.cc_type END AS cc_type, b.cc_trans_id AS transaction_id
         FROM magento.sales_flat_order AS a
         LEFT JOIN magento.sales_flat_order_payment AS b
           ON a.entity_id = b.parent_id
         WHERE a.marketplace_order_id IS NULL
-        AND a.customer_email != 'pk_cs@liveoutthere.com'
         UNION ALL
         SELECT 'credit', 'LiveOutThere.com', a.order_id, a.created_at, a.increment_id, a.entity_id, NULL, -a.giftcert_amount, -a.customer_credit_amount, -a.grand_total, -a.subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -a.shipping_amount, c.method, CASE WHEN c.method = 'optimal_hosted' AND c.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',c.additional_information) ELSE c.cc_type END AS cc_type, a.transaction_id
         FROM magento.sales_flat_creditmemo AS a
@@ -46,47 +45,16 @@ view: transactions {
     sql: ${TABLE}.entity_id ;;
   }
 
-  dimension: credit_memo_id {
-    type: string
-    hidden: yes
-    sql: ${TABLE}.credit_memo_id ;;
-  }
-
-  dimension_group: created {
-    type: time
-    sql: ${TABLE}.created_at ;;
-  }
-
-  dimension: id {
-    type: string
-    sql: ${TABLE}.increment_id ;;
-
-    link: {
-      label: "Magento Sales Order"
-      url: "https://admin.liveoutthere.com/index.php/inspire/sales_order/view/order_id/{{ reconciliation.entity_id._value }}"
-      icon_url: "https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico"
-    }
-
-    link: {
-      label: "Magento Credit Memo"
-      url: "https://admin.liveoutthere.com/index.php/inspire/sales_creditmemo/view/creditmemo_id/{{ reconciliation.credit_memo_id._value }}"
-      icon_url: "https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico"
-    }
-  }
-
-  dimension: storefront {
-    type: string
-    sql: ${TABLE}.storefront ;;
-  }
-
   dimension: payment_method {
     type: string
-    sql: ${TABLE}.payment_method ;;
+    sql: CASE WHEN ${TABLE}.giftcert_amount = (${TABLE}.grand_total + ${TABLE}.giftcert_amount + ${TABLE}.customer_credit_amount) THEN 'Gift Card'
+              WHEN (${TABLE}.customer_credit_amount = (${TABLE}.grand_total + ${TABLE}.giftcert_amount + ${TABLE}.customer_credit_amount)) OR (${TABLE}.customer_credit_amount > 0 AND ${TABLE}.grand_total = 0) THEN 'Customer Credit'
+              ELSE ${TABLE}.payment_method END ;;
   }
 
   dimension: card_type {
     type: string
-    sql: CASE WHEN ${TABLE}.cc_type = 'AE' OR ${TABLE}.cc_type = 'AM' OR ${TABLE}.cc_type = 'American Express' THEN 'American Express'
+    sql: CASE WHEN ${payment_method} = 'Customer Credit' OR ${payment_method} = 'Gift Card' THEN NULL WHEN ${TABLE}.cc_type = 'AE' OR ${TABLE}.cc_type = 'AM' OR ${TABLE}.cc_type = 'American Express' THEN 'American Express'
            WHEN ${TABLE}.cc_type = 'VI' OR ${TABLE}.cc_type = 'Visa' THEN 'Visa'
            WHEN ${TABLE}.cc_type = 'MC' OR ${TABLE}.cc_type = 'MasterCard' THEN 'MasterCard'
            ELSE ${TABLE}.cc_type
@@ -102,37 +70,39 @@ view: transactions {
 #       ;;
 #  }
 
-  measure: total_expected {
-    description: "Total amount charged to customer, including taxes, shipping, redeemed gift cards, and customer credit"
-    label: "Total Charged $"
-    type: number
-    value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${grand_total} + ${redeemed_amount} ;;
-  }
+#  measure: total_expected {
+#    description: "Total amount charged to customer, including taxes, shipping, redeemed gift cards, and customer credit"
+#    label: "Total Charged $"
+#    type: number
+#    value_format: "$#,##0.00;($#,##0.00)"
+#    sql: ${grand_total} + ${redeemed_amount} ;;
+#  }
 
-  measure: sales {
-    description: "Total Charged $ less Tax Charged $"
-    label: "Sales $"
-    type: number
-    value_format: "$#,##0;($#,##0)"
-    sql: ${total_expected} - ${tax_expected} ;;
-  }
+#  measure: sales {
+#    description: "Total Charged $ less Tax Charged $"
+#    label: "Sales $"
+#    type: number
+#    value_format: "$#,##0;($#,##0)"
+#    sql: ${total_expected} - ${tax_expected} ;;
+#  }
 
-  measure: grand_total {
-    hidden: yes
-    type: sum
-    sql: ${TABLE}.grand_total ;;
-  }
+#  measure: grand_total {
+#    hidden: yes
+#    type: sum
+#    sql: ${TABLE}.grand_total + ${TABLE}.giftcert_amount + ${TABLE}.customer_credit_amount ;;
+#    value_format: "$#,##0.00;($#,##0.00)"
+#  }
 
-  measure: tax_expected {
-    description: "Tax charged to customer"
-    label: "Tax Charged $"
-    type: sum
-    value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${TABLE}.tax_amount ;;
-  }
+#  measure: tax_expected {
+#    description: "Tax charged to customer"
+#    label: "Tax Charged $"
+#    type: sum
+#    value_format: "$#,##0.00;($#,##0.00)"
+#    sql: ${TABLE}.tax_amount ;;
+#  }
 
   measure: shipping_collected {
+    view_label: "Sales"
     description: "Shipping charged to customer"
     label: "Shipping Charged $"
     type: sum
@@ -140,25 +110,25 @@ view: transactions {
     sql: ${TABLE}.shipping_amount ;;
   }
 
-  measure: redeemed_amount {
-    description: "Total amount of gift certificates and customer credit redeemed"
-    label: "Redeemed Gift Certs & Credit"
-    type: number
-    value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${gift_certificate_amount} + ${customer_credit_amount} ;;
-  }
+#  measure: redeemed_amount {
+#    description: "Total amount of gift certificates and customer credit redeemed"
+#    label: "Redeemed Gift Certs & Credit"
+#    type: number
+#    value_format: "$#,##0.00;($#,##0.00)"
+#    sql: ${gift_certificate_amount} + ${customer_credit_amount} ;;
+#  }
 
-  measure: gift_certificate_amount {
-    description: "Amount of redeemed gift cards"
-    type: sum
-    value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${TABLE}.giftcert_amount ;;
-  }
+#  measure: gift_certificate_amount {
+#    description: "Amount of redeemed gift cards"
+#    type: sum
+#    value_format: "$#,##0.00;($#,##0.00)"
+#    sql: ${TABLE}.giftcert_amount ;;
+#  }
 
-  measure: customer_credit_amount {
-    description: "Amount of redeemed customer credit"
-    type: sum
-    value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${TABLE}.customer_credit_amount ;;
-  }
+#  measure: customer_credit_amount {
+#    description: "Amount of redeemed customer credit"
+#    type: sum
+#    value_format: "$#,##0.00;($#,##0.00)"
+#    sql: ${TABLE}.customer_credit_amount ;;
+#  }
 }

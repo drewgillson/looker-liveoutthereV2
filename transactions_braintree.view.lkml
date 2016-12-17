@@ -90,7 +90,6 @@ view: transactions_braintree {
     label: "Braintree Settled $"
     type: sum
     value_format: "$#,##0.00;($#,##0.00)"
-    label: "Amount Submitted For Settlement"
     sql: ${TABLE}."Amount Submitted For Settlement" ;;
   }
 
@@ -98,7 +97,6 @@ view: transactions_braintree {
     label: "Braintree Fee $"
     type: sum
     value_format: "$#,##0.00;($#,##0.00)"
-    label: "Service Fee"
     sql: ${TABLE}."Service Fee" ;;
   }
 

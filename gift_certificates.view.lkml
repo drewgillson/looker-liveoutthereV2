@@ -18,7 +18,7 @@ view: gift_certificates {
 
   measure: balance {
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.balance ;;
   }
 

@@ -27,6 +27,6 @@ view: sort_order_price {
   measure: price {
     type: sum
     sql: ${TABLE}.price ;;
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
   }
 }

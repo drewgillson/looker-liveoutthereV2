@@ -36,6 +36,7 @@ view: sales_items {
            , email_sent
            , marketplace_order_id
            , giftcert_amount
+           , sku
         FROM (
           SELECT c.customer_email AS email
             , c.created_at AS order_created
@@ -65,6 +66,7 @@ view: sales_items {
             , c.email_sent
             , marketplace_order_id
             , ISNULL(c.giftcert_amount,0) + ISNULL(c.gift_voucher_discount,0) AS giftcert_amount
+            , a.sku
           FROM magento.sales_flat_invoice_item AS a
           INNER JOIN magento.sales_flat_invoice AS b
             ON a.parent_id = b.entity_id
@@ -106,6 +108,7 @@ view: sales_items {
           , b.email_sent
           , NULL
           , NULL
+          , NULL
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
           ON a.order_id = b.entity_id
@@ -138,6 +141,7 @@ view: sales_items {
           , a.email_sent
           , NULL
           , NULL
+          , NULL
         FROM magento.sales_flat_order AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.entity_id = b.order_id
@@ -162,6 +166,7 @@ view: sales_items {
             , NULL AS deferred_revenue
             , COALESCE(b.entity_id, -1) AS product_id
             , 'TheVan.ca' AS storefront
+            , NULL
             , NULL
             , NULL
             , NULL
@@ -367,15 +372,15 @@ view: sales_items {
     description: "Total charged to the customer, including taxes"
     label: "Gross Collected $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.row_total_incl_tax ;;
-    drill_fields: ["transactions.payment_method", "transactions.card_type", order_id, email, total_collected, tax_collected, subtotal, customer_credit_amount, giftcert_amount, deferred_revenue, amazon_order_id, "braintree.transaction_id", "braintree.amount_submitted_for_settlement", "braintree.settlement_date", "braintree.service_fee", "paypal_settlement.transaction_id", "paypal_settlement.gross_transaction_amount", "paypal_settlement.tax_amount", "paypal_settlement.fee_amount"]
+    drill_fields: ["transactions.payment_method", "transactions.card_type", order_id, email, total_collected, tax_collected, subtotal, customer_credit_amount, giftcert_amount, deferred_revenue, amazon_order_id, "braintree.transaction_id", "braintree.amount_submitted_for_settlement", "braintree.settlement_date", "braintree.service_fee", "paypal_settlement.transaction_id", "paypal_settlement.gross_transaction_amount", "paypal_settlement.tax_amount", "paypal_settlement.fee_amount", "transactions.grand_total", "transactions.customer_credit_amount", "transactions.gift_certificate_amount"]
   }
 
   measure: gross_sold_msrp {
     label: "Gross Sold MSRP $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.gross_sold_msrp ;;
   }
 
@@ -383,7 +388,7 @@ view: sales_items {
     description: "Gross Sold MSRP $ - Refunded MSRP $"
     label: "Net Sold Opportunity $"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${gross_sold_msrp} - ${credits.refunded_msrp} ;;
   }
 
@@ -391,7 +396,7 @@ view: sales_items {
     description: "Total sold (does not include tax) but does include redeemed customer credit"
     label: "Gross Sold $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.row_total ;;
     drill_fields: [configurable_products_sales_summary*]
   }
@@ -406,7 +411,7 @@ view: sales_items {
     label: "Average Sale Price $"
     description: "Average gross sold price per unit"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${subtotal} / NULLIF(${gross_sold_quantity},0) ;;
   }
 
@@ -414,21 +419,21 @@ view: sales_items {
     description: "Total charged less total refunded (does not include tax)"
     label: "Net Sold $"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: CAST(${subtotal} - ${credits.refunded_subtotal} AS decimal(38,2)) ;;
   }
 
   measure: gross_cost {
     label: "Gross Cost $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.extended_cost ;;
   }
 
   measure: net_cost {
     label: "Net Cost $"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: CASE WHEN ${net_sold} > 0 THEN ${gross_cost} - ${credits.extended_cost} END
       ;;
   }
@@ -437,7 +442,7 @@ view: sales_items {
     label: "Gross Margin $"
     description: "Gross margin dollars collected on net sales"
     type: number
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: CAST(${net_sold} - ${net_cost} AS money) ;;
   }
 
@@ -445,7 +450,7 @@ view: sales_items {
 #    label: "Gross Margin $"
 #    description: "Gross margin dollars collected on gross sales"
 #    type: number
-#    value_format: "$#,##0"
+#    value_format: "$#,##0.00;($#,##0.00)"
 #    sql: CAST(${subtotal} - ${gross_cost} AS money) ;;
 #  }
 
@@ -477,30 +482,47 @@ view: sales_items {
     description: "Total tax collected"
     label: "Tax Collected $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.tax_amount ;;
+    drill_fields: ["tax.title", "tax.percent", tax_collected, "tax.amount"]
   }
 
-  measure: redeemed_customer_credit {
+  dimension: redeemed_customer_credit {
     description: "Was there any store credit / customer credit redeemed for the order?"
     type: yesno
-    sql: ${customer_credit_amount} > 0 ;;
+    sql: ${TABLE}.customer_credit_amount > 0 ;;
   }
 
   measure: customer_credit_amount {
     description: "Redeemed customer credit subtotal portion. We remove the tax portion. Example: if someone redeems $10 in Alberta, we count $9.52 towards the subtotal portion and $0.48 towards the tax portion of their receipt)"
     label: "Redeemed Credit $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.customer_credit_amount ;;
+    drill_fields: [order_id, "products.budget_type", "products.brand", "products.department", "products.short_product_name", gross_sold_quantity, subtotal, discount]
+    filters: {
+      field: redeemed_customer_credit
+      value: "Yes"
+    }
+  }
+
+  dimension: redeemed_gift_card {
+    description: "Was there a gift card redeemed for the order?"
+    type: yesno
+    sql: ${TABLE}.giftcert_amount > 0 ;;
   }
 
   measure: giftcert_amount {
     description: "Redeemed gift card amount"
     label: "Redeemed Gift Cards $"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.giftcert_amount ;;
+    drill_fields: [order_id, "products.budget_type", "products.brand", "products.department", "products.short_product_name", gross_sold_quantity, subtotal, discount]
+    filters: {
+      field: redeemed_gift_card
+      value: "Yes"
+    }
   }
 
   dimension: discount_tier {
@@ -523,7 +545,7 @@ view: sales_items {
     label: "Cart Discount Amount $"
     description: "Discount amount from catalog (advertised) price because of Shopping Cart Price Rules and redeemed Customer Credit"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.discount_amount ;;
   }
 
@@ -563,12 +585,23 @@ view: sales_items {
     sql: 100.00 * (${credits.refund_for_return} / NULLIF(${subtotal},0)) ;;
   }
 
+  dimension: sku {
+    type: string
+    hidden: yes
+    sql: ${TABLE}.sku ;;
+  }
+
   measure: deferred_revenue {
     label: "Sold Gift Cards $"
     description: "Total amount of gift cards sold (deferred reenue)"
     type: sum
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.deferred_revenue ;;
+    drill_fields: [order_id, "products.short_product_name", "products.sku", gross_sold_quantity, deferred_revenue]
+    filters: {
+      field: "sku"
+      value: "LOT-GC%"
+    }
   }
 
   measure: net_contribution {
@@ -618,6 +651,6 @@ view: sales_items {
   }
 
   set: configurable_products_sales_summary {
-    fields: [products.budget_type, gross_sold_quantity, average_sale_price, subtotal, discount, product_page_views.count, product_page_views.conversion_rate]
+    fields: ["products.budget_type", "products.brand", "products.department", "products.short_product_name", gross_sold_quantity, average_sale_price, subtotal, discount, product_page_views.count, product_page_views.conversion_rate]
   }
 }

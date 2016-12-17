@@ -36,14 +36,14 @@ view: plan_weekly_sales {
     label: "Net Sold $"
     type: sum
     sql: ${TABLE}.net_sold ;;
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
   }
 
   measure: gross_profit {
     label: "Profit $"
     type: sum
     sql: ${TABLE}.gross_profit ;;
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
   }
 
   measure: gross_margin {

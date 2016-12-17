@@ -36,7 +36,7 @@ view: orderforms_budgets {
   measure: amount {
     type: sum
     sql: ${TABLE}.amount ;;
-    value_format: "$#,##0"
+    value_format: "$#,##0.00;($#,##0.00)"
   }
 
   set: detail {

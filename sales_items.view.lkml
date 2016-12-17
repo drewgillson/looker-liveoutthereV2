@@ -13,10 +13,12 @@ view: sales_items {
            , order_increment_id
            , row_total_incl_tax
            -- treat customer credit portion of invoice item as a discount, and if the row_total is less than zero (this happens when customer credit covers the entire order, because credit is applied to the AFTER tax total) just treat it as a zero
-           , CASE WHEN row_total - ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) < 0 THEN 0 ELSE row_total - ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) END AS row_total
+           --, CASE WHEN row_total - ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) < 0 THEN 0 ELSE row_total - ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) END AS row_total
+           , row_total
            , tax_amount
            -- fix for the same damn edge case with taxes and totals when customer credit has covered the whole order
-           , CASE WHEN discount_amount + ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) > row_total_incl_tax THEN row_total ELSE discount_amount + ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) END AS discount_amount
+           --, CASE WHEN discount_amount + ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) > row_total_incl_tax THEN row_total ELSE discount_amount + ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) END AS discount_amount
+           , discount_amount
            , qty
            , deferred_revenue
            , product_id
@@ -33,6 +35,7 @@ view: sales_items {
            , kount_ris_description
            , email_sent
            , marketplace_order_id
+           , giftcert_amount
         FROM (
           SELECT c.customer_email AS email
             , c.created_at AS order_created
@@ -61,6 +64,7 @@ view: sales_items {
             , CAST(c.kount_ris_description AS nvarchar(max)) AS kount_ris_description
             , c.email_sent
             , marketplace_order_id
+            , ISNULL(c.giftcert_amount,0) + ISNULL(c.gift_voucher_discount,0) AS giftcert_amount
           FROM magento.sales_flat_invoice_item AS a
           INNER JOIN magento.sales_flat_invoice AS b
             ON a.parent_id = b.entity_id
@@ -73,7 +77,6 @@ view: sales_items {
           ) AS d
             ON a.sku = d.sku
           WHERE row_total > 0
-          AND c.customer_email != 'pk_cs@liveoutthere.com'
         ) AS a
         UNION ALL
         -- insert rows for shipping charges
@@ -101,6 +104,7 @@ view: sales_items {
           , CAST(b.kount_ris_rule AS nvarchar(max)) AS kount_ris_rule
           , CAST(b.kount_ris_description AS nvarchar(max)) AS kount_ris_description
           , b.email_sent
+          , NULL
           , NULL
         FROM magento.sales_flat_invoice AS a
         INNER JOIN magento.sales_flat_order AS b
@@ -133,6 +137,7 @@ view: sales_items {
           , CAST(a.kount_ris_description AS nvarchar(max)) AS kount_ris_description
           , a.email_sent
           , NULL
+          , NULL
         FROM magento.sales_flat_order AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.entity_id = b.order_id
@@ -157,6 +162,7 @@ view: sales_items {
             , NULL AS deferred_revenue
             , COALESCE(b.entity_id, -1) AS product_id
             , 'TheVan.ca' AS storefront
+            , NULL
             , NULL
             , NULL
             , NULL
@@ -213,8 +219,7 @@ view: sales_items {
 
   dimension: order_entity_id {
     hidden: yes
-    type: number
-    value_format: "0"
+    type: string
     sql: ${TABLE}.order_entity_id ;;
   }
 
@@ -257,10 +262,11 @@ view: sales_items {
       icon_url: "https://cdn.shopify.com/shopify-marketing_assets/static/shopify-favicon.png"
     }
 
-    #link: {
-    #  label: "NRI Order Detail"
-    #  url: "http://23.99.80.118/OrderDetailsGrid.aspx?OrderNumber={{ sales.order_entity_id._value | encode_uri }}"
-    #}
+    link: {
+      label: "NRI Order Detail"
+      url: "http://23.99.80.118/OrderDetailsGrid.aspx?OrderNumber={{ value }}"
+      icon_url: "https://www.google.com/s2/favicons?domain=nri-distribution.com"
+    }
   }
 
   dimension: storefront {
@@ -348,9 +354,13 @@ view: sales_items {
   }
 
   dimension: amazon_order_id {
-    label: "Amazon Order ID"
+    label: "Amazon Txn ID"
     type: string
     sql: ${TABLE}.marketplace_order_id ;;
+    link: {
+      label: "Amazon Order"
+      url: "https://sellercentral.amazon.ca/hz/orders/details?_encoding=UTF8&orderId={{ sales.amazon_order_id._value | encode_uri }}"
+    }
   }
 
   measure: total_collected {
@@ -359,6 +369,7 @@ view: sales_items {
     type: sum
     value_format: "$#,##0"
     sql: ${TABLE}.row_total_incl_tax ;;
+    drill_fields: ["transactions.payment_method", "transactions.card_type", order_id, email, total_collected, tax_collected, subtotal, customer_credit_amount, giftcert_amount, deferred_revenue, amazon_order_id, "braintree.transaction_id", "braintree.amount_submitted_for_settlement", "braintree.settlement_date", "braintree.service_fee", "paypal_settlement.transaction_id", "paypal_settlement.gross_transaction_amount", "paypal_settlement.tax_amount", "paypal_settlement.fee_amount"]
   }
 
   measure: gross_sold_msrp {
@@ -377,7 +388,7 @@ view: sales_items {
   }
 
   measure: subtotal {
-    description: "Total sold (does not include tax or redeemed customer credit)"
+    description: "Total sold (does not include tax) but does include redeemed customer credit"
     label: "Gross Sold $"
     type: sum
     value_format: "$#,##0"
@@ -423,20 +434,20 @@ view: sales_items {
   }
 
   measure: gross_margin {
-    label: "Gross Margin $ (Net)"
+    label: "Gross Margin $"
     description: "Gross margin dollars collected on net sales"
     type: number
     value_format: "$#,##0"
     sql: CAST(${net_sold} - ${net_cost} AS money) ;;
   }
 
-  measure: gross_gross_margin {
-    label: "Gross Margin $"
-    description: "Gross margin dollars collected on gross sales"
-    type: number
-    value_format: "$#,##0"
-    sql: CAST(${subtotal} - ${gross_cost} AS money) ;;
-  }
+#  measure: gross_gross_margin {
+#    label: "Gross Margin $"
+#    description: "Gross margin dollars collected on gross sales"
+#    type: number
+#    value_format: "$#,##0"
+#    sql: CAST(${subtotal} - ${gross_cost} AS money) ;;
+#  }
 
   measure: gross_margin_percent {
     label: "Gross Margin % (Net)"
@@ -450,17 +461,17 @@ view: sales_items {
        ;;
   }
 
-  measure: gross_gross_margin_percent {
-    label: "Gross Margin %"
-    description: "Gross margin percentage on gross sales"
-    type: number
-    value_format: "0\%"
-    sql: 100.00 * CASE
-        WHEN FLOOR(${subtotal}) = 0 AND ${gross_gross_margin} = 0 THEN NULL
-        WHEN FLOOR(${subtotal}) > 0 THEN ${gross_gross_margin} / ${subtotal}
-      END
-       ;;
-  }
+#  measure: gross_gross_margin_percent {
+#    label: "Gross Margin %"
+#    description: "Gross margin percentage on gross sales"
+#    type: number
+#    value_format: "0\%"
+#    sql: 100.00 * CASE
+#        WHEN FLOOR(${subtotal}) = 0 AND ${gross_gross_margin} = 0 THEN NULL
+#        WHEN FLOOR(${subtotal}) > 0 THEN ${gross_gross_margin} / ${subtotal}
+#      END
+#       ;;
+#  }
 
   measure: tax_collected {
     description: "Total tax collected"
@@ -477,11 +488,19 @@ view: sales_items {
   }
 
   measure: customer_credit_amount {
-    description: "Redeemed customer credit subtotal portion (we treat customer credit like a discount so gross margin is not over-stated, we also remove the tax portion. Example:if someone redeems $10 in Alberta, we count $9.52 towards the subtotal portion and $0.48 towards the tax portion of their receipt)"
+    description: "Redeemed customer credit subtotal portion. We remove the tax portion. Example: if someone redeems $10 in Alberta, we count $9.52 towards the subtotal portion and $0.48 towards the tax portion of their receipt)"
     label: "Redeemed Credit $"
     type: sum
     value_format: "$#,##0"
     sql: ${TABLE}.customer_credit_amount ;;
+  }
+
+  measure: giftcert_amount {
+    description: "Redeemed gift card amount"
+    label: "Redeemed Gift Cards $"
+    type: sum
+    value_format: "$#,##0"
+    sql: ${TABLE}.giftcert_amount ;;
   }
 
   dimension: discount_tier {
@@ -545,7 +564,8 @@ view: sales_items {
   }
 
   measure: deferred_revenue {
-    description: "Total amount of gift cards sold"
+    label: "Sold Gift Cards $"
+    description: "Total amount of gift cards sold (deferred reenue)"
     type: sum
     value_format: "$#,##0"
     sql: ${TABLE}.deferred_revenue ;;
@@ -568,6 +588,7 @@ view: sales_items {
   }
 
   measure: orders {
+    label: "Count of orders"
     description: "Number of orders placed"
     type: count_distinct
     sql: ${order_id} ;;
@@ -597,6 +618,6 @@ view: sales_items {
   }
 
   set: configurable_products_sales_summary {
-    fields: [products.budget_type, gross_sold_quantity, average_sale_price, subtotal, discount, gross_gross_margin, gross_gross_margin_percent, product_page_views.count, product_page_views.conversion_rate]
+    fields: [products.budget_type, gross_sold_quantity, average_sale_price, subtotal, discount, product_page_views.count, product_page_views.conversion_rate]
   }
 }

@@ -8,9 +8,15 @@ view: transactions_braintree {
 
   dimension: transaction_id {
     type: string
+    label: "Braintree Txn ID"
     primary_key: yes
     label: "Transaction ID"
     sql: ${TABLE}."Transaction ID" ;;
+
+    link: {
+      label: "Braintree Transaction"
+      url: "https://www.braintreegateway.com/merchants/738g38kwhy5m87c6/transactions/{{ braintree.transaction_id._value | encode_uri }}"
+    }
   }
 
   dimension: subscription_id {
@@ -81,6 +87,7 @@ view: transactions_braintree {
   }
 
   measure: amount_submitted_for_settlement {
+    label: "Braintree Settled $"
     type: sum
     value_format: "$#,##0.00;($#,##0.00)"
     label: "Amount Submitted For Settlement"
@@ -88,6 +95,7 @@ view: transactions_braintree {
   }
 
   measure: service_fee {
+    label: "Braintree Fee $"
     type: sum
     value_format: "$#,##0.00;($#,##0.00)"
     label: "Service Fee"
@@ -96,6 +104,7 @@ view: transactions_braintree {
 
   measure: tax_amount {
     type: sum
+    label: "Braintree Tax $"
     value_format: "$#,##0.00;($#,##0.00)"
     label: "Tax Amount"
     sql: ${TABLE}."Tax Amount" ;;
@@ -141,6 +150,11 @@ view: transactions_braintree {
     type: string
     label: "Refunded Transaction ID"
     sql: ${TABLE}."Refunded Transaction ID" ;;
+
+    link: {
+      label: "Braintree Transaction"
+      url: "https://www.braintreegateway.com/merchants/738g38kwhy5m87c6/transactions/{{ braintree.refunded_transaction_id._value | encode_uri }}"
+    }
   }
 
   dimension: payment_instrument_type {

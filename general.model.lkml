@@ -430,6 +430,56 @@ explore: products {
     sql_on: ${sales.order_entity_id} = ${transactions.entity_id} ;;
     relationship: one_to_one
   }
+
+  join: magento_map {
+    from: transactions_magento_map
+    sql_on: transactions.entity_id = magento_map.parent_id
+      AND transactions.type = magento_map.type
+      AND (transactions.credit_memo_id = magento_map.credit_memo_id OR transactions.credit_memo_id IS NULL)
+       ;;
+    relationship: one_to_one
+  }
+
+  join: tax {
+    from: transactions_tax
+    sql_on: transactions.entity_id = tax.order_id
+      ;;
+    relationship: one_to_many
+    required_joins: [magento_map, payment_transaction]
+  }
+
+  #   used to map Magento invoices and credit memos to PayPal transactions (the view above would have been unnecessary had Demac built the Optimal Payments extension properly)
+  join: payment_transaction {
+    from: transactions_magento_payment
+    sql_on: transactions.entity_id = payment_transaction.order_id AND
+      CASE WHEN transactions.type = 'sale' THEN 'capture'
+           WHEN transactions.type = 'credit' THEN 'refund'
+      END = payment_transaction.txn_type
+       ;;
+    relationship: one_to_many
+    required_joins: [magento_map]
+  }
+
+  join: braintree {
+    from: transactions_braintree
+    type: full_outer
+    sql_on: transactions.transaction_id = braintree."Transaction ID"
+      ;;
+    relationship: one_to_many
+  }
+
+  #   used to pull PayPal transactions into the explore
+  join: paypal_settlement {
+    from: transactions_paypal_settlement
+    type: full_outer
+    sql_on: payment_transaction.txn_id = paypal_settlement.[Transaction ID]
+      AND CASE WHEN transactions.type = 'credit' THEN 'T1107'
+               WHEN transactions.type = 'sale' THEN 'T0006'
+          END = paypal_settlement.[Transaction Event Code]
+       ;;
+    relationship: one_to_many
+    required_joins: [payment_transaction]
+  }
 }
 
 explore: snowplow {

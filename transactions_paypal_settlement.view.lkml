@@ -20,8 +20,14 @@ view: transactions_paypal_settlement {
   }
 
   dimension: transaction_id {
+    label: "PayPal Txn ID"
     type: string
     sql: ${TABLE}.transaction_id ;;
+    link: {
+      label: "PayPal Transaction"
+      url: "https://history.paypal.com/webscr?cmd=_history-details-from-hub&id={{ value }}"
+      icon_url: "http://www.bobsleighcanadaskeleton.ca/images/favicon.paypal.16.png"
+    }
   }
 
   dimension: fee_currency {
@@ -124,6 +130,7 @@ view: transactions_paypal_settlement {
 
   measure: fee_amount {
     type: sum
+    label: "PayPal Fee $"
     description: "PayPal fee amount"
     value_format: "$#,##0.00;($#,##0.00)"
     sql: CASE WHEN ${fee_debit_or_credit} = 'CR' THEN ${TABLE}."Fee Amount" WHEN ${fee_debit_or_credit} = 'DR' THEN -${TABLE}."Fee Amount" END
@@ -132,7 +139,7 @@ view: transactions_paypal_settlement {
 
   measure: gross_transaction_amount {
     description: "Total amount collected by PayPal, including taxes"
-    label: "Total Collected $"
+    label: "PayPal Collected $"
     type: sum
     value_format: "$#,##0.00;($#,##0.00)"
     sql: CASE WHEN ${transaction_debit_or_credit} = 'CR' THEN ${TABLE}."Gross Transaction Amount" WHEN ${transaction_debit_or_credit} = 'DR' THEN -${TABLE}."Gross Transaction Amount" END
@@ -141,6 +148,7 @@ view: transactions_paypal_settlement {
 
   measure: tax_amount {
     type: sum
+    label: "Paypal Tax $"
     description: "Tax amount collected by PayPal"
     value_format: "$#,##0.00;($#,##0.00)"
     sql: CASE WHEN ${transaction_debit_or_credit} = 'CR' THEN -(${TABLE}."Gross Transaction Amount" - (${TABLE}."Gross Transaction Amount" / (1 + (${tax.percent} / 100))))

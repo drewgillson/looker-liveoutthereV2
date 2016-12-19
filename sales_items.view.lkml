@@ -23,7 +23,7 @@ view: sales_items {
            , deferred_revenue
            , product_id
            , storefront
-           , ISNULL(((row_total_incl_tax / NULLIF(invoice_total,0)) * customer_credit_total),0) AS customer_credit_amount
+           , (customer_credit_total / total_qty_ordered) * qty AS customer_credit_amount
            , state
            , status
            , coupon_rule_name
@@ -35,7 +35,7 @@ view: sales_items {
            , kount_ris_description
            , email_sent
            , marketplace_order_id
-           , giftcert_amount
+           , (giftcert_amount / total_qty_ordered) * qty AS giftcert_amount
            , sku
         FROM (
           SELECT c.customer_email AS email
@@ -67,6 +67,7 @@ view: sales_items {
             , marketplace_order_id
             , ISNULL(c.giftcert_amount,0) + ISNULL(c.gift_voucher_discount,0) AS giftcert_amount
             , a.sku
+            , c.total_qty_ordered
           FROM magento.sales_flat_invoice_item AS a
           INNER JOIN magento.sales_flat_invoice AS b
             ON a.parent_id = b.entity_id
@@ -368,12 +369,19 @@ view: sales_items {
     }
   }
 
+  measure: braintree_discrepancy {
+    label: "Braintree Discrepancy $"
+    type: number
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ${total_collected} - ${braintree.amount_submitted_for_settlement} - ${customer_credit_amount} - ${giftcert_amount};;
+  }
+
   measure: total_collected {
     description: "Total charged to the customer, including taxes"
     label: "Gross Collected $"
     type: sum
     value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${TABLE}.row_total_incl_tax ;;
+    sql: ISNULL(${TABLE}.row_total_incl_tax,0) + ISNULL(${TABLE}.deferred_revenue,0) ;;
     drill_fields: ["transactions.payment_method", "transactions.card_type", order_id, email, total_collected, tax_collected, subtotal, customer_credit_amount, giftcert_amount, deferred_revenue, amazon_order_id, "braintree.transaction_id", "braintree.amount_submitted_for_settlement", "braintree.settlement_date", "braintree.service_fee", "paypal_settlement.transaction_id", "paypal_settlement.gross_transaction_amount", "paypal_settlement.tax_amount", "paypal_settlement.fee_amount", "transactions.grand_total", "transactions.customer_credit_amount", "transactions.gift_certificate_amount"]
   }
 

@@ -16,6 +16,7 @@ view: transactions_braintree {
     link: {
       label: "Braintree Transaction"
       url: "https://www.braintreegateway.com/merchants/738g38kwhy5m87c6/transactions/{{ braintree.transaction_id._value | encode_uri }}"
+      icon_url: "https://zapier.cachefly.net/storage/services/e8039e6400c52274f12fd1806d4ace6c.128x128.jpeg"
     }
   }
 

@@ -14,7 +14,7 @@ explore: people {
   symmetric_aggregates: yes
   persist_for: "12 hours"
 
-  fields: [ALL_FIELDS*, -sales.braintree_discrepancy]
+  fields: [ALL_FIELDS*, -sales.braintree_discrepancy, -sales.paypal_discrepancy]
 
   join: people_facts {
     sql_on: people.email = ${people_facts.email} ;;

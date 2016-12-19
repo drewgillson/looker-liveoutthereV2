@@ -376,6 +376,13 @@ view: sales_items {
     sql: ${total_collected} - ${braintree.amount_submitted_for_settlement} - ${customer_credit_amount} - ${giftcert_amount};;
   }
 
+  measure: paypal_discrepancy {
+    label: "PayPal Discrepancy $"
+    type: number
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ${total_collected} - ${paypal_settlement.gross_transaction_amount} - ${customer_credit_amount} - ${giftcert_amount};;
+  }
+
   measure: total_collected {
     description: "Total charged to the customer, including taxes"
     label: "Gross Collected $"

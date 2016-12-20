@@ -110,7 +110,7 @@ view: purchase_order_products {
         ON pop.pop_order_num = po.po_num
       LEFT JOIN magento.purchase_supplier AS sup
         ON po.po_sup_num = sup.sup_id
-      WHERE pop.pop_order_num IS NULL AND 3=3
+      WHERE pop.pop_order_num IS NULL AND 4=4
        ;;
     indexes: ["pop_product_id", "po_order_id"]
     persist_for: "2 hours"

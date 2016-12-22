@@ -428,6 +428,12 @@ explore: products {
     relationship: one_to_many
   }
 
+  join: collections_flattened {
+    from: catalog_product_collections_flattened
+    sql_on: products.sku = collections_flattened.sku ;;
+    relationship: one_to_many
+  }
+
   join: transactions {
     sql_on: ${sales.order_entity_id} = ${transactions.entity_id} ;;
     relationship: many_to_one

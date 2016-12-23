@@ -590,6 +590,12 @@ explore: sort_order {
     relationship: one_to_one
   }
 
+  join: discounts {
+    from: sort_order_discounts
+    sql_on:  ${sort_order.configurable_sku} = ${discounts.configurable_sku} ;;
+    relationship: one_to_one
+  }
+
   always_filter: {
     filters: {
       field: sort_order.configurable_sku

@@ -286,6 +286,11 @@ view: sales_items {
     sql: ${TABLE}.email ;;
   }
 
+  measure: unique_customer_count {
+    type: count_distinct
+    sql: ${TABLE}.email ;;
+  }
+
   dimension: email_sent {
     type: yesno
     sql: ${TABLE}.email_sent IS NOT NULL;;

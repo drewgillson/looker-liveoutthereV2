@@ -2,7 +2,7 @@ view: sales_credits_items {
   derived_table: {
     sql: SELECT ROW_NUMBER() OVER (ORDER BY creditmemo_created) AS row,
           a.*, (refunded_qty * average_cost.value) AS extended_cost, (refunded_qty * msrp.price) AS refunded_msrp FROM (
-        SELECT [type], storefront, creditmemo_created, order_entity_id, creditmemo_increment_id, creditmemo_entity_id, request_type, product_id, refunded_qty, refund_for_return - adjustment_tax_amount AS refund_for_return, refund_for_other_reason - adjustment_tax_amount AS refund_for_other_reason, refund_for_shipping - shipping_tax_amount AS refund_for_shipping, adjustment_tax_amount + shipping_tax_amount AS refunded_tax, ISNULL(refund_for_return,0) + ISNULL(refund_for_other_reason,0) + ISNULL(refund_for_shipping,0) AS refunded_total, mailed, mailed_description FROM (
+        SELECT [type], storefront, creditmemo_created, order_entity_id, creditmemo_increment_id, creditmemo_entity_id, request_type, product_id, refunded_qty, refund_for_return - adjustment_tax_amount AS refund_for_return, refund_for_other_reason - adjustment_tax_amount AS refund_for_other_reason, refund_for_shipping - shipping_tax_amount AS refund_for_shipping, adjustment_tax_amount + shipping_tax_amount AS refunded_tax, ISNULL(refund_for_return,0) + ISNULL(refund_for_other_reason,0) + ISNULL(refund_for_shipping,0) AS refunded_total, mailed, mailed_description, refunded_to_giftcredit FROM (
           SELECT 'credit' AS [type]
           , 'LiveOutThere.com' AS storefront
           , a.created_at AS creditmemo_created
@@ -19,6 +19,7 @@ view: sales_credits_items {
           , CAST(a.shipping_amount - (a.shipping_amount / (1 + (f.[percent] / 100))) AS money) AS shipping_tax_amount
           , h.ot_created_at AS mailed
           , h.ot_description AS mailed_description
+          , 0.00 AS refunded_to_giftcredit
           FROM magento.sales_flat_creditmemo AS a
           LEFT JOIN magento.sales_flat_creditmemo_item AS b
             ON a.entity_id = b.parent_id
@@ -47,13 +48,14 @@ view: sales_credits_items {
         , CAST(e.comment AS varchar(255)) AS request_type
         , COALESCE(a.product_id,-1)
         , a.qty AS refunded_qty
-        , a.row_total - ISNULL(a.discount_amount,0) AS refund_for_return
+        , a.row_total - ISNULL(a.discount_amount,0) - b.giftcard_refund_amount / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS refund_for_return
         , NULL AS refund_for_other_reason
         , NULL AS refund_for_shipping
         , a.tax_amount
-        , (a.row_total - ISNULL(a.discount_amount,0)) + a.tax_amount AS total_refunded
+        , (a.row_total - ISNULL(a.discount_amount,0)) + a.tax_amount - b.giftcard_refund_amount / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS total_refunded
         , d.ot_created_at AS mailed
         , d.ot_description AS mailed_description
+        , b.giftcard_refund_amount / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS refunded_to_giftcredit
         FROM magento.sales_flat_creditmemo_item AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.parent_id = b.entity_id
@@ -79,6 +81,7 @@ view: sales_credits_items {
         , NULL AS refund_for_shipping
         , CAST([order-line_items-total_refunded] - ([order-line_items-total_refunded] / (1 + [order-tax_lines-rate])) AS money) AS tax_amount
         , [order-line_items-total_refunded] AS refunded_total
+        , NULL
         , NULL
         , NULL
         FROM shopify.order_items AS a
@@ -240,6 +243,15 @@ view: sales_credits_items {
     type: sum
     value_format: "$#,##0.00;($#,##0.00)"
     sql: ${TABLE}.refunded_total ;;
+    drill_fields: [credits_detail*]
+  }
+
+  measure: refunded_to_giftcredit {
+    label: "Refunded to Gift Card $"
+    description: "Total amount refunded to gift cards"
+    type: sum
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ${TABLE}.refunded_to_giftcredit ;;
     drill_fields: [credits_detail*]
   }
 

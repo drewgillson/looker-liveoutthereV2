@@ -48,14 +48,14 @@ view: sales_credits_items {
         , CAST(e.comment AS varchar(255)) AS request_type
         , COALESCE(a.product_id,-1)
         , a.qty AS refunded_qty
-        , a.row_total - ISNULL(a.discount_amount,0) - b.giftcard_refund_amount / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS refund_for_return
+        , a.row_total - ISNULL(a.discount_amount,0) - ISNULL(b.giftcard_refund_amount,0) / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS refund_for_return
         , NULL AS refund_for_other_reason
         , NULL AS refund_for_shipping
         , a.tax_amount
-        , (a.row_total - ISNULL(a.discount_amount,0)) + a.tax_amount - b.giftcard_refund_amount / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS total_refunded
+        , (a.row_total - ISNULL(a.discount_amount,0)) + a.tax_amount - ISNULL(b.giftcard_refund_amount,0) / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS total_refunded
         , d.ot_created_at AS mailed
         , d.ot_description AS mailed_description
-        , b.giftcard_refund_amount / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS refunded_to_giftcredit
+        , ISNULL(b.giftcard_refund_amount,0) / (COUNT(*) OVER (PARTITION BY b.entity_id)) AS refunded_to_giftcredit
         FROM magento.sales_flat_creditmemo_item AS a
         INNER JOIN magento.sales_flat_creditmemo AS b
           ON a.parent_id = b.entity_id

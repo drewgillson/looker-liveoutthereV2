@@ -32,7 +32,7 @@ view: sales_credits_items {
             ON a.order_id = f.order_id AND f.position = 1
           LEFT JOIN magento.sales_flat_order_item AS g
             ON a.order_id = g.order_id AND a.adjustment_positive = (g.row_total - ISNULL(g.discount_amount,0) + g.tax_amount)
-          LEFT JOIN (SELECT ot_entity_id, ot_created_at, CAST(ot_description AS nvarchar(1024)) AS ot_description FROM magento.organizer_task WHERE ot_caption = 'Return item accepted at Post Office') AS h
+          LEFT JOIN (SELECT DISTINCT ot_entity_id, ot_created_at, CAST(ot_description AS nvarchar(1024)) AS ot_description FROM magento.organizer_task WHERE ot_caption = 'Return item accepted at Post Office') AS h
             ON a.order_id = h.ot_entity_id
           WHERE (a.adjustment_positive > 0 OR a.shipping_amount > 0) AND a.created_at > '2014-02-01'
           GROUP BY a.created_at, a.increment_id, a.entity_id, a.adjustment_positive, a.shipping_amount, c.entity_id, CAST(d.comment AS varchar(255)), f.[percent], h.ot_created_at, h.ot_description
@@ -59,7 +59,7 @@ view: sales_credits_items {
           ON a.parent_id = b.entity_id
         LEFT JOIN magento.sales_flat_order AS c
           ON b.order_id = c.entity_id
-        LEFT JOIN (SELECT ot_entity_id, ot_created_at, CAST(ot_description AS nvarchar(1024)) AS ot_description FROM magento.organizer_task WHERE ot_caption = 'Return item accepted at Post Office') AS d
+        LEFT JOIN (SELECT DISTINCT ot_entity_id, ot_created_at, CAST(ot_description AS nvarchar(1024)) AS ot_description FROM magento.organizer_task WHERE ot_caption = 'Return item accepted at Post Office') AS d
           ON b.order_id = d.ot_entity_id
         LEFT JOIN magento.sales_flat_creditmemo_comment AS e
           ON b.entity_id = e.parent_id

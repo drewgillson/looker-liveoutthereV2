@@ -474,6 +474,7 @@ explore: products {
     sql_on: transactions.transaction_id = braintree."Transaction ID"
       ;;
     relationship: one_to_many
+    required_joins: [transactions]
   }
 
   #   used to pull PayPal transactions into the explore

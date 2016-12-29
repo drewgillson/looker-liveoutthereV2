@@ -8,6 +8,14 @@ view: sales_shipping_tracking {
         LEFT JOIN magento.sales_flat_shipment_comment AS c
           ON b.entity_id = c.parent_id AND c.is_customer_notified = 1
         UNION ALL
+        -- fill in recent missing shipments
+        SELECT a.entity_id, NULL, NULL, 1 AS email_sent, a.created_at
+        FROM magento.sales_flat_order AS a
+        LEFT JOIN magento.sales_flat_shipment AS b
+          ON a.entity_id = b.order_id
+        WHERE (b.order_id IS NULL AND a.created_at >= '2016-10-31')
+        AND a.state IN ('complete','closed') AND a.status IN ('complete','closed_refunded')
+        UNION ALL
         SELECT b.[order-id] AS order_id, a.[order-fulfillments-tracking_company] + ' - ' + a.[order-fulfillments-service], a.[order-fulfillments-tracking_number], NULL, NULL
         FROM shopify.order_trackings AS a
         INNER JOIN shopify.transactions AS b

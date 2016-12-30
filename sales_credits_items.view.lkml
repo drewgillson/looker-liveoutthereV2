@@ -105,7 +105,7 @@ view: sales_credits_items {
       LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS msrp
       ON a.product_id = msrp.entity_id
        ;;
-    indexes: ["storefront", "order_entity_id", "product_id"]
+    indexes: ["storefront", "order_entity_id", "product_id", "creditmemo_entity_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       ;;
   }

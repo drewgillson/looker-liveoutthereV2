@@ -23,7 +23,7 @@ view: transactions {
         WHERE marketplace_order_id IS NOT NULL
       ) AS a
        ;;
-    indexes: ["storefront", "entity_id"]
+    indexes: ["storefront", "entity_id", "credit_memo_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       ;;
   }
@@ -43,6 +43,12 @@ view: transactions {
     type: string
     hidden: yes
     sql: ${TABLE}.entity_id ;;
+  }
+
+  dimension: credit_memo_id {
+    type: string
+    hidden: yes
+    sql: ${TABLE}.credit_memo_id ;;
   }
 
   dimension: payment_method {

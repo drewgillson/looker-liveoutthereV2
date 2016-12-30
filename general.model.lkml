@@ -435,7 +435,9 @@ explore: products {
   }
 
   join: transactions {
-    sql_on: ${sales.order_entity_id} = ${transactions.entity_id} ;;
+    sql_on: (${sales.order_entity_id} = ${transactions.entity_id} AND ${transactions.type} = 'sale')
+            OR (${credits.creditmemo_entity_id} = ${transactions.credit_memo_id} AND ${transactions.type} = 'credit')
+      ;;
     relationship: many_to_one
   }
 

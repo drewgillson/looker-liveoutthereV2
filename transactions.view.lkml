@@ -47,20 +47,36 @@ view: transactions {
 
   dimension: payment_method {
     type: string
+    hidden: yes
     sql: CASE WHEN ${TABLE}.giftcert_amount = (${TABLE}.grand_total + ${TABLE}.giftcert_amount + ${TABLE}.customer_credit_amount) THEN 'Gift Card'
               WHEN (${TABLE}.customer_credit_amount = (${TABLE}.grand_total + ${TABLE}.giftcert_amount + ${TABLE}.customer_credit_amount)) OR (${TABLE}.customer_credit_amount > 0 AND ${TABLE}.grand_total = 0) THEN 'Customer Credit'
+              WHEN ${TABLE}.payment_method = 'paypal_express' THEN 'PayPal'
               ELSE ${TABLE}.payment_method END ;;
   }
 
   dimension: card_type {
+    label: "Payment Method"
     type: string
-    sql: CASE WHEN ${payment_method} = 'Customer Credit' OR ${payment_method} = 'Gift Card' THEN NULL WHEN ${TABLE}.cc_type = 'AE' OR ${TABLE}.cc_type = 'AM' OR ${TABLE}.cc_type = 'American Express' THEN 'American Express'
+    sql: ISNULL(CASE WHEN ${payment_method} IN ('Customer Credit','Gift Card','PayPal') THEN NULL WHEN ${TABLE}.cc_type = 'AE' OR ${TABLE}.cc_type = 'AM' OR ${TABLE}.cc_type = 'American Express' THEN 'American Express'
            WHEN ${TABLE}.cc_type = 'VI' OR ${TABLE}.cc_type = 'Visa' THEN 'Visa'
            WHEN ${TABLE}.cc_type = 'MC' OR ${TABLE}.cc_type = 'MasterCard' THEN 'MasterCard'
            ELSE ${TABLE}.cc_type
-      END
+      END,${payment_method})
        ;;
   }
+
+  dimension_group: settlement {
+    type: time
+    sql: COALESCE(${braintree.settlement_date_date},${paypal_settlement.transaction_initiation_date}) ;;
+  }
+
+  measure: collected {
+    label: "Collected $"
+    type: number
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ISNULL(${braintree.amount_submitted_for_settlement},0) + ISNULL(${paypal_settlement.gross_transaction_amount},0) ;;
+    drill_fields: ["transactions.payment_method", "transactions.card_type", "sales.order_id", "sales.email", "sales.total_collected", "sales.tax_collected", "sales.subtotal", "sales.customer_credit_amount", "sales.giftcert_amount", "sales.deferred_revenue", "sales.amazon_order_id", "braintree.transaction_id", "braintree.amount_submitted_for_settlement", "braintree.settlement_date", "braintree.service_fee", "paypal_settlement.transaction_id", "paypal_settlement.gross_transaction_amount", "paypal_settlement.tax_amount", "paypal_settlement.fee_amount", "transactions.grand_total", "transactions.customer_credit_amount", "transactions.gift_certificate_amount"]
+    }
 
 #  dimension: reference {
 #    type: string

@@ -204,6 +204,7 @@ view: sales_items {
       ON a.product_id = cost.entity_id
       LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS msrp
       ON a.product_id = msrp.entity_id
+      WHERE 1=1
        ;;
     indexes: ["email", "order_entity_id", "order_increment_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -645,6 +646,7 @@ view: sales_items {
     description: "Number of orders placed"
     type: count_distinct
     sql: ${order_id} ;;
+    drill_fields: [order_created_date, order_id, state, status, email]
   }
 
   measure: cumulative_orders {

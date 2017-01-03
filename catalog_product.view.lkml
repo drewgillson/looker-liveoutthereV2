@@ -102,7 +102,7 @@ view: catalog_product {
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
         SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        WHERE 1=1
+        WHERE 2=2
       ;;
     indexes: ["sku", "entity_id", "url_key"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

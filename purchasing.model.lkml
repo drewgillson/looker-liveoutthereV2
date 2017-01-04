@@ -78,6 +78,12 @@ explore: assortment_planning {
     type: full_outer
     relationship: one_to_many
   }
+
+  join: magento_items {
+    from: purchase_order_products
+    sql_on: ${items.purchase_order} = ${magento_items.order_number} AND ${items.sku} = ${magento_items.sku} ;;
+    relationship: many_to_one
+  }
 }
 
 explore: assortment_planning_not_mapped_to_budget {

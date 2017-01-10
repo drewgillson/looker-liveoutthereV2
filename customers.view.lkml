@@ -120,6 +120,12 @@ view: customers {
     sql: ${TABLE}.first_order ;;
   }
 
+  dimension_group: first_order_fiscal {
+    type: time
+    timeframes: [year, quarter, quarter_of_year]
+    sql: DATEADD(mm,-1,${TABLE}.first_order) ;;
+  }
+
   dimension_group: last_order {
     type: time
     sql: ${TABLE}.last_order ;;

@@ -11,7 +11,7 @@ view: customers {
            , MAX(b.value) AS date_of_birth
            , MAX(c.value) AS member_until
            , CASE WHEN MAX(g.value) = 1 THEN 'Male' WHEN MAX(g.value) = 2 THEN 'Female' END AS gender
-           , MIN(s.created_at) AS first_order
+           , CASE WHEN MIN(s.created_at) < ISNULL(MIN(h.first_order),GETDATE()) THEN MIN(s.created_at) ELSE MIN(h.first_order) END AS first_order
            , MAX(s.created_at) AS last_order
            , COUNT(DISTINCT s.entity_id) AS orders
         FROM magento.sales_flat_order AS s
@@ -29,6 +29,11 @@ view: customers {
           ON a.entity_id = f.entity_id AND f.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'lastname' AND entity_type_id = 1)
         LEFT JOIN magento.customer_entity_int AS g
           ON a.entity_id = g.entity_id AND g.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'gender' AND entity_type_id = 1)
+        LEFT JOIN (SELECT a.[order-email] AS email
+                    , CONVERT(VARCHAR(19),MIN(a.[order-created_at]),120) + '.0000000 +00:00' AS first_order
+                   FROM shopify.order_items AS a
+                   GROUP BY a.[order-email]) AS h
+        ON s.customer_email = h.email
         GROUP BY s.customer_email
       ) AS a
       LEFT JOIN (
@@ -129,7 +134,7 @@ view: customers {
   dimension: months_since_1st_order {
     type: number
     value_format: "#"
-    sql: DATEDIFF(mm,${first_order_date},${sales.order_created_date}) ;;
+    sql: ISNULL(DATEDIFF(mm,${first_order_date},${sales.order_created_date}),0) ;;
   }
 
   dimension_group: last_order {

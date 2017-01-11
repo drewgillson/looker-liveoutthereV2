@@ -126,6 +126,12 @@ view: customers {
     sql: DATEADD(mm,-1,${TABLE}.first_order) ;;
   }
 
+  dimension: months_since_1st_order {
+    type: number
+    value_format: "#"
+    sql: DATEDIFF(mm,${first_order_date},${sales.order_created_date}) ;;
+  }
+
   dimension_group: last_order {
     type: time
     sql: ${TABLE}.last_order ;;

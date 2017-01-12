@@ -23,4 +23,10 @@ view: orderforms_seasons {
     type: string
     sql: ${TABLE}.season ;;
   }
+
+  dimension_group: ship {
+    type: time
+    timeframes: [quarter]
+    sql: ${TABLE}.begin_ship ;;
+  }
 }

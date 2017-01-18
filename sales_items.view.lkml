@@ -672,6 +672,18 @@ view: sales_items {
     sql: ${TABLE}.product_id ;;
   }
 
+  measure: days_since_first_receipt {
+    type: number
+    sql: CASE WHEN DATEDIFF(dd,${product_facts.first_receipt},${order_created_date}) < 0 THEN 0 ELSE DATEDIFF(dd,${product_facts.first_receipt},${order_created_date}) END ;;
+    required_fields: [order_created_date]
+  }
+
+  measure: new_merchandise {
+    description: "This dimension will be 'Yes' if less than 60 days have elapsed between the first receipt date and the sale date"
+    type: yesno
+    sql: ${days_since_first_receipt} < 60 ;;
+  }
+
   set: configurable_products_sales_summary {
     fields: ["products.budget_type", "products.brand", "products.department", "products.short_product_name", gross_sold_quantity, average_sale_price, subtotal, discount, product_page_views.count, product_page_views.conversion_rate]
   }

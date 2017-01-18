@@ -14,7 +14,7 @@ explore: people {
   symmetric_aggregates: yes
   persist_for: "12 hours"
 
-  fields: [ALL_FIELDS*, -sales.braintree_discrepancy, -sales.paypal_discrepancy]
+  fields: [ALL_FIELDS*, -sales.braintree_discrepancy, -sales.paypal_discrepancy, -sales.days_since_first_receipt]
 
   join: people_facts {
     sql_on: people.email = ${people_facts.email} ;;
@@ -314,6 +314,13 @@ explore: products {
     sql_on: products.entity_id = sales.product_id ;;
     relationship: one_to_many
     required_joins: [credits]
+  }
+
+  join: sales_facts {
+    from: sales_items_configurable_facts
+    sql_on:  ${associations.configurable_sku} = ${sales_facts.configurable_sku} AND ${sales.order_created_date} < DATEADD(dd,365,${sales_facts.first_receipt_date});;
+    relationship: one_to_many
+    required_joins: [associations,sales]
   }
 
   join: organizers {

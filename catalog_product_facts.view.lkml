@@ -16,6 +16,7 @@ view: catalog_product_facts {
         , MAX(ideal_stock_level) AS ideal_desired_quantity
         , MAX(last_receipt) AS last_receipt
         , MAX(last_sold) AS last_sold
+        , MIN(first_receipt) AS first_receipt
         , MAX(quantity_returned_all_time) AS quantity_returned_all_time
         , MAX(quantity_returned_last_180_days) AS quantity_returned_last_180_days
         , MAX(average_cost.value) AS average_cost
@@ -85,6 +86,14 @@ view: catalog_product_facts {
         GROUP BY sm_product_id
       ) AS last_sold
       ON a.product_id = last_sold.product_id
+
+      LEFT JOIN (
+        SELECT sm_product_id AS product_id
+             , MIN(sm_date) AS first_receipt
+        FROM magento.stock_movement
+        GROUP BY sm_product_id
+      ) AS first_receipt
+      ON a.product_id = first_receipt.product_id
 
       LEFT JOIN (
         SELECT sm_product_id AS product_id
@@ -203,9 +212,15 @@ view: catalog_product_facts {
   }
 
   measure: max_last_sold {
-    description: "Date we lost sold a product"
+    description: "Date we last sold a product"
     type: date
     sql: MAX(${TABLE}.last_sold) ;;
+  }
+
+  measure: first_receipt {
+    description: "Date we first received a product"
+    type: date
+    sql: MIN(${TABLE}.first_receipt) ;;
   }
 
   dimension: ideal_desired_quantity {

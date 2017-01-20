@@ -35,13 +35,13 @@ view: sort_order_opportunity {
     description: "Anshuman's default sort order with weights as described in LOT Sort Order - Algo Description"
     type: number
     sql: (ISNULL(${page_views.score},5000) * 0.00) +
-         (ISNULL(${conversion_rate.score},5000) * 0.05) +
-         (ISNULL(${sort_order.opportunity_score},5000) * 0.65) +
-         (ISNULL(${price.score},5000) * 0.05) +
+         (ISNULL(${conversion_rate.score},5000) * 0.00) +
+         (ISNULL(${sort_order.opportunity_score},5000) * 0.75) +
+         (ISNULL(${price.score},5000) * 0.10) +
          (ISNULL(${days_since_last_receipt.score},5000) * 0.00) +
-         (ISNULL(${quantity.score},5000) * 0.05) +
+         (ISNULL(${quantity.score},5000) * 0.00) +
          (ISNULL(${discounts.score},5000) * 0.15) +
-         (ISNULL(${reviews.score},5000) * 0.05);;
+         (ISNULL(${reviews.score},5000) * 0.00);;
     value_format: "0"
   }
 

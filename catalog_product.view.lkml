@@ -102,7 +102,7 @@ view: catalog_product {
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
         SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        WHERE 1=1
+        WHERE 2=2
       ;;
     indexes: ["sku", "entity_id", "url_key"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -330,7 +330,7 @@ view: catalog_product {
     type: yesno
     sql: ${TABLE}.brand IN ('Thule',
                    '2Undr',
-                   '7seasons',
+                   '7Seasons',
                    'Arc''teryx',
                    'Add',
                    'Belstaff',
@@ -343,7 +343,7 @@ view: catalog_product {
                    'Denham',
                    'Filson',
                    'Fjallraven',
-                   'Han Wag',
+                   'Hanwag',
                    'Hoka OneOne',
                    'Honns',
                    'Hunter',
@@ -352,9 +352,8 @@ view: catalog_product {
                    'Indygena',
                    'InReach',
                    'Jansport',
-                   'John Rich Bros',
                    'Laundromat',
-                   'mackage',
+                   'Mackage',
                    'Mammut',
                    'Merrell',
                    'Michael Kors',
@@ -368,17 +367,18 @@ view: catalog_product {
                    'Repeat',
                    'Sanuk',
                    'Saucony',
-                   'Saxx',
+                   'SAXX',
                    'Smith Optics',
-                   'Soia &KYO',
-                   'Spritual Gangster',
+                   'SOIA & KYO',
+                   'Spiritual Gangster',
                    'UGG',
                    'Umi',
                    'Under Armour',
-                   'United by blue',
+                   'United By Blue',
                    'Vasque',
-                   'VINCE.',
+                   'Vince',
                    'White + Warren',
+                   'Woolrich John Rich & Bros',
                    'Zanerobe M')
  ;;
   }

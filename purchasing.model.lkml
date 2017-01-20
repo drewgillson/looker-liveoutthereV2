@@ -38,7 +38,7 @@ explore: assortment_planning {
 
   join: items {
     from: orderforms_po_items
-    sql_on: assortment_planning.season = items.season ;;
+    sql_on: (${items.ship_date} >= assortment_planning.begin_ship AND ${items.ship_date} < assortment_planning.end_ship) OR (assortment_planning.season = 'No Ship Date' AND ${items.ship_date} IS NULL) ;;
     relationship: many_to_one
   }
 
@@ -77,6 +77,12 @@ explore: assortment_planning {
     sql_on: assortment_planning.season = errors.brand ;;
     type: full_outer
     relationship: one_to_many
+  }
+
+  join: magento_items {
+    from: purchase_order_products
+    sql_on: ${items.purchase_order} = ${magento_items.order_number} AND ${items.sku} = ${magento_items.sku} ;;
+    relationship: many_to_one
   }
 }
 

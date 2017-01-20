@@ -59,7 +59,7 @@ view: transactions_braintree {
   dimension_group: settlement_date {
     type: time
     label: "Settlement Date"
-    sql: ${TABLE}."Settlement Date" ;;
+    sql: NULLIF(${TABLE}."Settlement Date",'1899-12-30') ;;
   }
 
   dimension_group: disbursement_date {

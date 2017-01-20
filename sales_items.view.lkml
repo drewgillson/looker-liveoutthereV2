@@ -204,6 +204,7 @@ view: sales_items {
       ON a.product_id = cost.entity_id
       LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS msrp
       ON a.product_id = msrp.entity_id
+      WHERE 1=1
        ;;
     indexes: ["email", "order_entity_id", "order_increment_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -283,6 +284,11 @@ view: sales_items {
 
   dimension: email {
     type: string
+    sql: ${TABLE}.email ;;
+  }
+
+  measure: unique_customer_count {
+    type: count_distinct
     sql: ${TABLE}.email ;;
   }
 
@@ -640,6 +646,7 @@ view: sales_items {
     description: "Number of orders placed"
     type: count_distinct
     sql: ${order_id} ;;
+    drill_fields: [order_created_date, order_id, state, status, email]
   }
 
   measure: cumulative_orders {
@@ -663,6 +670,18 @@ view: sales_items {
   measure: unique_products_ordered {
     type: count_distinct
     sql: ${TABLE}.product_id ;;
+  }
+
+  measure: days_since_first_receipt {
+    type: number
+    sql: CASE WHEN DATEDIFF(dd,${product_facts.first_receipt},${order_created_date}) < 0 THEN 0 ELSE DATEDIFF(dd,${product_facts.first_receipt},${order_created_date}) END ;;
+    required_fields: [order_created_date]
+  }
+
+  measure: new_merchandise {
+    description: "This dimension will be 'Yes' if less than 60 days have elapsed between the first receipt date and the sale date"
+    type: yesno
+    sql: ${days_since_first_receipt} < 60 ;;
   }
 
   set: configurable_products_sales_summary {

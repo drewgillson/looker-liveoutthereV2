@@ -8,7 +8,7 @@ view: sales_return_authorizations {
         , 'Canada Post' AS return_service
         , a.request_type
         , a.status
-        , CAST(a.reason_details AS nvarchar(max)) AS reason_details
+        , COALESCE(g.ot_caption,CAST(a.reason_details AS nvarchar(max))) AS reason_details
       FROM magento.aw_rma_entity AS a
       LEFT JOIN magento.sales_flat_order AS b
         ON a.order_id = b.increment_id
@@ -20,8 +20,10 @@ view: sales_return_authorizations {
         ON b.entity_id = e.order_id
       LEFT JOIN magento.sales_flat_creditmemo_item AS f
         ON e.entity_id = f.parent_id
+      LEFT JOIN (SELECT DISTINCT ot_entity_id, ot_created_at, ot_caption FROM magento.organizer_task WHERE ot_caption = 'Holiday Return Exception') AS g
+        ON b.entity_id = g.ot_entity_id
       WHERE (d.title LIKE 'Return%' OR d.title IS NULL)
-      GROUP BY a.id, a.created_at, a.order_id, CAST(d.track_number AS varchar(255)), a.request_type, a.status, CAST(a.reason_details AS nvarchar(max))
+      GROUP BY a.id, a.created_at, a.order_id, CAST(d.track_number AS varchar(255)), a.request_type, a.status, CAST(a.reason_details AS nvarchar(max)),g.ot_caption
        ;;
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       ;;

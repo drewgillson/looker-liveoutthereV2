@@ -1,26 +1,32 @@
 view: orderforms_po_items {
   derived_table: {
-    sql: SELECT a.id
-        , a.purchase_order
-        , a.sku
-        , a.qty
-        , a.season
-        , AVG(CAST(CASE WHEN ISNUMERIC(b.cost) = 1 THEN b.cost END AS money)) AS cost
-        , AVG(CAST(CASE WHEN ISNUMERIC(b.price) = 1 THEN b.price END AS money)) AS price
-        , MAX(b.category) AS category
-        , MAX(b.department) AS department
-        , MAX(b.budget_type) AS budget_type
-        , MAX(b.source_sheet) AS source_sheet
-        , c.po_ship_date AS ship
-        , c.po_discount AS discount
-        , c.po_status AS po_status
-      FROM orderform.po_items AS a
-      LEFT JOIN orderform.loadfiles AS b
-        ON a.sku = b.sku
-      LEFT JOIN magento.purchase_order AS c
-        ON a.purchase_order = c.po_order_id
-      WHERE 3=3
-      GROUP BY a.id, a.purchase_order, a.sku, a.qty, a.season, c.po_ship_date, c.po_discount, c.po_status
+      sql: SELECT *
+            , (qty * cost) AS ext_cost
+            , (qty * price) AS ext_msrp
+            , (qty * cost) - ((CAST(discount AS float) / 100) * cost) AS ext_discounted_cost
+           FROM (
+              SELECT a.id
+              , a.purchase_order
+              , a.sku
+              -- somehow there are extra spaces and line breaks that are getting imported... figure out how to fix in orderform.synchronize sproc:
+              , CASE WHEN ISNUMERIC(LTRIM(RTRIM(REPLACE(a.qty,CHAR(13),'')))) = 1 THEN CAST(LTRIM(RTRIM(REPLACE(a.qty,CHAR(13),''))) AS int) ELSE 0 END AS qty
+              , a.season
+              , AVG(CAST(CASE WHEN ISNUMERIC(b.cost) = 1 THEN b.cost END AS money)) AS cost
+              , AVG(CAST(CASE WHEN ISNUMERIC(b.price) = 1 THEN b.price END AS money)) AS price
+              , MAX(b.category) AS category
+              , MAX(b.department) AS department
+              , MAX(b.budget_type) AS budget_type
+              , MAX(b.source_sheet) AS source_sheet
+              , c.po_ship_date AS ship
+              , c.po_discount AS discount
+              , c.po_status AS po_status
+             FROM orderform.po_items AS a
+             LEFT JOIN orderform.loadfiles AS b
+              ON a.sku = b.sku
+             LEFT JOIN magento.purchase_order AS c
+              ON a.purchase_order = c.po_order_id
+             GROUP BY a.id, a.purchase_order, a.sku, a.qty, a.season, c.po_ship_date, c.po_discount, c.po_status
+           ) AS x
        ;;
     indexes: ["purchase_order", "sku", "season"]
     persist_for: "1 hour"
@@ -54,16 +60,6 @@ view: orderforms_po_items {
     type: string
     sql: ${TABLE}.budget_type ;;
   }
-
-  #    hidden: true
-  #    sql: |
-  #      CASE WHEN ${TABLE}.budget_type IS NOT NULL THEN ${TABLE}.budget_type
-  #           WHEN ${source_sheet} = 'Fashion' THEN 'Fashion'
-  #           WHEN ${source_sheet} = 'Kids' THEN 'Kids'
-  #           WHEN ${category} LIKE '%Footwear%' THEN 'Footwear'
-  #           WHEN ${category} LIKE '%Gear%' THEN 'Gear'
-  #           ELSE 'Apparel'
-  #      END
 
   dimension: category {
     type: string
@@ -105,45 +101,25 @@ view: orderforms_po_items {
     sql: ${TABLE}.season ;;
   }
 
-  measure: extended_cost_item {
-    hidden: yes
-    type: sum
-    sql: CASE WHEN ISNUMERIC(${TABLE}.qty) = 1 THEN CAST(${TABLE}.qty AS int) * CAST(${TABLE}.cost AS money) END
-      ;;
-  }
-
   measure: extended_cost {
     label: "Ext. Cost $"
-    type: number
-    value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${extended_cost_item} ;;
-  }
-
-  measure: extended_discounted_cost_item {
     type: sum
-    sql: CASE WHEN ISNUMERIC(${TABLE}.qty) = 1 THEN CAST(${TABLE}.qty AS int) * (CAST(${TABLE}.cost AS money) - ((CAST(${TABLE}.discount AS float) / 100) * CAST(${TABLE}.cost AS money))) END
-      ;;
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ${TABLE}.ext_cost ;;
   }
 
   measure: extended_discounted_cost {
     label: "Ext. Discounted Cost $"
-    type: number
-    value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${extended_discounted_cost_item} ;;
-  }
-
-  measure: extended_msrp_item {
-    hidden: yes
     type: sum
-    sql: CASE WHEN ISNUMERIC(${TABLE}.qty) = 1 THEN CAST(${TABLE}.qty AS int) * CAST(${TABLE}.price AS money) END
-      ;;
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ${TABLE}.ext_discounted_cost ;;
   }
 
   measure: extended_msrp {
     label: "Ext. MSRP $"
-    type: number
+    type: sum
     value_format: "$#,##0.00;($#,##0.00)"
-    sql: ${extended_msrp_item} ;;
+    sql: ${TABLE}.ext_msrp ;;
   }
 
   measure: extended_margin {

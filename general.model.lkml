@@ -14,7 +14,7 @@ explore: people {
   symmetric_aggregates: yes
   persist_for: "12 hours"
 
-  fields: [ALL_FIELDS*, -sales.braintree_discrepancy, -sales.paypal_discrepancy]
+  fields: [ALL_FIELDS*, -sales.braintree_discrepancy, -sales.paypal_discrepancy, -sales.days_since_first_receipt]
 
   join: people_facts {
     sql_on: people.email = ${people_facts.email} ;;
@@ -316,6 +316,13 @@ explore: products {
     required_joins: [credits]
   }
 
+  join: sales_facts {
+    from: sales_items_configurable_facts
+    sql_on:  ${associations.configurable_sku} = ${sales_facts.configurable_sku} AND ${sales.order_created_date} < DATEADD(dd,365,${sales_facts.first_receipt_date});;
+    relationship: one_to_many
+    required_joins: [associations,sales]
+  }
+
   join: organizers {
     from:  organizers
     sql_on:  sales.order_entity_id = organizers.entity_id AND organizers.entity_type = 'order' AND organizers.caption NOT LIKE 'Credit memo created with reason%' ;;
@@ -435,17 +442,10 @@ explore: products {
   }
 
   join: transactions {
-    sql_on: ${sales.order_entity_id} = ${transactions.entity_id} ;;
+    sql_on: (${sales.order_entity_id} = ${transactions.entity_id} AND ${transactions.type} = 'sale')
+            OR (${credits.creditmemo_entity_id} = ${transactions.credit_memo_id} AND ${transactions.type} = 'credit')
+      ;;
     relationship: many_to_one
-  }
-
-  join: magento_map {
-    from: transactions_magento_map
-    sql_on: transactions.entity_id = magento_map.parent_id
-      AND transactions.type = magento_map.type
-      AND (transactions.credit_memo_id = magento_map.credit_memo_id OR transactions.credit_memo_id IS NULL)
-       ;;
-    relationship: one_to_one
   }
 
   join: tax {
@@ -453,19 +453,6 @@ explore: products {
     sql_on: transactions.entity_id = tax.order_id
       ;;
     relationship: one_to_many
-    required_joins: [magento_map, payment_transaction]
-  }
-
-  #   used to map Magento invoices and credit memos to PayPal transactions (the view above would have been unnecessary had Demac built the Optimal Payments extension properly)
-  join: payment_transaction {
-    from: transactions_magento_payment
-    sql_on: transactions.entity_id = payment_transaction.order_id AND
-      CASE WHEN transactions.type = 'sale' THEN 'capture'
-           WHEN transactions.type = 'credit' THEN 'refund'
-      END = payment_transaction.txn_type
-       ;;
-    relationship: one_to_many
-    required_joins: [magento_map]
   }
 
   join: braintree {
@@ -474,19 +461,15 @@ explore: products {
     sql_on: transactions.transaction_id = braintree."Transaction ID"
       ;;
     relationship: one_to_many
+    required_joins: [transactions]
   }
 
   #   used to pull PayPal transactions into the explore
   join: paypal_settlement {
     from: transactions_paypal_settlement
     type: full_outer
-    sql_on: payment_transaction.txn_id = paypal_settlement.[Transaction ID]
-      AND CASE WHEN transactions.type = 'credit' THEN 'T1107'
-               WHEN transactions.type = 'sale' THEN 'T0006'
-          END = paypal_settlement.[Transaction Event Code]
-       ;;
+    sql_on: paypal_settlement.transaction_id = transactions.transaction_id ;;
     relationship: one_to_many
-    required_joins: [payment_transaction]
   }
 }
 

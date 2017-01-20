@@ -45,6 +45,7 @@ view: purchase_order_products {
          , CASE WHEN po.po_status NOT IN ('complete','cancelled','closed') THEN (p.pop_qty * (p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100))) - (p.pop_supplied_qty * (p.pop_price_ht - (p.pop_price_ht * p.pop_discount / 100))) END AS remaining_amount
          , CASE WHEN po.po_status NOT IN ('complete','cancelled','closed') THEN (p.pop_qty * p.pop_price_ht) - (p.pop_supplied_qty * p.pop_price_ht) END AS remaining_amount_cost
          , CASE WHEN po.po_status NOT IN ('complete','cancelled','closed') THEN (p.pop_qty * price.value) - (p.pop_supplied_qty * price.value) END AS remaining_amount_msrp
+         , e.sku AS sku
       FROM magento.purchase_order_product AS p
       LEFT JOIN magento.purchase_order AS po
         ON p.pop_order_num = po.po_num
@@ -59,6 +60,8 @@ view: purchase_order_products {
         AND o.sequence = 1
       LEFT JOIN (SELECT sm_po_num, MIN(sm_date) AS first_stock_movement_created_at FROM magento.stock_movement GROUP BY sm_po_num) AS sm
         ON sm.sm_po_num = po.po_num
+      LEFT JOIN magento.catalog_product_entity AS e
+        ON p.pop_product_id = e.entity_id
       UNION ALL
       SELECT po.po_date
          , po.po_order_id
@@ -105,15 +108,22 @@ view: purchase_order_products {
          , NULL
          , NULL
          , NULL
+         , NULL
       FROM magento.purchase_order AS po
       LEFT JOIN magento.purchase_order_product AS pop
         ON pop.pop_order_num = po.po_num
       LEFT JOIN magento.purchase_supplier AS sup
         ON po.po_sup_num = sup.sup_id
-      WHERE pop.pop_order_num IS NULL AND 1=1
+      WHERE pop.pop_order_num IS NULL AND 2=2
        ;;
     indexes: ["pop_product_id", "po_order_id"]
     persist_for: "2 hours"
+  }
+
+  dimension: sku {
+    hidden: yes
+    type: string
+    sql: ${TABLE}.sku ;;
   }
 
   dimension: pop_num {

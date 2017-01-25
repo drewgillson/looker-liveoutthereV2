@@ -138,6 +138,7 @@ view: carriers_canada_post_shipments {
 
   measure: total_charges {
     type: sum
+    hidden: yes
     sql: ${TABLE}.Total_Charges ;;
   }
 

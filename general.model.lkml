@@ -453,6 +453,7 @@ explore: products {
     sql_on: transactions.entity_id = tax.order_id
       ;;
     relationship: one_to_many
+    required_joins: [transactions]
   }
 
   join: braintree {

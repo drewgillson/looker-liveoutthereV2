@@ -302,7 +302,7 @@ view: catalog_product {
   dimension: tax_class {
     case: {
       when: {
-        label: "Taxable Goods"
+        label: ""
         sql: ${TABLE}.tax_class_id = 2 ;;
       }
       when: {
@@ -313,6 +313,7 @@ view: catalog_product {
         label: "Children's Clothing & Footwear"
         sql: ${TABLE}.tax_class_id = 5 ;;
       }
+      else: ""
     }
   }
 

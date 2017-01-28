@@ -30,6 +30,12 @@ view: transactions_paypal_settlement {
     }
   }
 
+  dimension: invoice_id {
+    type: string
+    hidden: yes
+    sql: ${TABLE}."Invoice ID" ;;
+  }
+
   dimension: fee_currency {
     type: string
     sql: ${TABLE}."Fee Currency" ;;

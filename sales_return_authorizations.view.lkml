@@ -10,6 +10,8 @@ view: sales_return_authorizations {
           , a.request_type
           , a.status
           , COALESCE(g.ot_caption,CAST(a.reason_details AS nvarchar(max))) AS reason_details
+          , return_posted.ot_created_at AS return_posted
+          , delivery_posted.ot_created_at AS delivery_posted
         FROM magento.aw_rma_entity AS a
         LEFT JOIN magento.sales_flat_order AS b
           ON a.order_id = b.increment_id
@@ -23,8 +25,12 @@ view: sales_return_authorizations {
           ON e.entity_id = f.parent_id
         LEFT JOIN (SELECT DISTINCT ot_entity_id, ot_created_at, ot_caption FROM magento.organizer_task WHERE ot_caption = 'Holiday Return Exception') AS g
           ON b.entity_id = g.ot_entity_id
+        LEFT JOIN (SELECT DISTINCT ot_entity_id, ot_created_at, ot_caption FROM magento.organizer_task WHERE ot_caption = 'Return item accepted at Post Office') AS return_posted
+          ON b.entity_id = return_posted.ot_entity_id
+        LEFT JOIN (SELECT DISTINCT ot_entity_id, ot_created_at, ot_caption FROM magento.organizer_task WHERE ot_caption = 'Delivered' AND ot_description NOT LIKE 'Return for order%') AS delivery_posted
+          ON b.entity_id = delivery_posted.ot_entity_id
         WHERE (d.title LIKE 'Return%' OR d.title IS NULL)
-        GROUP BY a.id, a.created_at, a.order_id, CAST(d.track_number AS varchar(255)), a.request_type, a.status, CAST(a.reason_details AS nvarchar(max)),g.ot_caption
+        GROUP BY a.id, a.created_at, a.order_id, CAST(d.track_number AS varchar(255)), a.request_type, a.status, CAST(a.reason_details AS nvarchar(max)),g.ot_caption,return_posted.ot_created_at,delivery_posted.ot_created_at
       ) AS x
        ;;
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -45,6 +51,23 @@ view: sales_return_authorizations {
   dimension_group: created {
     type: time
     sql: ${TABLE}.created_at ;;
+  }
+
+  dimension_group: delivery_posted {
+    type: time
+    sql: ${TABLE}.delivery_posted ;;
+  }
+
+  dimension_group: return_posted {
+    type: time
+    sql: ${TABLE}.return_posted ;;
+  }
+
+  dimension: days_elapsed {
+    description: "Days between delivery posted date and return posted date"
+    type: number
+    value_format: "#"
+    sql: DATEDIFF(dd,${TABLE}.delivery_posted,${TABLE}.return_posted) ;;
   }
 
   dimension: increment_id {

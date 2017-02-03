@@ -3,7 +3,7 @@ view: sales_items {
     sql: SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row
         , a.*
         , (qty * COALESCE(average_cost.value, cost.value)) AS extended_cost
-        , 1 - (row_total / (qty * msrp.price)) AS discount_percentage_from_msrp
+        , 1 - (row_total / NULLIF((qty * msrp.price),0)) AS discount_percentage_from_msrp
         , qty * msrp.price AS gross_sold_msrp
       FROM (
         SELECT email
@@ -23,7 +23,7 @@ view: sales_items {
            , deferred_revenue
            , product_id
            , storefront
-           , (customer_credit_total / total_qty_ordered) * qty AS customer_credit_amount
+           , (customer_credit_total / NULLIF(total_qty_ordered,0)) * qty AS customer_credit_amount
            , state
            , status
            , coupon_rule_name
@@ -35,7 +35,7 @@ view: sales_items {
            , kount_ris_description
            , email_sent
            , marketplace_order_id
-           , (giftcert_amount / total_qty_ordered) * qty AS giftcert_amount
+           , (giftcert_amount / NULLIF(total_qty_ordered,0)) * qty AS giftcert_amount
            , sku
         FROM (
           SELECT c.customer_email AS email
@@ -161,7 +161,7 @@ view: sales_items {
             , a.[order-order_number] AS order_increment_id
             , [order-line_items-charged_price]  AS row_total_incl_tax
             , [order-line_items-charged_price] - ([order-line_items-total_tax] + ([order-line_items-total_shipping] * ([order-line_items-total_tax] / [order-line_items-total_price]))) AS row_total
-            , [order-line_items-total_tax] + ([order-line_items-total_shipping] * ([order-line_items-total_tax] / [order-line_items-total_price])) AS tax_amount
+            , [order-line_items-total_tax] + ([order-line_items-total_shipping] * ([order-line_items-total_tax] / NULLIF([order-line_items-total_price],0))) AS tax_amount
             , 0 AS discount_amount
             , [order-line_items-quantity] AS qty
             , NULL AS deferred_revenue

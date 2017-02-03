@@ -27,6 +27,7 @@ view: orderforms_po_items {
               ON a.purchase_order = c.po_order_id
              GROUP BY a.id, a.purchase_order, a.sku, a.qty, a.season, c.po_ship_date, c.po_discount, c.po_status
            ) AS x
+          WHERE 1=1
        ;;
     indexes: ["purchase_order", "sku", "season"]
     persist_for: "1 hour"

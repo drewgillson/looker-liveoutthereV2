@@ -65,7 +65,7 @@ view: nri_invoice_details {
       }
 
       when: {
-        sql: ${service} = 'Warehouse Labour' OR ${service} = 'Data Entry Labour' OR ${service} = 'Physical Count'  OR ${service} = 'Manual BOL' ;;
+        sql: ${service} = 'Photography' OR ${service} = 'Warehouse Labour' OR ${service} = 'Data Entry Labour' OR ${service} = 'Physical Count'  OR ${service} = 'Manual BOL' ;;
         label: "Labour"
       }
 

@@ -167,7 +167,7 @@ view: sales_return_authorizations {
 
   dimension: track_number {
     type: string
-    sql: CAST(${TABLE}.track_number AS varchar(255)) ;;
+    sql: '''' + CAST(${TABLE}.track_number AS varchar(255)) ;;
   }
 
   measure: items_refunded {

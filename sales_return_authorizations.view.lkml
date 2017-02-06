@@ -18,7 +18,7 @@ view: sales_return_authorizations {
         LEFT JOIN magento.sales_flat_shipment AS c
           ON b.entity_id = c.order_id
         LEFT JOIN magento.sales_flat_shipment_track AS d
-          ON c.entity_id = d.parent_id
+          ON c.entity_id = d.parent_id AND d.title LIKE 'Return%'
         LEFT JOIN magento.sales_flat_creditmemo AS e
           ON b.entity_id = e.order_id
         LEFT JOIN magento.sales_flat_creditmemo_item AS f
@@ -29,7 +29,6 @@ view: sales_return_authorizations {
           ON b.entity_id = return_posted.ot_entity_id
         LEFT JOIN (SELECT DISTINCT ot_entity_id, ot_created_at, ot_caption FROM magento.organizer_task WHERE ot_caption = 'Delivered' AND ot_description NOT LIKE 'Return for order%') AS delivery_posted
           ON b.entity_id = delivery_posted.ot_entity_id
-        WHERE (d.title LIKE 'Return%' OR d.title IS NULL)
         GROUP BY a.id, a.created_at, a.order_id, CAST(d.track_number AS varchar(255)), a.request_type, a.status, CAST(a.reason_details AS nvarchar(max)),g.ot_caption,return_posted.ot_created_at,delivery_posted.ot_created_at
       ) AS x
        ;;

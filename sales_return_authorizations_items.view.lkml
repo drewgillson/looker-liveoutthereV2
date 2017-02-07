@@ -43,7 +43,7 @@ view: sales_return_authorizations_items {
 
   dimension: barcode {
     type: string
-    sql: ${TABLE}.barcode ;;
+    sql: '''' + ${TABLE}.barcode ;;
   }
 
   measure: returning_quantity {

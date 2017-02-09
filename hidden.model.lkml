@@ -41,3 +41,7 @@ explore: weekly_business_review {
     relationship: one_to_many
   }
 }
+
+explore: return_requests {
+  from: report_return_requests_for_suntec
+}

@@ -2,7 +2,7 @@ view: sales_return_authorizations_items {
   derived_table: {
     sql: SELECT a.id
         , a.entity_id AS rma_entity_id
-        , a.product_id
+        , d.product_id
         , a.qty
         , b.sku
         , c.value AS barcode
@@ -11,6 +11,8 @@ view: sales_return_authorizations_items {
         ON a.product_id = b.item_id
       LEFT JOIN magento.catalog_product_entity_varchar AS c
         ON b.product_id = c.entity_id AND c.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'ean' AND entity_type_id = 4) AND c.store_id = 0
+      LEFT JOIN magento.sales_flat_order_item AS d
+        ON d.item_id = a.product_id
        ;;
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       ;;

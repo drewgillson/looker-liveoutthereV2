@@ -43,6 +43,11 @@ view: sales_return_authorizations {
     sql: ${TABLE}.row ;;
   }
 
+  dimension: entity_id {
+    type: number
+    sql: ${TABLE}.id ;;
+  }
+
   measure: count {
     type: count
   }
@@ -121,22 +126,22 @@ view: sales_return_authorizations {
     case: {
       when: {
         sql: ${TABLE}.request_type = 1 ;;
-        label: "Refund - Wrong Size"
+        label: "Item I received did not fit"
       }
 
       when: {
         sql: ${TABLE}.request_type = 2 ;;
-        label: "Refund - Wrong Colour"
+        label: "I did not like the colour of the item"
       }
 
       when: {
         sql: ${TABLE}.request_type = 3 ;;
-        label: "Warranty Issue"
+        label: "Item arrived damaged or incomplete"
       }
 
       when: {
         sql: ${TABLE}.request_type = 5 ;;
-        label: "Refund - Not As Expected"
+        label: "The description did not match the item I received"
       }
 
       when: {
@@ -146,7 +151,7 @@ view: sales_return_authorizations {
 
       when: {
         sql: ${TABLE}.request_type = 10 ;;
-        label: "Refund - Found Better Price"
+        label: "I found a better price at a competitor"
       }
     }
 

@@ -389,6 +389,13 @@ explore: products {
     required_joins: [sales]
   }
 
+  join: return_authorizations_comments {
+    from: sales_return_authorizations_comments
+    sql_on: ${return_authorizations.entity_id} = ${return_authorizations_comments.entity_id};;
+    relationship: one_to_many
+    required_joins: [return_authorizations]
+  }
+
   join: return_authorization_items {
     from: sales_return_authorizations_items
     sql_on: return_authorizations.id = return_authorization_items.rma_entity_id ;;

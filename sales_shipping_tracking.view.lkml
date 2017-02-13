@@ -21,7 +21,7 @@ view: sales_shipping_tracking {
         INNER JOIN shopify.transactions AS b
           ON a.[order-number] = b.[order-order_number]
       ) AS a
-      WHERE 1=1
+      WHERE 2=2
        ;;
     indexes: ["order_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

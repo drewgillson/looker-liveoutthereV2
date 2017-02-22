@@ -316,6 +316,12 @@ explore: products {
     required_joins: [credits]
   }
 
+  join: customers {
+    sql_on: customers.email = sales.email ;;
+    relationship: one_to_many
+    required_joins: [sales]
+  }
+
   join: sales_facts {
     from: sales_items_configurable_facts
     sql_on:  ${associations.configurable_sku} = ${sales_facts.configurable_sku} AND ${sales.order_created_date} < DATEADD(dd,365,${sales_facts.first_receipt_date});;

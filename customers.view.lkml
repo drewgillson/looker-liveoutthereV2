@@ -64,7 +64,7 @@ view: customers {
   }
 
   dimension: email {
-    hidden: yes
+    #hidden: yes
     description: "Email addresses associated with Magento orders"
     sql: LOWER(${TABLE}.email) ;;
   }

@@ -5,12 +5,16 @@ view: sales_order_address {
           , CAST(b.latitude AS decimal(9,6)) AS latitude
           , CAST(b.longitude AS decimal(9,6)) AS longitude
         FROM (
-        SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence, UPPER(REPLACE(REPLACE(postcode,' ',''),'-','')) AS postal_code
-        FROM magento.sales_flat_order_address
+        SELECT a.entity_id, a.parent_id, a.customer_address_id, a.quote_address_id, a.region_id, a.customer_id, a.fax, a.region, a.postcode, a.lastname, a.street, a.city, COALESCE(a.email, b.customer_email) AS email, a.telephone, a.country_id, a.firstname, a.address_type, a.prefix, a.middlename, a.suffix, a.company, a.vat_id, a.vat_is_valid, a.vat_request_id, a.vat_request_date, a.vat_request_success, ROW_NUMBER() OVER (PARTITION BY COALESCE(a.email, b.customer_email) ORDER BY a.entity_id DESC) AS sequence, UPPER(REPLACE(REPLACE(postcode,' ',''),'-','')) AS postal_code
+        FROM magento.sales_flat_order_address AS a
+        LEFT JOIN magento.sales_flat_order AS b
+          ON a.parent_id = b.entity_id
         WHERE address_type = 'shipping'
         UNION ALL
-        SELECT *, ROW_NUMBER() OVER (PARTITION BY email ORDER BY entity_id DESC) AS sequence, UPPER(REPLACE(REPLACE(postcode,' ',''),'-','')) AS postal_code
-        FROM magento.sales_flat_order_address
+        SELECT a.entity_id, a.parent_id, a.customer_address_id, a.quote_address_id, a.region_id, a.customer_id, a.fax, a.region, a.postcode, a.lastname, a.street, a.city, COALESCE(a.email, b.customer_email) AS email, a.telephone, a.country_id, a.firstname, a.address_type, a.prefix, a.middlename, a.suffix, a.company, a.vat_id, a.vat_is_valid, a.vat_request_id, a.vat_request_date, a.vat_request_success, ROW_NUMBER() OVER (PARTITION BY COALESCE(a.email, b.customer_email) ORDER BY a.entity_id DESC) AS sequence, UPPER(REPLACE(REPLACE(postcode,' ',''),'-','')) AS postal_code
+        FROM magento.sales_flat_order_address AS a
+        LEFT JOIN magento.sales_flat_order AS b
+          ON a.parent_id = b.entity_id
         WHERE address_type = 'billing'
         UNION ALL
         SELECT [order-id], [order-id], NULL, NULL, NULL, NULL, NULL, [order-billing_address-province], NULL, NULL, NULL, [order-billing_address-city], [order-email], NULL, CASE WHEN [order-billing_address-country] = 'Canada' THEN 'CA' ELSE [order-billing_address-country] END, NULL, 'billing', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ROW_NUMBER() OVER (PARTITION BY [order-email] ORDER BY [order-order_number] DESC), NULL

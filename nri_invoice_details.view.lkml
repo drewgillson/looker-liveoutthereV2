@@ -131,7 +131,7 @@ view: nri_invoice_details {
 
   measure: orders {
     type: count_distinct
-    sql: ${TABLE}.ClientRef1 ;;
+    sql: ${TABLE}.OrderId ;;
   }
 
   measure: cost_per_order {

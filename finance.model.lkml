@@ -8,6 +8,8 @@ include: "*.view"
 # include all dashboards in this project
 include: "*.dashboard"
 
+fiscal_month_offset: 1
+
 explore: nri {
   description: "Use to figure out exactly what we're paying NRI on a line-item level"
   label: "NRI Invoices"

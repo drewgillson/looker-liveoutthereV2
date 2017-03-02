@@ -8,6 +8,8 @@ include: "*.view"
 # include all the dashboards
 include: "*.dashboard"
 
+fiscal_month_offset: 1
+
 explore: people {
   description: "Use to answer questions about visitor & prospect behaviour (pre-sale)"
   from: people

@@ -8,6 +8,8 @@ include: "*.view"
 # include all dashboards in this project
 include: "*.dashboard"
 
+fiscal_month_offset: 1
+
 explore: fw17_plan {
   view_label: "Weekly Inventory Performance"
   hidden: yes

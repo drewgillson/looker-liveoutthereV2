@@ -50,7 +50,7 @@ view: nri_invoice_details {
       }
 
       when: {
-        sql: ${service} = 'Inbound Pallets' OR ${service} = 'Project Labour' OR ${service} = 'Receipt Processing' OR ${service} = 'Receiving' OR ${service} = 'Restock' OR ${service} = 'Tagging' ;;
+        sql: ${service} = 'Receipt Carton' OR ${service} = 'Inbound Pallets' OR ${service} = 'Project Labour' OR ${service} = 'Receipt Processing' OR ${service} = 'Receiving' OR ${service} = 'Restock' OR ${service} = 'Tagging' ;;
         label: "Inbound"
       }
 
@@ -70,7 +70,7 @@ view: nri_invoice_details {
       }
 
       when: {
-        sql: ${service} = 'Storage' OR ${service} = 'Storage Carton Shipped' OR ${service} = 'Quality Control' ;;
+        sql: ${service} = 'Cycle Count Units' OR ${service} = 'Storage' OR ${service} = 'Storage Carton Shipped' OR ${service} = 'Quality Control' ;;
         label: "Storage"
       }
 

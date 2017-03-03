@@ -59,6 +59,12 @@ view: transactions {
     sql: ${TABLE}.sale_order_id ;;
   }
 
+  dimension: transaction_id {
+    type: string
+    hidden: yes
+    sql: ${TABLE}.transaction_id ;;
+  }
+
   dimension: payment_method {
     type: string
     hidden: yes

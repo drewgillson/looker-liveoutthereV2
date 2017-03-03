@@ -485,7 +485,7 @@ explore: products {
     from: transactions_paypal_settlement
     type: full_outer
     sql_on: (${transactions.sale_order_id} = ${paypal_settlement.invoice_id} AND ${paypal_settlement.transaction_event_code} = 'T0006' AND ${transactions.type} = 'sale')
-            OR (${transactions.sale_order_id} = ${paypal_settlement.invoice_id} AND ${paypal_settlement.transaction_event_code} = 'T1107' AND ${transactions.type} = 'credit') ;;
+            OR (${transactions.transaction_id} = ${paypal_settlement.transaction_id} AND ${paypal_settlement.transaction_event_code} = 'T1107' AND ${transactions.type} = 'credit') ;;
     relationship: one_to_many
   }
 }

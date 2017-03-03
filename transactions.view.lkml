@@ -25,7 +25,7 @@ view: transactions {
         WHERE marketplace_order_id IS NOT NULL
       ) AS a
        ;;
-    indexes: ["storefront", "entity_id", "credit_memo_id"]
+    indexes: ["storefront", "entity_id", "credit_memo_id","transaction_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       ;;
   }

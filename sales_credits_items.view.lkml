@@ -29,8 +29,8 @@ view: sales_credits_items {
             ON a.entity_id = d.parent_id AND CAST(d.comment AS varchar(255)) = 'Return'
           LEFT JOIN magento.sales_flat_creditmemo_comment AS e
             ON a.entity_id = e.parent_id AND CAST(e.comment AS varchar(255)) <> 'Return'
-          LEFT JOIN magento.sales_order_tax AS f
-            ON a.order_id = f.order_id AND f.position = 1
+          LEFT JOIN (SELECT order_id, SUM([percent]) AS [percent] FROM magento.sales_order_tax GROUP BY order_id) AS f
+            ON a.order_id = f.order_id
           LEFT JOIN magento.sales_flat_order_item AS g
             ON a.order_id = g.order_id AND a.adjustment_positive = (g.row_total - ISNULL(g.discount_amount,0) + g.tax_amount)
           LEFT JOIN (SELECT DISTINCT ot_entity_id, ot_created_at, CAST(ot_description AS nvarchar(1024)) AS ot_description FROM magento.organizer_task WHERE ot_caption = 'Return item accepted at Post Office') AS h

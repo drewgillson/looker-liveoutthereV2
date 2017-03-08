@@ -50,7 +50,7 @@ view: nri_invoice_details {
       }
 
       when: {
-        sql: ${service} = 'Inbound Pallets' OR ${service} = 'Project Labour' OR ${service} = 'Receipt Processing' OR ${service} = 'Receiving' OR ${service} = 'Restock' OR ${service} = 'Tagging' ;;
+        sql: ${service} = 'Receipt Carton' OR ${service} = 'Inbound Pallets' OR ${service} = 'Project Labour' OR ${service} = 'Receipt Processing' OR ${service} = 'Receiving' OR ${service} = 'Restock' OR ${service} = 'Tagging' ;;
         label: "Inbound"
       }
 
@@ -65,12 +65,12 @@ view: nri_invoice_details {
       }
 
       when: {
-        sql: ${service} = 'Warehouse Labour' OR ${service} = 'Data Entry Labour' OR ${service} = 'Physical Count'  OR ${service} = 'Manual BOL' ;;
+        sql: ${service} = 'Photography' OR ${service} = 'Warehouse Labour' OR ${service} = 'Data Entry Labour' OR ${service} = 'Physical Count'  OR ${service} = 'Manual BOL' ;;
         label: "Labour"
       }
 
       when: {
-        sql: ${service} = 'Storage' OR ${service} = 'Storage Carton Shipped' OR ${service} = 'Quality Control' ;;
+        sql: ${service} = 'Cycle Count Units' OR ${service} = 'Storage' OR ${service} = 'Storage Carton Shipped' OR ${service} = 'Quality Control' ;;
         label: "Storage"
       }
 
@@ -131,7 +131,7 @@ view: nri_invoice_details {
 
   measure: orders {
     type: count_distinct
-    sql: ${TABLE}.ClientRef1 ;;
+    sql: ${TABLE}.OrderId ;;
   }
 
   measure: cost_per_order {

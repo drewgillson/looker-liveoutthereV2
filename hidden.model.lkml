@@ -6,6 +6,8 @@ include: "*.view"
 # include all dashboards in this project
 include: "*.dashboard"
 
+fiscal_month_offset: 1
+
 explore: new_products {
   description: "Hidden explore used to power a report that communicates changes in the product catalog to Adviso"
   hidden: yes
@@ -40,4 +42,9 @@ explore: weekly_business_review {
     sql_on: weekly_business_review.parent_id = categories.product_id ;;
     relationship: one_to_many
   }
+}
+
+explore: return_requests {
+  from: report_return_requests_for_suntec
+  hidden:  yes
 }

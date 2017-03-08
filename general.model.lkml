@@ -8,6 +8,8 @@ include: "*.view"
 # include all the dashboards
 include: "*.dashboard"
 
+fiscal_month_offset: 1
+
 explore: people {
   description: "Use to answer questions about visitor & prospect behaviour (pre-sale)"
   from: people
@@ -316,6 +318,12 @@ explore: products {
     required_joins: [credits]
   }
 
+  join: customers {
+    sql_on: customers.email = sales.email ;;
+    relationship: one_to_many
+    required_joins: [sales]
+  }
+
   join: sales_facts {
     from: sales_items_configurable_facts
     sql_on:  ${associations.configurable_sku} = ${sales_facts.configurable_sku} AND ${sales.order_created_date} < DATEADD(dd,365,${sales_facts.first_receipt_date});;
@@ -387,6 +395,13 @@ explore: products {
     sql_on: sales.order_increment_id = return_authorizations.increment_id ;;
     relationship: one_to_many
     required_joins: [sales]
+  }
+
+  join: return_authorizations_comments {
+    from: sales_return_authorizations_comments
+    sql_on: ${return_authorizations.entity_id} = ${return_authorizations_comments.entity_id};;
+    relationship: one_to_many
+    required_joins: [return_authorizations]
   }
 
   join: return_authorization_items {
@@ -469,7 +484,8 @@ explore: products {
   join: paypal_settlement {
     from: transactions_paypal_settlement
     type: full_outer
-    sql_on: paypal_settlement.transaction_id = transactions.transaction_id ;;
+    sql_on: (${transactions.sale_order_id} = ${paypal_settlement.invoice_id} AND ${paypal_settlement.transaction_event_code} = 'T0006' AND ${transactions.type} = 'sale')
+            OR (${transactions.transaction_id} = ${paypal_settlement.transaction_id} AND ${paypal_settlement.transaction_event_code} = 'T1107' AND ${transactions.type} = 'credit') ;;
     relationship: one_to_many
   }
 }

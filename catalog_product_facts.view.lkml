@@ -142,7 +142,7 @@ view: catalog_product_facts {
         GROUP BY a.pop_product_id
       ) AS quantity_on_order
       ON a.product_id = quantity_on_order.product_id
-
+      WHERE 1=1
       GROUP BY a.product_id
        ;;
     indexes: ["product_id"]

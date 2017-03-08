@@ -15,6 +15,7 @@ view: carriers_canada_post_shipments {
                  , Product_Id
                  , GST_HST_Tax_Status
                  , Provincial_Tax_Code
+                 , Payment_Terms
                  , SUM(CASE WHEN ISNUMERIC(Total_Charges) = 1 THEN CAST(Total_Charges AS money) END) AS Total_Charges
                  , SUM(CASE WHEN ISNUMERIC(Transportation_Charge) = 1 THEN CAST(Transportation_Charge AS money) END) AS Transportation_Charge
                  , SUM(CASE WHEN ISNUMERIC(Weight_per_piece) = 1 THEN CAST(Weight_per_piece AS float) END) AS Weight_per_piece
@@ -25,7 +26,7 @@ view: carriers_canada_post_shipments {
                  , SUM(CASE WHEN ISNUMERIC(GST_Amount) = 1 THEN CAST(GST_Amount AS money) END) AS GST_Amount
                  , SUM(CASE WHEN ISNUMERIC(HST_Amount) = 1 THEN CAST(HST_Amount AS money) END) AS HST_Amount
             FROM report_Canada_Post_Shipment_Details
-            GROUP BY Int_Sys_Date_Time, Invoice_Date, Invoice_Due_Date, Invoice_Num, Manifest_SOM_PO_Date, Manifest_SOM_PO_Num, Service_Desc, Rate_Code_Return_Service_Desc, Product_Id, GST_HST_Tax_Status, Provincial_Tax_Code
+            GROUP BY Int_Sys_Date_Time, Invoice_Date, Invoice_Due_Date, Invoice_Num, Manifest_SOM_PO_Date, Manifest_SOM_PO_Num, Service_Desc, Rate_Code_Return_Service_Desc, Product_Id, GST_HST_Tax_Status, Provincial_Tax_Code, Payment_Terms
       ) AS a
       LEFT JOIN (SELECT track_number, order_id FROM magento.sales_flat_shipment_track) AS b
         ON a.Product_Id = CAST(b.track_number AS varchar(255))
@@ -67,6 +68,10 @@ view: carriers_canada_post_shipments {
   dimension: invoice_reference_number {
     sql: ${TABLE}.Invoice_Num ;;
     description: "Canada Post invoice reference numbers"
+  }
+
+  dimension: payment_terms {
+    sql: ${TABLE}.Payment_Terms ;;
   }
 
   measure: additional_coverage_charge {

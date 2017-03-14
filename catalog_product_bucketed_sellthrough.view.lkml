@@ -1,4 +1,10 @@
 view: catalog_product_bucketed_sellthrough {
+
+  # Current buckets:
+  # 1: 2017-01-01 to present
+  # 2: 2016-07-01 to 2017-01-01
+  # 3: 2016-01-03 to 2016-07-01
+
   derived_table: {
     sql: SELECT a.product_id AS product_id
         , CASE WHEN SUM(qty) < 0 THEN 0 ELSE SUM(qty) END AS quantity_on_hand
@@ -27,7 +33,7 @@ view: catalog_product_bucketed_sellthrough {
         FROM ${catalog_product_links.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_inventory_history.SQL_TABLE_NAME} AS inventory_history ON products.entity_id = inventory_history.product_id
         WHERE
-          (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2016-07-01', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2016-07-01', 120) )))))
+          (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2017-01-01', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2017-01-01', 120) )))))
         GROUP BY products.entity_id
       ) AS inventory_history_bucket1
       ON a.product_id = inventory_history_bucket1.entity_id
@@ -36,7 +42,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_received
         FROM magento.stock_movement
-        WHERE sm_date >= '2016-07-01'
+        WHERE sm_date >= '2017-01-01'
         AND (sm_type = 'supply')
         GROUP BY sm_product_id
       ) AS receipts_since_bucket1
@@ -46,7 +52,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold
         FROM magento.stock_movement
-        WHERE sm_date >= '2016-07-01'
+        WHERE sm_date >= '2017-01-01'
         AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_since_bucket1
@@ -56,7 +62,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_returned
         FROM magento.stock_movement
-        WHERE sm_date >= '2016-07-01'
+        WHERE sm_date >= '2017-01-01'
         AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_since_bucket1
@@ -69,7 +75,7 @@ view: catalog_product_bucketed_sellthrough {
         FROM ${catalog_product_links.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_inventory_history.SQL_TABLE_NAME} AS inventory_history ON products.entity_id = inventory_history.product_id
         WHERE
-          (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2016-01-03', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2016-01-03', 120) )))))
+          (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2016-07-01', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2016-07-01', 120) )))))
         GROUP BY products.entity_id
       ) AS inventory_history_bucket2
       ON a.product_id = inventory_history_bucket2.entity_id
@@ -78,7 +84,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_received
         FROM magento.stock_movement
-        WHERE sm_date >= '2016-01-03' AND sm_date < '2016-07-01'
+        WHERE sm_date >= '2016-07-01' AND sm_date < '2017-01-01'
         AND (sm_type = 'supply')
         GROUP BY sm_product_id
       ) AS receipts_since_bucket2
@@ -88,7 +94,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold
         FROM magento.stock_movement
-        WHERE sm_date >= '2016-01-03' AND sm_date < '2016-07-01'
+        WHERE sm_date >= '2016-07-01' AND sm_date < '2017-01-01'
         AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_since_bucket2
@@ -98,7 +104,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_returned
         FROM magento.stock_movement
-        WHERE sm_date >= '2016-01-03' AND sm_date < '2016-07-01'
+        WHERE sm_date >= '2016-07-01' AND sm_date < '2017-01-01'
         AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_since_bucket2
@@ -111,7 +117,7 @@ view: catalog_product_bucketed_sellthrough {
         FROM ${catalog_product_links.SQL_TABLE_NAME} AS products
         LEFT JOIN ${catalog_product_inventory_history.SQL_TABLE_NAME} AS inventory_history ON products.entity_id = inventory_history.product_id
         WHERE
-          (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2015-07-01', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2015-07-01', 120) )))))
+          (((inventory_history.sm_date) >= ((CONVERT(DATETIME,'2016-01-03', 120))) AND (inventory_history.sm_date) < ((DATEADD(day,1, CONVERT(DATETIME,'2016-01-03', 120) )))))
         GROUP BY products.entity_id
       ) AS inventory_history_bucket3
       ON a.product_id = inventory_history_bucket3.entity_id
@@ -120,7 +126,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_received
         FROM magento.stock_movement
-        WHERE sm_date >= '2015-07-01' AND sm_date < '2016-01-01'
+        WHERE sm_date >= '2016-01-03' AND sm_date < '2016-07-01'
         AND (sm_type = 'supply')
         GROUP BY sm_product_id
       ) AS receipts_since_bucket3
@@ -130,7 +136,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_sold
         FROM magento.stock_movement
-        WHERE sm_date >= '2015-07-01' AND sm_date < '2016-01-01'
+        WHERE sm_date >= '2016-01-03' AND sm_date < '2016-07-01'
         AND (sm_type = 'order' OR (sm_type = 'transfer' AND sm_description LIKE '%van order%'))
         GROUP BY sm_product_id
       ) AS sales_since_bucket3
@@ -140,7 +146,7 @@ view: catalog_product_bucketed_sellthrough {
         SELECT sm_product_id AS product_id
              , SUM(sm_qty) AS quantity_returned
         FROM magento.stock_movement
-        WHERE sm_date >= '2015-07-01' AND sm_date < '2016-01-01'
+        WHERE sm_date >= '2016-01-03' AND sm_date < '2016-07-01'
         AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
         GROUP BY sm_product_id
       ) AS returns_since_bucket3
@@ -161,120 +167,101 @@ view: catalog_product_bucketed_sellthrough {
   }
 
   measure: quantity_on_hand {
-    description: "Quantity currently on hand / in stock"
     type: sum
     sql: ${TABLE}.quantity_on_hand ;;
   }
 
   measure: quantity_on_hand_bucket1 {
-    description: "Quantity on hand on the date 2016-07-01"
     type: sum
     sql: ${TABLE}.quantity_on_hand_bucket1 ;;
   }
 
   measure: quantity_sold_since_bucket1 {
-    description: "Quantity sold since 2016-07-01"
     type: sum
     sql: ${TABLE}.quantity_sold_since_bucket1 ;;
   }
 
   measure: quantity_received_since_bucket1 {
-    description: "Quantity received on purchase orders since 2016-07-01"
     type: sum
     sql: ${TABLE}.quantity_received_since_bucket1 ;;
   }
 
   measure: quantity_returned_since_bucket1 {
-    description: "Quantity returned since 2016-07-01"
     type: sum
     sql: ${TABLE}.quantity_returned_since_bucket1 ;;
   }
 
   measure: net_sold_quantity_since_bucket1 {
-    description: "Quantity sold since 2016-07-01 minus the quantity returned since 2016-07-01"
     type: number
     sql: ${quantity_sold_since_bucket1} - ${quantity_returned_since_bucket1} ;;
   }
 
   measure: sell_through_rate_bucket_1 {
     label: "% (Bucket 1)"
-    description: "Net sold quantity since 2016-07-01 / (quantity on hand as of 2016-07-01 + quantity received since 2016-07-01)"
     type: number
     value_format: "0\%"
     sql: 100.00 * ((${net_sold_quantity_since_bucket1}) / NULLIF(CAST(${quantity_on_hand_bucket1} AS float) + (${quantity_received_since_bucket1}),0)) ;;
   }
 
   measure: quantity_on_hand_bucket2 {
-    description: "Quantity on hand on the date 2016-01-03"
     type: sum
     sql: ${TABLE}.quantity_on_hand_bucket2 ;;
   }
 
   measure: quantity_sold_since_bucket2 {
-    description: "Quantity sold from 2016-01-03 to 2017-07-01"
     type: sum
     sql: ${TABLE}.quantity_sold_since_bucket2 ;;
   }
 
   measure: quantity_received_since_bucket2 {
-    description: "Quantity received on purchase orders from 2016-01-03 to 2017-07-01"
     type: sum
     sql: ${TABLE}.quantity_received_since_bucket2 ;;
   }
 
   measure: quantity_returned_since_bucket2 {
-    description: "Quantity returned from 2016-01-03 to 2017-07-01"
     type: sum
     sql: ${TABLE}.quantity_returned_since_bucket2 ;;
   }
 
   measure: net_sold_quantity_since_bucket2 {
-    description: "Quantity sold from 2016-01-03 to 2017-07-01 minus the quantity returned from 2016-01-03 to 2017-07-01"
     type: number
     sql: ${quantity_sold_since_bucket2} - ${quantity_returned_since_bucket2} ;;
   }
 
   measure: sell_through_rate_bucket_2 {
     label: "% (Bucket 2)"
-    description: "Net sold quantity from 2016-01-03 to 2017-07-01 / (quantity on hand as of 2016-01-03 + quantity received between 2016-01-03 and 2017-07-01)"
     type: number
     value_format: "0\%"
     sql: 100.00 * ((${net_sold_quantity_since_bucket2}) / NULLIF(CAST(${quantity_on_hand_bucket2} AS float) + (${quantity_received_since_bucket2}),0)) ;;
   }
 
   measure: quantity_on_hand_bucket3 {
-    description: "Quantity on hand on the date 2015-07-01"
     type: sum
     sql: ${TABLE}.quantity_on_hand_bucket3 ;;
   }
 
   measure: quantity_sold_since_bucket3 {
-    description: "Quantity sold from 2015-07-01 to 2016-01-01"
     type: sum
     sql: ${TABLE}.quantity_sold_since_bucket3 ;;
   }
 
   measure: quantity_received_since_bucket3 {
-    description: "Quantity received on purchase orders from 2015-07-01 to 2016-01-01"
     type: sum
     sql: ${TABLE}.quantity_received_since_bucket3 ;;
   }
 
   measure: quantity_returned_since_bucket3 {
-    description: "Quantity returned from 2015-07-01 to 2016-01-01"
     type: sum
     sql: ${TABLE}.quantity_returned_since_bucket3 ;;
   }
 
   measure: net_sold_quantity_since_bucket3 {
-    description: "Quantity sold from 2015-07-01 to 2016-01-01 minus the quantity returned from 2015-07-01 to 2016-01-01"
     type: number
     sql: ${quantity_sold_since_bucket3} - ${quantity_returned_since_bucket3} ;;
   }
 
   measure: sell_through_rate_bucket_3 {
     label: "% (Bucket 3)"
-    description: "Net sold quantity from 2015-07-01 to 2016-01-01 / (quantity on hand as of 2015-07-01 + quantity received between 2015-07-01 to 2016-01-01)"
     type: number
     value_format: "0\%"
     sql: 100.00 * ((${net_sold_quantity_since_bucket3}) / NULLIF(CAST(${quantity_on_hand_bucket3} AS float) + (${quantity_received_since_bucket3}),0)) ;;

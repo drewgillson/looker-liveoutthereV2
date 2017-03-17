@@ -204,7 +204,7 @@ view: sales_items {
       ON a.product_id = cost.entity_id
       LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS msrp
       ON a.product_id = msrp.entity_id
-      WHERE 1=1
+      WHERE 2=2
        ;;
     indexes: ["email", "order_entity_id", "order_increment_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

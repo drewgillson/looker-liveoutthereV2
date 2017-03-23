@@ -117,13 +117,13 @@ view: report_weekly_business_review_v2 {
   measure: purchase_orders_delivered_qty {
     type: max
     value_format: "#"
-    sql: ${TABLE}."purchase_orders.delivered_qty" ;;
+    sql: ${TABLE}."purchase_orders.row_delivered_qty" ;;
   }
 
   measure: purchase_orders_delivered_amount_msrp {
     type: max
     value_format: "$#,##0;($#,##0)"
-    sql: ${TABLE}."purchase_orders.delivered_amount_msrp" ;;
+    sql: ${TABLE}."purchase_orders.row_net_delivered_amount_msrp" ;;
   }
 
   measure: sales_net_sold_quantity {

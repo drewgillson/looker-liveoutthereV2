@@ -18,8 +18,9 @@ view: report_weekly_business_review_v2 {
       (SELECT
         products.parent_id AS parent_id2,
         COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(purchase_orders.remaining_qty ,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS "purchase_orders.remaining_qty",
-        COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(purchase_orders.remaining_amount_msrp ,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS "purchase_orders.remaining_amount_msrp"
-      FROM ${catalog_product_links.SQL_TABLE_NAME} AS products
+        COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(purchase_orders.remaining_amount_msrp ,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS "purchase_orders.remaining_amount_msrp",
+        COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(purchase_orders.pop_supplied_qty ,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS "purchase_orders.row_delivered_qty",
+        COALESCE(COALESCE( ( SUM(DISTINCT (CAST(FLOOR(COALESCE(purchase_orders.delivered_amount_msrp ,0)*(1000000*1.0)) AS DECIMAL(38,0))) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0)) ) - SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR(64), purchase_orders.pop_num)),1,8) )) AS DECIMAL(38,0))) )  / (1000000*1.0), 0), 0) AS "purchase_orders.row_net_delivered_amount_msrp"      FROM ${catalog_product_links.SQL_TABLE_NAME} AS products
       LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
       LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id
       WHERE ((purchase_orders.po_status != 'complete' AND purchase_orders.po_status != 'cancelled' AND purchase_orders.po_status != 'closed') OR purchase_orders.po_status IS NULL)
@@ -67,7 +68,7 @@ view: report_weekly_business_review_v2 {
 
   measure: bucketed_sellthrough_quantity_on_hand_bucket1 {
     type: max
-    value_format: "0\%"
+    value_format: "#"
     sql: ${TABLE}."bucketed_sellthrough.quantity_on_hand_bucket1" ;;
   }
 
@@ -111,6 +112,18 @@ view: report_weekly_business_review_v2 {
     type: max
     value_format: "$#,##0;($#,##0)"
     sql: ${TABLE}."purchase_orders.remaining_amount_msrp" ;;
+  }
+
+  measure: purchase_orders_delivered_qty {
+    type: max
+    value_format: "#"
+    sql: ${TABLE}."purchase_orders.delivered_qty" ;;
+  }
+
+  measure: purchase_orders_delivered_amount_msrp {
+    type: max
+    value_format: "$#,##0;($#,##0)"
+    sql: ${TABLE}."purchase_orders.delivered_amount_msrp" ;;
   }
 
   measure: sales_net_sold_quantity {

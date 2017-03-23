@@ -13,16 +13,19 @@ view: catalog_product_bucketed_sellthrough {
         , MAX(returns_since_bucket1.quantity_returned) AS quantity_returned_since_bucket1
         , MAX(sales_since_bucket1.quantity_sold) AS quantity_sold_since_bucket1
         , MAX(receipts_since_bucket1.quantity_received) AS quantity_received_since_bucket1
+        , MAX(inventory_history_bucket1.quantity_on_hand) * MAX(catalog_product.price) AS sales_opportunity_bucket1
 
         , MAX(inventory_history_bucket2.quantity_on_hand) AS quantity_on_hand_bucket2
         , MAX(returns_since_bucket2.quantity_returned) AS quantity_returned_since_bucket2
         , MAX(sales_since_bucket2.quantity_sold) AS quantity_sold_since_bucket2
         , MAX(receipts_since_bucket2.quantity_received) AS quantity_received_since_bucket2
+        , MAX(inventory_history_bucket2.quantity_on_hand) * MAX(catalog_product.price) AS sales_opportunity_bucket2
 
         , MAX(inventory_history_bucket3.quantity_on_hand) AS quantity_on_hand_bucket3
         , MAX(returns_since_bucket3.quantity_returned) AS quantity_returned_since_bucket3
         , MAX(sales_since_bucket3.quantity_sold) AS quantity_sold_since_bucket3
         , MAX(receipts_since_bucket3.quantity_received) AS quantity_received_since_bucket3
+        , MAX(inventory_history_bucket3.quantity_on_hand) * MAX(catalog_product.price) AS sales_opportunity_bucket3
 
       FROM magento.cataloginventory_stock_item AS a
 
@@ -63,7 +66,8 @@ view: catalog_product_bucketed_sellthrough {
              , SUM(sm_qty) AS quantity_returned
         FROM magento.stock_movement
         WHERE sm_date >= '2017-01-01'
-        AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        AND sm_type = 'adjustment' AND sm_target_stock = 1 AND sm_description = 'Manual adjustment (drew.gillson)'
+        -- "Manual adjustment (drew.gillson)" is the stock movement description that gets logged when I import stock movements after syncing with NRI
         GROUP BY sm_product_id
       ) AS returns_since_bucket1
       ON a.product_id = returns_since_bucket1.product_id
@@ -105,7 +109,7 @@ view: catalog_product_bucketed_sellthrough {
              , SUM(sm_qty) AS quantity_returned
         FROM magento.stock_movement
         WHERE sm_date >= '2016-07-01' AND sm_date < '2017-01-01'
-        AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        AND sm_type = 'adjustment' AND sm_target_stock = 1 AND sm_description = 'Manual adjustment (drew.gillson)'
         GROUP BY sm_product_id
       ) AS returns_since_bucket2
       ON a.product_id = returns_since_bucket2.product_id
@@ -147,10 +151,13 @@ view: catalog_product_bucketed_sellthrough {
              , SUM(sm_qty) AS quantity_returned
         FROM magento.stock_movement
         WHERE sm_date >= '2016-01-03' AND sm_date < '2016-07-01'
-        AND (sm_type = 'transfer' OR sm_type = 'return') AND sm_target_stock = 1 AND sm_description LIKE '%return%'
+        AND sm_type = 'adjustment' AND sm_target_stock = 1 AND sm_description = 'Manual adjustment (drew.gillson)'
         GROUP BY sm_product_id
       ) AS returns_since_bucket3
       ON a.product_id = returns_since_bucket3.product_id
+
+      LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS catalog_product
+      ON a.product_id = catalog_product.entity_id
 
       GROUP BY a.product_id
        ;;
@@ -203,6 +210,12 @@ view: catalog_product_bucketed_sellthrough {
     sql: 100.00 * ((${net_sold_quantity_since_bucket1}) / NULLIF(CAST(${quantity_on_hand_bucket1} AS float) + (${quantity_received_since_bucket1}),0)) ;;
   }
 
+  measure: sales_opportunity_bucket1 {
+    type: sum
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ${TABLE}.sales_opportunity_bucket1 ;;
+  }
+
   measure: quantity_on_hand_bucket2 {
     type: sum
     sql: ${TABLE}.quantity_on_hand_bucket2 ;;
@@ -235,6 +248,12 @@ view: catalog_product_bucketed_sellthrough {
     sql: 100.00 * ((${net_sold_quantity_since_bucket2}) / NULLIF(CAST(${quantity_on_hand_bucket2} AS float) + (${quantity_received_since_bucket2}),0)) ;;
   }
 
+  measure: sales_opportunity_bucket2 {
+    type: sum
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ${TABLE}.sales_opportunity_bucket2 ;;
+  }
+
   measure: quantity_on_hand_bucket3 {
     type: sum
     sql: ${TABLE}.quantity_on_hand_bucket3 ;;
@@ -265,5 +284,11 @@ view: catalog_product_bucketed_sellthrough {
     type: number
     value_format: "0\%"
     sql: 100.00 * ((${net_sold_quantity_since_bucket3}) / NULLIF(CAST(${quantity_on_hand_bucket3} AS float) + (${quantity_received_since_bucket3}),0)) ;;
+  }
+
+  measure: sales_opportunity_bucket3 {
+    type: sum
+    value_format: "$#,##0.00;($#,##0.00)"
+    sql: ${TABLE}.sales_opportunity_bucket3 ;;
   }
 }

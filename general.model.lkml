@@ -228,6 +228,13 @@ explore: products {
     relationship: one_to_many
   }
 
+  join: weekly_business_review2 {
+    from: report_weekly_business_review_v2
+    sql_on: associations.parent_id = weekly_business_review2.parent_id ;;
+    required_joins: [associations]
+    relationship: one_to_one
+  }
+
   join: product_facts {
     from: catalog_product_facts
     sql_on: products.entity_id = product_facts.product_id ;;

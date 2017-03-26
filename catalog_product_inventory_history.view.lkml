@@ -13,7 +13,7 @@ view: catalog_product_inventory_history {
                    SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sm.sm_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sm.sm_id)),1,8) )) AS DECIMAL(38,0)))
                 )/(1000000*1.0)
            ,0),0) AS quantity
-         , ROUND(AVG((pop_price_ht * (1-(CASE WHEN pop_discount > 0 THEN pop_discount ELSE 0 END / 100)))), 2) AS avg_cost
+         , ISNULL(ROUND(AVG((pop_price_ht * (1-(CASE WHEN pop_discount > 0 THEN pop_discount ELSE 0 END / 100)))), 2), AVG(cost.value)) AS avg_cost
       FROM magento.stock_movement AS sm
       LEFT JOIN (
         SELECT DISTINCT CAST(DateFull AS date) AS sm_date
@@ -25,15 +25,15 @@ view: catalog_product_inventory_history {
         ON sm.sm_product_id = pop.pop_product_id
       LEFT JOIN magento.purchase_order AS po
         ON pop.pop_order_num = po.po_num AND po.po_arrival_date <= dates.sm_date
+      LEFT JOIN magento.catalog_product_entity_decimal AS cost
+        ON sm.sm_product_id = cost.entity_id AND cost.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'cost' AND entity_type_id = 4)
       WHERE ((sm_type != 'transfer' OR (
           sm_type = 'transfer' AND (
             (sm_source_stock = 0 OR sm_target_stock = 0) AND NOT (sm_source_stock = 0 AND sm_target_stock = 0)
           )
         )
       ))
-      AND pop_price_ht <> 0
-      AND pop_supplied_qty > 0
-      AND pop_discount <> 100
+      AND ((pop_price_ht <> 0 AND pop_discount <> 100) OR pop_price_ht IS NULL)
       GROUP BY dates.sm_date, sm_product_id
        ;;
     indexes: ["sm_date", "product_id"]

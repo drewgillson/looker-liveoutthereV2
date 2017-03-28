@@ -45,7 +45,9 @@ view: report_weekly_business_review_v2 {
       LEFT JOIN ${sales_items.SQL_TABLE_NAME} AS sales ON products.entity_id = sales.product_id
       LEFT JOIN ${sales_credits_items.SQL_TABLE_NAME} AS credits ON sales.order_entity_id = credits.order_entity_id
             AND sales.product_id = credits.product_id
+      LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id
       WHERE ((sales.order_created  >= CONVERT(DATETIME,'2017-01-01', 120)))
+      AND ((((purchase_orders.po_ship_date ) >= (CONVERT(DATETIME,'2017-01-01', 120)) AND (purchase_orders.po_ship_date ) < (CONVERT(DATETIME,'2017-07-01', 120)))))
       GROUP BY products.parent_id
       ) AS c
       ON a.parent_id = c.parent_id3

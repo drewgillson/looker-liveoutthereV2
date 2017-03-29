@@ -228,9 +228,9 @@ explore: products {
     relationship: one_to_many
   }
 
-  join: weekly_business_review2 {
-    from: report_weekly_business_review_v2
-    sql_on: associations.parent_id = weekly_business_review2.parent_id ;;
+  join: weekly_business_review_ss17 {
+    from: report_weekly_business_review_ss17
+    sql_on: associations.parent_id = weekly_business_review_ss17.parent_id ;;
     required_joins: [associations]
     relationship: one_to_one
   }

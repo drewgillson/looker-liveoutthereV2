@@ -1,4 +1,4 @@
-view: report_weekly_business_review_v2 {
+view: report_weekly_business_review_ss17 {
   derived_table: {
     sql: SELECT *, ROW_NUMBER() OVER (ORDER BY parent_id) AS row FROM
       (SELECT
@@ -24,6 +24,7 @@ view: report_weekly_business_review_v2 {
       LEFT JOIN ${catalog_product_facts.SQL_TABLE_NAME} AS product_facts ON products.entity_id = product_facts.product_id
       LEFT JOIN ${purchase_order_products.SQL_TABLE_NAME} AS purchase_orders ON products.entity_id = purchase_orders.pop_product_id
       WHERE ((purchase_orders.po_status != 'complete' AND purchase_orders.po_status != 'cancelled' AND purchase_orders.po_status != 'closed') OR purchase_orders.po_status IS NULL)
+      AND ((((purchase_orders.po_ship_date ) >= (CONVERT(DATETIME,'2017-01-01', 120)) AND (purchase_orders.po_ship_date ) < (CONVERT(DATETIME,'2017-07-01', 120)))))
       GROUP BY products.parent_id
       ) AS b
       ON a.parent_id = b.parent_id2

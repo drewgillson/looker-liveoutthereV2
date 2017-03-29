@@ -52,8 +52,6 @@ view: catalog_product {
           ON k.value = l.option_id AND l.store_id = 0
         LEFT JOIN magento.catalog_product_entity_text AS m
           ON a.entity_id = m.entity_id AND m.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'department' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_varchar AS n
-          ON a.entity_id = n.entity_id AND n.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_int AS o
           ON a.entity_id = o.entity_id AND o.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'manufacturer' AND entity_type_id = 4) AND o.store_id = 0
         LEFT JOIN magento.eav_attribute_option_value AS p
@@ -79,6 +77,8 @@ view: catalog_product {
           GROUP BY product_id
         ) AS w
           ON a.entity_id = w.product_id
+        LEFT JOIN magento.catalog_product_entity_varchar AS n
+          ON w.parent_id = n.entity_id AND n.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_varchar AS y
           ON w.parent_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
         -- url_keys are a little funny because sometimes they belong to store_id 0 and sometimes they belong to store_id 1. We want only the first value if there is a value for both stores, so we use a COALESCE in our select

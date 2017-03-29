@@ -229,6 +229,7 @@ explore: products {
   }
 
   join: weekly_business_review_ss17 {
+    view_label: "WBR-SS17"
     from: report_weekly_business_review_ss17
     sql_on: associations.parent_id = weekly_business_review_ss17.parent_id ;;
     required_joins: [associations]

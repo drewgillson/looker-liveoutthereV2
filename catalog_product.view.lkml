@@ -14,7 +14,7 @@ view: catalog_product {
            , l.value AS size
            , CASE WHEN CAST(m.value AS nvarchar(255)) = '17215' THEN 'Men' WHEN CAST(m.value AS nvarchar(255)) = '17216' THEN 'Women' WHEN CAST(m.value AS nvarchar(255)) = '17215,17216' OR CAST(m.value AS nvarchar(255)) = '17216,17215' THEN 'Men^Women' WHEN CAST(m.value AS nvarchar(255)) = '17213' THEN 'Boys' WHEN CAST(m.value AS nvarchar(255)) = '17214' THEN 'Girls' WHEN CAST(m.value AS nvarchar(255)) = '17213,17214' OR CAST(m.value AS nvarchar(255)) = '17214,17213' THEN 'Boys^Girls' WHEN CAST(m.value AS nvarchar(255)) = '42206' THEN 'Infant' WHEN CAST(m.value AS nvarchar(255)) = '64480' THEN 'Kids' WHEN CAST(m.value AS nvarchar(255)) = '41763' THEN 'Toddler' END AS department
            -- strip tabs and line breaks from product names (they cause issues with CSV/TSV exports)
-           , LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(n.value,nn.value),CHAR(10),''),CHAR(13),''),CHAR(9),''),' ',''))) AS product
+           , LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(COALESCE(n.value,nn.value),CHAR(10),''),CHAR(13),''),CHAR(9),''))) AS product
            , p.value AS brand
            , q.value AS cost
            , r.value AS price

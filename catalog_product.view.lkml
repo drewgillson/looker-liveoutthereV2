@@ -304,7 +304,11 @@ view: catalog_product {
   dimension: tax_class {
     case: {
       when: {
-        label: ""
+        label: "None"
+        sql: ${TABLE}.tax_class_id = 0 ;;
+      }
+      when: {
+        label: "Taxable Goods"
         sql: ${TABLE}.tax_class_id = 2 ;;
       }
       when: {

@@ -2,7 +2,8 @@ view: catalog_product_inventory_history {
   suggestions: no
 
   derived_table: {
-    sql: SELECT dates.sm_date
+    sql: SELECT * FROM (
+      SELECT dates.sm_date
          , sm_product_id AS product_id
          , COALESCE(COALESCE(        (
                   SUM(DISTINCT
@@ -21,7 +22,7 @@ view: catalog_product_inventory_history {
       INNER JOIN (
         SELECT DISTINCT CAST(DateFull AS date) AS sm_date
         FROM lut_Date
-        WHERE DateFull IN ('2017-02-01','2016-02-01','2015-02-01') -->= '2016-02-01' AND DateFull <= GETDATE() AND (DATEPART(dd,DateFull) = 1 OR DATEPART(dw,DateFull) = 1)
+        WHERE DateFull >= '2016-02-01' AND DateFull <= GETDATE() AND (DATEPART(dd,DateFull) = 1 OR DATEPART(dw,DateFull) = 1)
       ) AS dates
         ON sm.sm_date <= dates.sm_date
       LEFT JOIN magento.purchase_order_product AS pop
@@ -90,7 +91,9 @@ view: catalog_product_inventory_history {
                    SUM(DISTINCT CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sm.sm_id)),9,8) )) AS DECIMAL(38,0)) * CAST(1.0e8 AS DECIMAL(38,9)) + CAST(ABS(CONVERT(BIGINT, SUBSTRING(HashBytes('MD5',CONVERT(VARCHAR, sm.sm_id)),1,8) )) AS DECIMAL(38,0)))
                 )/(1000000*1.0)
            ,0),0) > 0
-       ;;
+    ) AS x
+    WHERE quantity > 0
+    ;;
     indexes: ["sm_date", "product_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       ;;

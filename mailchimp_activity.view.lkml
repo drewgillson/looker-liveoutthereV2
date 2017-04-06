@@ -15,6 +15,8 @@ view: mailchimp_activity {
         FROM mailchimp.v3api_liveoutthere_list AS a
         LEFT JOIN mailchimp.v3api_liveoutthere_list_activity AS b
           ON a.id = b.subscriber_id
+        --temporary
+        WHERE a.[email_address] IS NULL
       ) AS a
       LEFT JOIN mailchimp.v3api_liveoutthere_campaigns AS b
         ON a.activity_campaign_id = b.campaign_id

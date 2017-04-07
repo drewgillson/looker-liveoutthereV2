@@ -7,7 +7,7 @@ view: transactions {
           ON a.entity_id = b.parent_id
         WHERE a.marketplace_order_id IS NULL
         UNION ALL
-        SELECT 'credit', 'LiveOutThere.com', a.order_id, a.created_at, a.increment_id, d.increment_id, a.entity_id, NULL, -a.giftcert_amount, -a.customer_credit_amount, -a.grand_total, -a.subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -a.shipping_amount, c.method, CASE WHEN c.method = 'optimal_hosted' AND c.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',c.additional_information) ELSE c.cc_type END AS cc_type, a.transaction_id, cc_last4
+        SELECT DISTINCT 'credit', 'LiveOutThere.com', a.order_id, a.created_at, a.increment_id, d.increment_id, a.entity_id, NULL, -a.giftcert_amount, -a.customer_credit_amount, -a.grand_total, -a.subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -a.shipping_amount, CASE WHEN c.method = 'MarketPlacePaymentMethod' THEN 'Amazon' ELSE c.method END AS method, CASE WHEN c.method = 'optimal_hosted' AND c.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',c.additional_information) ELSE c.cc_type END AS cc_type, a.transaction_id, cc_last4
         FROM magento.sales_flat_creditmemo AS a
         LEFT JOIN magento.sales_order_tax AS b
           ON a.order_id = b.order_id AND b.position = 1

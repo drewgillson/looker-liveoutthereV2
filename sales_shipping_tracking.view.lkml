@@ -5,7 +5,7 @@ view: sales_shipping_tracking {
           SELECT a.order_id, b.title AS title, b.track_number, COALESCE(c.is_customer_notified,a.email_sent) AS email_sent, a.created_at, ROW_NUMBER() OVER
                   (
                      PARTITION BY a.order_id
-                     ORDER BY a.created_at
+                     ORDER BY a.created_at DESC
                   ) AS sequence
           FROM magento.sales_flat_shipment AS a
           LEFT JOIN magento.sales_flat_shipment_track AS b

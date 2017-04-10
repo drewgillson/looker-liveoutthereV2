@@ -29,6 +29,7 @@ view: catalog_product {
            , ze.value AS best_use
            , zf.value AS special_price
            , zg.value AS tax_class_id
+           , zh.value AS size_code
         FROM magento.catalog_product_entity AS a
         LEFT JOIN magento.catalog_product_entity_varchar AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
@@ -102,11 +103,13 @@ view: catalog_product {
           ON a.entity_id = zf.entity_id AND zf.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'special_price' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_int AS zg
           ON a.entity_id = zg.entity_id AND zg.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'tax_class_id' AND entity_type_id = 4)
+        LEFT JOIN magento.catalog_product_entity_varchar AS zh
+          ON a.entity_id = zh.entity_id AND zh.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_size_code' AND entity_type_id = 4)
         WHERE a.type_id IN ('simple','ugiftcert','giftcert','giftvoucher')
-        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, CAST(m.value AS nvarchar(255)), n.value, nn.value, p.value, q.value, r.value, t.value, CAST(v.value AS nvarchar(255)), z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value, zg.value
+        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, CAST(m.value AS nvarchar(255)), n.value, nn.value, p.value, q.value, r.value, t.value, CAST(v.value AS nvarchar(255)), z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value, zg.value, zh.value
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
-        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2
+        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2, NULL
       ;;
     indexes: ["sku", "entity_id", "url_key"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -145,6 +148,11 @@ view: catalog_product {
   dimension: colour_code {
     description: "Colour code for a product"
     sql: ${TABLE}.colour_code ;;
+  }
+
+  dimension: size_code {
+    description: "Size code for a product"
+    sql: ${TABLE}.size_code ;;
   }
 
   dimension: colour {

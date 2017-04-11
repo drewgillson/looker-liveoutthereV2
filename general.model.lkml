@@ -423,6 +423,7 @@ explore: products {
     from: sales_order_address
     sql_on: sales.order_entity_id = customer_address.parent_id ;;
     relationship: one_to_many
+    required_joins: [sales]
   }
 
   join: canada_post_shipments {

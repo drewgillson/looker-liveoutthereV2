@@ -76,4 +76,9 @@ view: sales_shipping_tracking {
     type:  count_distinct
     sql: ${TABLE}.order_id ;;
   }
+
+  measure: count {
+    type: count_distinct
+    sql: ${tracking_number} ;;
+  }
 }

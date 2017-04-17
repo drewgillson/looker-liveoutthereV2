@@ -9,10 +9,9 @@ view: sales_shipping_tracking {
                   ) AS sequence
           FROM magento.sales_flat_shipment AS a
           LEFT JOIN magento.sales_flat_shipment_track AS b
-            ON a.entity_id = b.parent_id
+            ON a.entity_id = b.parent_id AND b.title NOT LIKE 'Return%'
           LEFT JOIN magento.sales_flat_shipment_comment AS c
             ON b.entity_id = c.parent_id AND c.is_customer_notified = 1
-          WHERE b.title NOT LIKE 'Return%'
         ) AS x
         WHERE sequence = 1
         UNION ALL

@@ -64,9 +64,23 @@ view: transactions_tax {
   }
 
   measure:  amount {
-    label: "Amount $"
+    label: "Collected Tax $"
     type: sum
     value_format: "$#,##0.00"
     sql:  ${TABLE}.amount ;;
+  }
+
+  # Oh man I really, really apologize for this, it's such a hack... but it works and it will be fine until we rebuild the model. If the tax rates change obviously the values below will need to be updated
+  measure: refunded_tax {
+    label: "Refunded Tax $"
+    type: number
+    value_format: "$#,##0.00"
+    sql:  CASE
+               WHEN MAX(${customer_address.region}) = 'British Columbia' AND MAX(${title}) = 'GST' THEN ${credits.refunded_tax} * (5/12.00)
+               WHEN MAX(${customer_address.region}) = 'British Columbia' AND MAX(${title}) = 'PST - BC' THEN ${credits.refunded_tax} * (7/12.00)
+               WHEN MAX(${customer_address.region}) = 'Quebec' AND MAX(${title}) = 'GST' THEN ${credits.refunded_tax} * (5/14.975)
+               WHEN MAX(${customer_address.region}) = 'Quebec' AND MAX(${title}) = 'QST - QC' THEN ${credits.refunded_tax} * (9.975/14.975)
+          END
+          ;;
   }
 }

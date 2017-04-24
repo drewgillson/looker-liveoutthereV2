@@ -500,6 +500,7 @@ view: sales_items {
 #  }
 
   measure: tax_collected {
+    hidden: yes
     description: "Total tax collected"
     label: "Tax Collected $"
     type: sum

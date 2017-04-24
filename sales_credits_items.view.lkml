@@ -230,6 +230,7 @@ view: sales_credits_items {
   }
 
   measure: refunded_tax {
+    hidden: yes
     label: "Refunded Tax $"
     description: "Amount of tax refunded"
     type: sum

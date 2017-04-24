@@ -480,6 +480,13 @@ explore: products {
     required_joins: [transactions]
   }
 
+  join: refunded_tax {
+    from: sales_credits_items_refunded_tax
+    sql_on: ${credits.creditmemo_entity_id} = ${refunded_tax.entity_id} ;;
+    relationship: one_to_many
+    required_joins: [credits]
+  }
+
   join: braintree {
     from: transactions_braintree
     type: full_outer

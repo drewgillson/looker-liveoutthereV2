@@ -7,7 +7,7 @@ view: transactions_tax {
         -- Shopify
         SELECT DISTINCT [order-order_number], [order-tax_lines-title], [order-tax_lines-title], [order-tax_lines-rate] * 100, [order-tax_lines-price] FROM shopify.transactions
         UNION ALL
-        -- Amazon Marketplace
+        -- Amazon Marketplace (only legacy orders that don't have lines in sales_order_tax
         SELECT entity_id AS order_id, [code], [code] AS [title], NULL, NULL FROM (
           SELECT a.entity_id,
             CASE WHEN b.region = 'Alberta' THEN 'GST'
@@ -25,8 +25,10 @@ view: transactions_tax {
             WHEN b.region = 'Northwest Territories' THEN 'GST' END AS [code]
           FROM magento.sales_flat_order AS a
           LEFT JOIN magento.sales_flat_order_address AS b
-          ON a.entity_id = b.parent_id AND b.address_type = 'shipping'
-          WHERE marketplace_order_id IS NOT NULL
+            ON a.entity_id = b.parent_id AND b.address_type = 'shipping'
+          LEFT JOIN magento.sales_order_tax AS c
+            ON a.entity_id = c.order_id
+          WHERE marketplace_order_id IS NOT NULL AND c.order_id IS NULL
         ) AS x
       ) AS a
        ;;
@@ -68,20 +70,5 @@ view: transactions_tax {
     type: sum
     value_format: "$#,##0.00"
     sql:  ${TABLE}.amount ;;
-  }
-
-  # Oh man I really, really apologize for this, it's such a hack... but it works and it will be fine until we rebuild the model. If the tax rates change obviously the values below will need to be updated
-  measure: refunded_tax {
-    label: "Refunded Tax $"
-    type: number
-    value_format: "$#,##0.00"
-    sql:  CASE
-               WHEN MAX(${customer_address.region}) = 'British Columbia' AND MAX(${title}) = 'GST' THEN ${credits.refunded_tax} * (5/12.00)
-               WHEN MAX(${customer_address.region}) = 'British Columbia' AND MAX(${title}) = 'PST - BC' THEN ${credits.refunded_tax} * (7/12.00)
-               WHEN MAX(${customer_address.region}) = 'Quebec' AND MAX(${title}) = 'GST' THEN ${credits.refunded_tax} * (5/14.975)
-               WHEN MAX(${customer_address.region}) = 'Quebec' AND MAX(${title}) = 'QST - QC' THEN ${credits.refunded_tax} * (9.975/14.975)
-               ELSE ${credits.refunded_tax}
-          END
-          ;;
   }
 }

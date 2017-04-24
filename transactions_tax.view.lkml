@@ -80,6 +80,7 @@ view: transactions_tax {
                WHEN MAX(${customer_address.region}) = 'British Columbia' AND MAX(${title}) = 'PST - BC' THEN ${credits.refunded_tax} * (7/12.00)
                WHEN MAX(${customer_address.region}) = 'Quebec' AND MAX(${title}) = 'GST' THEN ${credits.refunded_tax} * (5/14.975)
                WHEN MAX(${customer_address.region}) = 'Quebec' AND MAX(${title}) = 'QST - QC' THEN ${credits.refunded_tax} * (9.975/14.975)
+               ELSE ${credits.refunded_tax}
           END
           ;;
   }

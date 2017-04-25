@@ -473,16 +473,15 @@ explore: products {
   }
 
   join: tax {
-    from: transactions_tax
-    sql_on: transactions.entity_id = tax.order_id
-      ;;
+    from: sales_items_collected_tax
+    sql_on: sales.order_entity_id = tax.order_id AND sales.tax_class_id = tax.tax_class_id ;;
     relationship: one_to_many
-    required_joins: [transactions]
+    required_joins: [sales]
   }
 
   join: refunded_tax {
     from: sales_credits_items_refunded_tax
-    sql_on: ${credits.creditmemo_entity_id} = ${refunded_tax.entity_id} AND credits.tax_class_id = refunded_tax.tax_class_id;;
+    sql_on: credits.creditmemo_entity_id = refunded_tax.entity_id AND credits.tax_class_id = refunded_tax.tax_class_id ;;
     relationship: one_to_many
     required_joins: [credits]
   }

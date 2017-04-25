@@ -482,7 +482,7 @@ explore: products {
 
   join: refunded_tax {
     from: sales_credits_items_refunded_tax
-    sql_on: ${credits.creditmemo_entity_id} = ${refunded_tax.entity_id} ;;
+    sql_on: ${credits.creditmemo_entity_id} = ${refunded_tax.entity_id} AND credits.tax_class_id = refunded_tax.tax_class_id;;
     relationship: one_to_many
     required_joins: [credits]
   }

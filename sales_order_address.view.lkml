@@ -115,4 +115,15 @@ view: sales_order_address {
     sql_latitude: ${TABLE}.latitude ;;
     sql_longitude: ${TABLE}.longitude ;;
   }
+
+  dimension:  latitude {
+    type: string
+    sql: ${TABLE}.latitude ;;
+  }
+
+  dimension:  longitude {
+    type: string
+    sql: ${TABLE}.longitude ;;
+  }
+
 }

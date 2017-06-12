@@ -58,6 +58,23 @@ view: orderforms_loadfiles {
     sql: REPLACE(${TABLE}.cost,'$','') ;;
   }
 
+  dimension: future_season_price {
+    type: number
+    value_format: "$#,##0.00"
+    sql: REPLACE(${TABLE}.future_season_price,'$','') ;;
+  }
+
+  dimension: future_season_cost {
+    type: number
+    value_format: "$#,##0.00"
+    sql: REPLACE(${TABLE}.future_season_cost,'$','') ;;
+  }
+
+  dimension: future_cost_difference {
+    type: yesno
+    sql: ${future_season_cost} <> ${products.cost} ;;
+  }
+
   dimension: department {
     type: string
     sql: ${TABLE}.department ;;

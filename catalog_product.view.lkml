@@ -240,7 +240,7 @@ view: catalog_product {
   dimension: is_virtual_product {
     description: "Is 'Yes' if the product has a brand value of LiveOutThere.com, which we use for gift cards, promo items, etc."
     type: yesno
-    sql: ${TABLE}.brand = 'LiveOutThere.com' ;;
+    sql: ${TABLE}.brand = 'Live Out There' ;;
   }
 
   dimension: has_description {

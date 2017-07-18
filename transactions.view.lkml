@@ -92,14 +92,14 @@ view: transactions {
 
   dimension_group: settlement {
     type: time
-    sql: COALESCE(${braintree.settlement_date_date},${paypal_settlement.transaction_initiation_date}) ;;
+    sql: ${sales.order_created_date} ;;
   }
 
   measure: collected {
     label: "Collected $"
     type: number
     value_format: "$#,##0.00;($#,##0.00)"
-    sql: ISNULL(${braintree.amount_submitted_for_settlement},0) + ISNULL(${paypal_settlement.gross_transaction_amount},0) ;;
+    sql: ${sales.total_collected} ;;
     drill_fields: ["transactions.payment_method", "transactions.card_type", "sales.order_id", "sales.email", "sales.total_collected", "sales.tax_collected", "sales.subtotal", "sales.customer_credit_amount", "sales.giftcert_amount", "sales.deferred_revenue", "sales.amazon_order_id", "braintree.transaction_id", "braintree.amount_submitted_for_settlement", "braintree.settlement_date", "braintree.service_fee", "paypal_settlement.transaction_id", "paypal_settlement.gross_transaction_amount", "paypal_settlement.tax_amount", "paypal_settlement.fee_amount", "transactions.grand_total", "transactions.customer_credit_amount", "transactions.gift_certificate_amount"]
     }
 

@@ -212,6 +212,31 @@ explore: people {
     type: full_outer
     relationship: one_to_many
   }
+
+  join: favourites_items {
+    view_label: "Favourites"
+    from: favourites_items
+    sql_on: customers.customer_id = favourites_items.customer_id ;;
+    relationship: one_to_many
+  }
+
+  join: favourites_items_associated_configs {
+    view_label: "Favourites"
+    fields: []
+    from: catalog_product_associations
+    sql_on: favourites_items_associated_configs.parent_id = favourites_items.product_id;;
+    relationship: one_to_many
+    required_joins: [favourites_items]
+  }
+
+  join: favourites_items_products {
+    view_label: "Favourites"
+    fields: [favourites_items_products.brand_filter, favourites_items_products.long_product_name]
+    from: catalog_product_links
+    sql_on: favourites_items_associated_configs.product_id = favourites_items_products.entity_id ;;
+    relationship: one_to_many
+    required_joins: [favourites_items_associated_configs]
+  }
 }
 
 explore: products {
@@ -234,6 +259,14 @@ explore: products {
     sql_on: associations.parent_id = weekly_business_review_ss17.parent_id ;;
     required_joins: [associations]
     relationship: one_to_one
+  }
+
+  join: favourites_items {
+    view_label: "Favourites"
+    from: favourites_items
+    sql_on: associations.parent_id = favourites_items.product_id ;;
+    required_joins: [associations]
+    relationship: one_to_many
   }
 
   join: product_facts {

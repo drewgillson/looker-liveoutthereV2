@@ -14,6 +14,7 @@ view: customers {
            , CASE WHEN MIN(s.created_at) < ISNULL(MIN(h.first_order),GETDATE()) THEN MIN(s.created_at) ELSE MIN(h.first_order) END AS first_order
            , MAX(s.created_at) AS last_order
            , COUNT(DISTINCT s.entity_id) AS orders
+           , MAX(a.entity_id) AS customer_id
         FROM magento.sales_flat_order AS s
         LEFT JOIN magento.customer_entity AS a
           ON s.customer_id = a.entity_id
@@ -61,6 +62,12 @@ view: customers {
     hidden: yes
     type: number
     sql: ${TABLE}.entity_id ;;
+  }
+
+  dimension: customer_id {
+    hidden: yes
+    type: number
+    sql: ${TABLE}.customer_id ;;
   }
 
   dimension: email {

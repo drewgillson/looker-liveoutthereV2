@@ -3,7 +3,10 @@ view: organizers_misshipments {
     sql: SELECT ot_id
               , CAST(ot_description AS nvarchar(255)) AS sku
               , ot_created_at AS created_at
-         FROM magento.organizer_task
+              , b.increment_id AS order_id
+         FROM magento.organizer_task AS a
+         LEFT JOIN magento.sales_flat_order AS b
+             ON a.ot_entity_id = b.entity_id
          WHERE ot_caption LIKE 'mis%shipment'
       ;;
   }
@@ -12,6 +15,10 @@ view: organizers_misshipments {
     primary_key: yes
     hidden: yes
     sql: ${TABLE}.ot_id ;;
+  }
+
+  dimension: order_id {
+    sql: ${TABLE}.order_id ;;
   }
 
   measure: count {

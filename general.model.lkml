@@ -247,6 +247,12 @@ explore: products {
   from: catalog_product_links
   always_join: [product_facts, categories]
 
+  join: misshipments {
+    from: organizers_misshipments
+    sql_on: products.sku = misshipments.sku ;;
+    relationship: one_to_many
+  }
+
   join: associations {
     from: catalog_product_associations
     sql_on: products.entity_id = associations.product_id ;;

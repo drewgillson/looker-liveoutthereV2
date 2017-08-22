@@ -72,7 +72,7 @@ view: transactions {
 
   dimension: payment_method {
     type: string
-    hidden: yes
+    label: "Payment Processor"
     sql: CASE WHEN ${TABLE}.giftcert_amount = (${TABLE}.grand_total + ${TABLE}.giftcert_amount + ${TABLE}.customer_credit_amount) THEN 'Gift Card'
               WHEN (${TABLE}.customer_credit_amount = (${TABLE}.grand_total + ${TABLE}.giftcert_amount + ${TABLE}.customer_credit_amount)) OR (${TABLE}.customer_credit_amount > 0 AND ${TABLE}.grand_total = 0) THEN 'Customer Credit'
               WHEN ${TABLE}.payment_method = 'paypal_express' THEN 'PayPal'

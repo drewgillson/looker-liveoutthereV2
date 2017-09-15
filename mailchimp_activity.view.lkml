@@ -1,28 +1,8 @@
 view: mailchimp_activity {
   derived_table: {
-    sql: SELECT ROW_NUMBER() OVER (ORDER BY [activity]) AS row, a.*, b.*, c.transactions, c.revenue FROM (
-        SELECT a.[email_address] AS email
-           , a.[status] AS activity_status
-           , a.avg_open_rate
-           , a.avg_click_rate
-           , ISNULL(CAST(NULLIF(REPLACE(LEFT(a.timestamp_signup,15),'T',' '),'') AS datetime),'1970-01-01') AS signup
-           , a.member_rating
-           , CASE WHEN CAST(NULLIF(REPLACE(LEFT(a.timestamp_signup,15),'T',' '),'') AS date) = CAST(REPLACE(LEFT(b.[timestamp],15),'T',' ') AS date) THEN 'subscribe' ELSE b.action END AS action
-           , DATEADD(hh,-7,CAST(REPLACE(LEFT(b.[timestamp],15),'T',' ') AS datetime)) AS [activity]
-           , b.url
-           , b.campaign_id AS activity_campaign_id
-           , b.title AS activity_title
-        FROM mailchimp.v3api_liveoutthere_list AS a
-        LEFT JOIN mailchimp.v3api_liveoutthere_list_activity AS b
-          ON a.id = b.subscriber_id
-      ) AS a
-      LEFT JOIN mailchimp.v3api_liveoutthere_campaigns AS b
-        ON a.activity_campaign_id = b.campaign_id
-      LEFT JOIN ga.email_transactions AS c
-        ON a.activity_title = c.campaign
-       ;;
+    sql:SELECT * FROM mailchimp.data ;;
     indexes: ["email", "activity", "action", "title"]
-    sql_trigger_value: SELECT CAST(DATEADD(hh,-7,GETDATE()) AS date)
+    sql_trigger_value: SELECT COUNT(*) FROM mailchimp.data
       ;;
   }
 

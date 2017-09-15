@@ -65,7 +65,7 @@ view: transactions_braintree {
   dimension_group: disbursement_date {
     type: time
     label: "Disbursement Date"
-    sql: ${TABLE}."Disbursement Date" ;;
+    sql: NULLIF(${TABLE}."Disbursement Date",'1899-12-30') ;;
   }
 
   dimension: merchant_account {
@@ -192,8 +192,8 @@ view: transactions_braintree {
     sql: ${TABLE}."Credit Card Number" ;;
   }
 
-  dimension_group: expiration_date {
-    type: time
+  dimension: expiration_date {
+    type: string
     label: "Expiration Date"
     sql: ${TABLE}."Expiration Date" ;;
   }
@@ -650,30 +650,6 @@ view: transactions_braintree {
     sql: ${TABLE}."PayPal Transaction Fee Currency ISO Code" ;;
   }
 
-  dimension: last_four_of_apple_pay {
-    type: string
-    label: "Last Four of Apple Pay"
-    sql: ${TABLE}."Last Four of Apple Pay" ;;
-  }
-
-  dimension: expiration_month {
-    type: string
-    label: "Expiration Month"
-    sql: ${TABLE}."Expiration Month" ;;
-  }
-
-  dimension: expiration_year {
-    type: string
-    label: "Expiration Year"
-    sql: ${TABLE}."Expiration Year" ;;
-  }
-
-  dimension: cardholder_name_2 {
-    type: string
-    label: "Cardholder Name 2"
-    sql: ${TABLE}."Cardholder Name 2" ;;
-  }
-
   dimension: android_pay_source_card_last_four {
     type: string
     label: "Android Pay Source Card Last Four"
@@ -686,19 +662,7 @@ view: transactions_braintree {
     sql: ${TABLE}."Android Pay Source Card Type" ;;
   }
 
-  dimension: risk_id {
-    type: string
-    label: "Risk ID"
-    sql: ${TABLE}."Risk ID" ;;
-  }
-
-  dimension: risk_decision {
-    type: string
-    label: "Risk Decision"
-    sql: ${TABLE}."Risk Decision" ;;
-  }
-
   set: detail {
-    fields: [transaction_id, subscription_id, transaction_type, transaction_status, escrow_status, created_datetime_time, created_timezone, settlement_date_time, disbursement_date_time, merchant_account, currency_iso_code, amount_authorized, amount_submitted_for_settlement, service_fee, tax_amount, tax_exempt, purchase_order_number, order_id, descriptor_name, descriptor_phone, descriptor_url, refunded_transaction_id, payment_instrument_type, card_type, cardholder_name, first_six_of_credit_card, last_four_of_credit_card, credit_card_number, expiration_date_time, credit_card_customer_location, customer_id, payment_method_token, credit_card_unique_identifier, customer_first_name, customer_last_name, customer_company, customer_email, customer_phone, customer_fax, customer_website, billing_address_id, billing_first_name, billing_last_name, billing_company, billing_street_address, billing_extended_address, billing_city_locality, billing_state_province_region, billing_postal_code, billing_country, shipping_address_id, shipping_first_name, shipping_last_name, shipping_company, shipping_street_address, shipping_extended_address, shipping_city_locality, shipping_state_province_region, shipping_postal_code, shipping_country, user, ip_address, creating_using_token, transaction_source, authorization_code, processor_response_code, processor_response_text, gateway_rejection_reason, postal_code_response_code, street_address_response_code, avs_response_text, cvv_response_code, cvv_response_text, settlement_amount, settlement_currency_iso_code, settlement_currency_exchange_rate, fraud_detected, disputed_date, authorized_transaction_id, customer_group_id, has_gift_card, shipping_method, country_of_issuance, issuing_bank, durbin_regulated, commercial, prepaid, payroll, healthcare, affluent_category, debit, product_id, pay_pal_payer_email, pay_pal_payment_id, pay_pal_authorization_id, pay_pal_debug_id, pay_pal_capture_id, pay_pal_refund_id, pay_pal_custom_field, pay_pal_payer_id, pay_pal_payer_first_name, pay_pal_payer_last_name, pay_pal_seller_protection_status, pay_pal_transaction_fee_amount, pay_pal_transaction_fee_currency_iso_code, last_four_of_apple_pay, expiration_month, expiration_year, cardholder_name_2, android_pay_source_card_last_four, android_pay_source_card_type, risk_id, risk_decision]
+    fields: [transaction_id, subscription_id, transaction_type, transaction_status, escrow_status, created_datetime_time, created_timezone, settlement_date_time, disbursement_date_time, merchant_account, currency_iso_code, amount_authorized, amount_submitted_for_settlement, service_fee, tax_amount, tax_exempt, purchase_order_number, order_id, descriptor_name, descriptor_phone, descriptor_url, refunded_transaction_id, payment_instrument_type, card_type, cardholder_name, first_six_of_credit_card, last_four_of_credit_card, credit_card_number, expiration_date, credit_card_customer_location, customer_id, payment_method_token, credit_card_unique_identifier, customer_first_name, customer_last_name, customer_company, customer_email, customer_phone, customer_fax, customer_website, billing_address_id, billing_first_name, billing_last_name, billing_company, billing_street_address, billing_extended_address, billing_city_locality, billing_state_province_region, billing_postal_code, billing_country, shipping_address_id, shipping_first_name, shipping_last_name, shipping_company, shipping_street_address, shipping_extended_address, shipping_city_locality, shipping_state_province_region, shipping_postal_code, shipping_country, user, ip_address, creating_using_token, transaction_source, authorization_code, processor_response_code, processor_response_text, gateway_rejection_reason, postal_code_response_code, street_address_response_code, avs_response_text, cvv_response_code, cvv_response_text, settlement_amount, settlement_currency_iso_code, settlement_currency_exchange_rate, fraud_detected, disputed_date, authorized_transaction_id, customer_group_id, has_gift_card, shipping_method, country_of_issuance, issuing_bank, durbin_regulated, commercial, prepaid, payroll, healthcare, affluent_category, debit, product_id, pay_pal_payer_email, pay_pal_payment_id, pay_pal_authorization_id, pay_pal_debug_id, pay_pal_capture_id, pay_pal_refund_id, pay_pal_custom_field, pay_pal_payer_id, pay_pal_payer_first_name, pay_pal_payer_last_name, pay_pal_seller_protection_status, pay_pal_transaction_fee_amount, pay_pal_transaction_fee_currency_iso_code, android_pay_source_card_last_four, android_pay_source_card_type]
   }
 }

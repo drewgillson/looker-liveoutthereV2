@@ -91,6 +91,7 @@ explore: assortment_planning {
 explore: assortment_planning_not_mapped_to_budget {
   description: "Hidden explore to complement the explore above, but with a slightly different join predicate to find ordered items that don't map to a budget."
   hidden: yes
+  fields: [ALL_FIELDS*, -assortment_planning_not_mapped_to_budget.future_cost_difference]
   from: orderforms_loadfiles
 
   join: items {

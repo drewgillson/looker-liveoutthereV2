@@ -3,8 +3,9 @@ view: sales_items {
     sql: SELECT ROW_NUMBER() OVER (ORDER BY order_created) AS row
         , a.*
         , (qty * COALESCE(average_cost.value, cost.value)) AS extended_cost
-        , 1 - (row_total / NULLIF((qty * msrp.price),0)) AS discount_percentage_from_msrp
-        , qty * msrp.price AS gross_sold_msrp
+        , 1 - (row_total / NULLIF((qty * products.price),0)) AS discount_percentage_from_msrp
+        , qty * products.price AS gross_sold_msrp
+        , products.tax_class_id
       FROM (
         SELECT email
            , order_created
@@ -202,9 +203,8 @@ view: sales_items {
         SELECT entity_id, value FROM magento.catalog_product_entity_decimal WHERE attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'cost')
       ) AS cost
       ON a.product_id = cost.entity_id
-      LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS msrp
-      ON a.product_id = msrp.entity_id
-      WHERE 2=2
+      LEFT JOIN ${catalog_product.SQL_TABLE_NAME} AS products
+      ON a.product_id = products.entity_id
        ;;
     indexes: ["email", "order_entity_id", "order_increment_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)

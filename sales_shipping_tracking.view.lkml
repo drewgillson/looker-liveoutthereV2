@@ -1,12 +1,19 @@
 view: sales_shipping_tracking {
   derived_table: {
     sql: SELECT ROW_NUMBER() OVER (ORDER BY order_id) AS row, a.* FROM (
-        SELECT a.order_id, b.title AS title, b.track_number, COALESCE(c.is_customer_notified,a.email_sent) AS email_sent, a.created_at
-        FROM magento.sales_flat_shipment AS a
-        LEFT JOIN magento.sales_flat_shipment_track AS b
-          ON a.entity_id = b.parent_id
-        LEFT JOIN magento.sales_flat_shipment_comment AS c
-          ON b.entity_id = c.parent_id AND c.is_customer_notified = 1
+        SELECT order_id, title, track_number, email_sent, created_at FROM (
+          SELECT a.order_id, b.title AS title, b.track_number, COALESCE(c.is_customer_notified,a.email_sent) AS email_sent, a.created_at, ROW_NUMBER() OVER
+                  (
+                     PARTITION BY a.order_id
+                     ORDER BY a.created_at DESC
+                  ) AS sequence
+          FROM magento.sales_flat_shipment AS a
+          LEFT JOIN magento.sales_flat_shipment_track AS b
+            ON a.entity_id = b.parent_id AND b.title NOT LIKE 'Return%'
+          LEFT JOIN magento.sales_flat_shipment_comment AS c
+            ON b.entity_id = c.parent_id AND c.is_customer_notified = 1
+        ) AS x
+        WHERE sequence = 1
         UNION ALL
         -- fill in recent missing shipments
         SELECT a.entity_id, NULL, NULL, 1 AS email_sent, a.created_at
@@ -67,5 +74,10 @@ view: sales_shipping_tracking {
   measure: email_sent {
     type:  count_distinct
     sql: ${TABLE}.order_id ;;
+  }
+
+  measure: count {
+    type: count_distinct
+    sql: ${tracking_number} ;;
   }
 }

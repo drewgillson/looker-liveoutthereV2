@@ -212,6 +212,31 @@ explore: people {
     type: full_outer
     relationship: one_to_many
   }
+
+  join: favourites_items {
+    view_label: "Favourites"
+    from: favourites_items
+    sql_on: customers.customer_id = favourites_items.customer_id ;;
+    relationship: one_to_many
+  }
+
+  join: favourites_items_associated_configs {
+    view_label: "Favourites"
+    fields: []
+    from: catalog_product_associations
+    sql_on: favourites_items_associated_configs.parent_id = favourites_items.product_id;;
+    relationship: one_to_many
+    required_joins: [favourites_items]
+  }
+
+  join: favourites_items_products {
+    view_label: "Favourites"
+    fields: [favourites_items_products.brand_filter, favourites_items_products.long_product_name]
+    from: catalog_product_links
+    sql_on: favourites_items_associated_configs.product_id = favourites_items_products.entity_id ;;
+    relationship: one_to_many
+    required_joins: [favourites_items_associated_configs]
+  }
 }
 
 explore: products {
@@ -222,17 +247,32 @@ explore: products {
   from: catalog_product_links
   always_join: [product_facts, categories]
 
+  join: misshipments {
+    from: organizers_misshipments
+    sql_on: products.sku = misshipments.sku ;;
+    relationship: one_to_many
+  }
+
   join: associations {
     from: catalog_product_associations
     sql_on: products.entity_id = associations.product_id ;;
     relationship: one_to_many
   }
 
-  join: weekly_business_review2 {
-    from: report_weekly_business_review_v2
-    sql_on: associations.parent_id = weekly_business_review2.parent_id ;;
+  join: weekly_business_review_ss17 {
+    view_label: "WBR-SS17"
+    from: report_weekly_business_review_ss17
+    sql_on: associations.parent_id = weekly_business_review_ss17.parent_id ;;
     required_joins: [associations]
     relationship: one_to_one
+  }
+
+  join: favourites_items {
+    view_label: "Favourites"
+    from: favourites_items
+    sql_on: associations.parent_id = favourites_items.product_id ;;
+    required_joins: [associations]
+    relationship: one_to_many
   }
 
   join: product_facts {
@@ -422,6 +462,7 @@ explore: products {
     from: sales_order_address
     sql_on: sales.order_entity_id = customer_address.parent_id ;;
     relationship: one_to_many
+    required_joins: [sales]
   }
 
   join: canada_post_shipments {
@@ -471,11 +512,17 @@ explore: products {
   }
 
   join: tax {
-    from: transactions_tax
-    sql_on: transactions.entity_id = tax.order_id
-      ;;
+    from: sales_items_collected_tax
+    sql_on: sales.order_entity_id = tax.order_id AND sales.tax_class_id = tax.tax_class_id ;;
     relationship: one_to_many
-    required_joins: [transactions]
+    required_joins: [sales]
+  }
+
+  join: refunded_tax {
+    from: sales_credits_items_refunded_tax
+    sql_on: credits.creditmemo_entity_id = refunded_tax.entity_id AND credits.tax_class_id = refunded_tax.tax_class_id ;;
+    relationship: one_to_many
+    required_joins: [credits]
   }
 
   join: braintree {

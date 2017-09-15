@@ -45,7 +45,7 @@ view: nri_invoice_details {
 
     case: {
       when: {
-        sql: ${service} = 'Handling' OR ${service} = 'Label Application' OR ${service} = 'Order Manual Data Entry' OR ${service} = 'Order Processing' OR ${service} = 'Order Restocking' OR ${service} = 'Outbound Shipment Materials' OR ${service} = 'Shipment Cancellation' OR ${service} = '' OR ${service} = '' OR ${service} = '' ;;
+        sql: ${service} = 'Handling' OR ${service} = 'Label Application' OR ${service} = 'Order Manual Data Entry' OR ${service} = 'Order Processing' OR ${service} = 'Order Restocking' OR ${service} = 'Outbound Shipment Materials' OR ${service} = 'Shipment Cancellation' OR ${service} = 'Outbound Shipment Carton' ;;
         label: "Outbound"
       }
 

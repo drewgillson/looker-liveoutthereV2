@@ -14,7 +14,7 @@ view: catalog_product {
            , l.value AS size
            , CASE WHEN CAST(m.value AS nvarchar(255)) = '17215' THEN 'Men' WHEN CAST(m.value AS nvarchar(255)) = '17216' THEN 'Women' WHEN CAST(m.value AS nvarchar(255)) = '17215,17216' OR CAST(m.value AS nvarchar(255)) = '17216,17215' THEN 'Men^Women' WHEN CAST(m.value AS nvarchar(255)) = '17213' THEN 'Boys' WHEN CAST(m.value AS nvarchar(255)) = '17214' THEN 'Girls' WHEN CAST(m.value AS nvarchar(255)) = '17213,17214' OR CAST(m.value AS nvarchar(255)) = '17214,17213' THEN 'Boys^Girls' WHEN CAST(m.value AS nvarchar(255)) = '42206' THEN 'Infant' WHEN CAST(m.value AS nvarchar(255)) = '64480' THEN 'Kids' WHEN CAST(m.value AS nvarchar(255)) = '41763' THEN 'Toddler' END AS department
            -- strip tabs and line breaks from product names (they cause issues with CSV/TSV exports)
-           , LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(n.value,CHAR(10),''),CHAR(13),''),CHAR(9),''))) AS product
+           , LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(COALESCE(n.value,nn.value),CHAR(10),''),CHAR(13),''),CHAR(9),''))) AS product
            , p.value AS brand
            , q.value AS cost
            , r.value AS price
@@ -29,6 +29,7 @@ view: catalog_product {
            , ze.value AS best_use
            , zf.value AS special_price
            , zg.value AS tax_class_id
+           , zh.value AS size_code
         FROM magento.catalog_product_entity AS a
         LEFT JOIN magento.catalog_product_entity_varchar AS b
           ON a.entity_id = b.entity_id AND b.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_color_code' AND entity_type_id = 4)
@@ -52,8 +53,6 @@ view: catalog_product {
           ON k.value = l.option_id AND l.store_id = 0
         LEFT JOIN magento.catalog_product_entity_text AS m
           ON a.entity_id = m.entity_id AND m.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'department' AND entity_type_id = 4)
-        LEFT JOIN magento.catalog_product_entity_varchar AS n
-          ON a.entity_id = n.entity_id AND n.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_int AS o
           ON a.entity_id = o.entity_id AND o.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'manufacturer' AND entity_type_id = 4) AND o.store_id = 0
         LEFT JOIN magento.eav_attribute_option_value AS p
@@ -79,6 +78,10 @@ view: catalog_product {
           GROUP BY product_id
         ) AS w
           ON a.entity_id = w.product_id
+        LEFT JOIN magento.catalog_product_entity_varchar AS n
+          ON w.parent_id = n.entity_id AND n.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
+        LEFT JOIN magento.catalog_product_entity_varchar AS nn
+          ON a.entity_id = nn.entity_id AND nn.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_varchar AS y
           ON w.parent_id = y.entity_id AND y.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'merchandise_priority' AND entity_type_id = 4)
         -- url_keys are a little funny because sometimes they belong to store_id 0 and sometimes they belong to store_id 1. We want only the first value if there is a value for both stores, so we use a COALESCE in our select
@@ -100,11 +103,13 @@ view: catalog_product {
           ON a.entity_id = zf.entity_id AND zf.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'special_price' AND entity_type_id = 4)
         LEFT JOIN magento.catalog_product_entity_int AS zg
           ON a.entity_id = zg.entity_id AND zg.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'tax_class_id' AND entity_type_id = 4)
+        LEFT JOIN magento.catalog_product_entity_varchar AS zh
+          ON a.entity_id = zh.entity_id AND zh.attribute_id = (SELECT attribute_id FROM magento.eav_attribute WHERE attribute_code = 'vendor_size_code' AND entity_type_id = 4)
         WHERE a.type_id IN ('simple','ugiftcert','giftcert','giftvoucher')
-        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, CAST(m.value AS nvarchar(255)), n.value, p.value, q.value, r.value, t.value, CAST(v.value AS nvarchar(255)), z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value, zg.value
+        GROUP BY a.sku, a.created_at, a.updated_at, a.entity_id, b.value, c.value, d.value, f.value, h.value, i.value, j.value, l.value, CAST(m.value AS nvarchar(255)), n.value, nn.value, p.value, q.value, r.value, t.value, CAST(v.value AS nvarchar(255)), z.value, za.value, DATALENGTH(zb.value), zd.value, ze.value, zf.value, zg.value, zh.value
         UNION ALL
         -- this line allows us to join the Products explore to Sales & Credits even if a product no longer exists, we use -1 as a substitute product ID (this helps us keep our Explores simple for end-users)
-        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+        SELECT NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2, NULL
       ;;
     indexes: ["sku", "entity_id", "url_key"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
@@ -143,6 +148,11 @@ view: catalog_product {
   dimension: colour_code {
     description: "Colour code for a product"
     sql: ${TABLE}.colour_code ;;
+  }
+
+  dimension: size_code {
+    description: "Size code for a product"
+    sql: ${TABLE}.size_code ;;
   }
 
   dimension: colour {
@@ -230,7 +240,7 @@ view: catalog_product {
   dimension: is_virtual_product {
     description: "Is 'Yes' if the product has a brand value of LiveOutThere.com, which we use for gift cards, promo items, etc."
     type: yesno
-    sql: ${TABLE}.brand = 'LiveOutThere.com' ;;
+    sql: ${TABLE}.brand = 'Live Out There' ;;
   }
 
   dimension: has_description {
@@ -302,7 +312,11 @@ view: catalog_product {
   dimension: tax_class {
     case: {
       when: {
-        label: ""
+        label: "None"
+        sql: ${TABLE}.tax_class_id = 0 ;;
+      }
+      when: {
+        label: "Taxable Goods"
         sql: ${TABLE}.tax_class_id = 2 ;;
       }
       when: {

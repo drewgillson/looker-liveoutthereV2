@@ -25,11 +25,11 @@ view: catalog_product_links {
     description: "Long product name, like Arc'teryx Men's Gamma Pants"
     drill_fields: [sku, colour, colour_family, size]
 
-    link: {
-      label: "Configurable Product"
-      url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value | encode_uri }}"
-      icon_url: "https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico"
-    }
+    #link: {
+    #  label: "Configurable Product"
+    #  url: "https://admin.liveoutthere.com/index.php/inspire/catalog_product/edit/id/{{ products.parent_id._value | encode_uri }}"
+    #  icon_url: "https://www.liveoutthere.com/skin/adminhtml/default/default/favicon.ico"
+    #}
   }
 
   dimension: short_product_name {

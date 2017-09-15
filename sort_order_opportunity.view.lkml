@@ -34,11 +34,11 @@ view: sort_order_opportunity {
   dimension: weighted_score_default {
     description: "Anshuman's default sort order with weights as described in LOT Sort Order - Algo Description"
     type: number
-    sql: (ISNULL(${page_views.score},5000) * 0.00) +
-         (ISNULL(${conversion_rate.score},5000) * 0.00) +
-         (ISNULL(${sort_order.opportunity_score},5000) * 0.10) +
-         (ISNULL(${price.score},5000) * 0.00) +
-         (ISNULL(${days_since_last_receipt.score},5000) * 0.90) +
+    sql: (ISNULL(${page_views.score},5000) * 0.10) +
+         (ISNULL(${conversion_rate.score},5000) * 0.10) +
+         (ISNULL(${sort_order.opportunity_score},5000) * 0.70) +
+         (ISNULL(${price.score},5000) * 0.10) +
+         (ISNULL(${days_since_last_receipt.score},5000) * 0.00) +
          (ISNULL(${quantity.score},5000) * 0.00) +
          (ISNULL(${discounts.score},5000) * 0.00) +
          (ISNULL(${reviews.score},5000) * 0.00);;

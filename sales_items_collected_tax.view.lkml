@@ -10,8 +10,8 @@ view: sales_items_collected_tax {
            -- In provinces that collect more than one type of tax we need to split the collected tax amount proportionately across the different tax types
            WHEN d.region = 'British Columbia' AND b.title = 'GST' AND a.tax_class_id = 2 THEN a.tax_amount * (5/12.00)
            WHEN d.region = 'British Columbia' AND b.title = 'PST - BC' AND a.tax_class_id = 2 THEN a.tax_amount * (7/12.00)
-           WHEN d.region = 'Quebec' AND b.title = 'GST' THEN a.tax_amount * (5/14.975)
-           WHEN d.region = 'Quebec' AND b.title = 'QST - QC' THEN a.tax_amount * (9.975/14.975)
+           WHEN e.created_at <= '2017-09-18' AND d.region = 'Quebec' AND b.title = 'GST' THEN a.tax_amount * (5/14.975)
+           WHEN e.created_at <= '2017-09-18' AND d.region = 'Quebec' AND b.title = 'QST - QC' THEN a.tax_amount * (9.975/14.975)
            ELSE a.tax_amount
         END AS amount
         , a.tax_class_id
@@ -27,6 +27,8 @@ view: sales_items_collected_tax {
         ON b.tax_id = c.tax_id AND a.order_item_id = c.item_id
         LEFT JOIN magento.sales_flat_order_address AS d
         ON a.order_id = d.parent_id AND d.address_type = 'shipping'
+        LEFT JOIN magento.sales_flat_order AS e
+        ON a.order_id = e.entity_id
 
         UNION ALL
 

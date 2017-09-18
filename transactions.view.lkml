@@ -1,6 +1,7 @@
 view: transactions {
   derived_table: {
-    sql: SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, * FROM (
+    sql: SELECT ROW_NUMBER() OVER (ORDER BY [entity_id]) AS row, *
+      FROM (
         SELECT 'sale' AS type, 'LiveOutThere.com' AS storefront, a.entity_id, a.created_at, a.increment_id, a.increment_id AS sale_order_id, NULL AS credit_memo_id, NULL AS authorization_number, ISNULL(a.giftcert_amount,0) + ISNULL(a.gift_voucher_discount,0) AS giftcert_amount, ISNULL(a.customer_credit_amount,0) + ISNULL(a.use_gift_credit_amount,0) AS customer_credit_amount, a.grand_total AS grand_total, a.subtotal, a.tax_amount AS tax_amount, a.shipping_amount, b.method AS payment_method, CASE WHEN b.method = 'optimal_hosted' AND b.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',b.additional_information) ELSE b.cc_type END AS cc_type, COALESCE(b.cc_trans_id, b.last_trans_id) AS transaction_id, cc_last4, c.available_on, c.fee
         FROM magento.sales_flat_order AS a
         LEFT JOIN magento.sales_flat_order_payment AS b
@@ -9,25 +10,25 @@ view: transactions {
           ON b.last_trans_id = c.charge_id AND c.fee > 0 --indicating it is a charge (not a refund)
         WHERE a.marketplace_order_id IS NULL
         UNION ALL
-        SELECT DISTINCT 'credit', 'LiveOutThere.com', a.order_id, a.created_at, a.increment_id, d.increment_id, a.entity_id, NULL, -a.giftcert_amount, -a.customer_credit_amount, -a.grand_total, -a.subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -a.shipping_amount, CASE WHEN c.method = 'MarketPlacePaymentMethod' THEN 'Amazon' ELSE c.method END AS method, CASE WHEN c.method = 'optimal_hosted' AND c.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',c.additional_information) ELSE c.cc_type END AS cc_type, a.transaction_id, cc_last4, NULL, NULL
-        FROM magento.sales_flat_creditmemo AS a
-        LEFT JOIN magento.sales_order_tax AS b
-          ON a.order_id = b.order_id AND b.position = 1
-        LEFT JOIN magento.sales_flat_order_payment AS c
-          ON a.order_id = c.parent_id
-        LEFT JOIN magento.sales_flat_order AS d
-          ON a.order_id = d.entity_id
-        UNION ALL
-        SELECT CASE WHEN [order-transactions-kind] = 'refund' THEN 'credit' ELSE [order-transactions-kind] END, 'TheVan.ca', CAST([order-order_number] AS nvarchar(10)), [order-transactions-created_at], CAST([order-order_number] AS nvarchar(10)), NULL, NULL, [order-transactions-authorization], NULL, NULL, NULL, NULL, NULL, NULL, [order-transactions-gateway], [order-payment_method], NULL, NULL, NULL, NULL
-        FROM shopify.transactions
-        WHERE [order-transactions-status] = 'success'
-        UNION ALL
+--        SELECT DISTINCT 'credit', 'LiveOutThere.com', a.order_id, a.created_at, a.increment_id, d.increment_id, a.entity_id, NULL, -a.giftcert_amount, -a.customer_credit_amount, -a.grand_total, -a.subtotal, CASE WHEN a.tax_amount IS NULL OR a.tax_amount = 0 THEN -CAST(a.grand_total - (a.grand_total / (1 + (b.[percent] / 100))) AS money) ELSE -a.tax_amount END AS tax_amount, -a.shipping_amount, CASE WHEN c.method = 'MarketPlacePaymentMethod' THEN 'Amazon' ELSE c.method END AS method, CASE WHEN c.method = 'optimal_hosted' AND c.cc_type IS NULL THEN magento.extractValueFromSerializedPhpString('brand',c.additional_information) ELSE c.cc_type END AS cc_type, a.transaction_id, cc_last4, NULL, NULL
+--        FROM magento.sales_flat_creditmemo AS a
+--        LEFT JOIN magento.sales_order_tax AS b
+--          ON a.order_id = b.order_id AND b.position = 1
+--        LEFT JOIN magento.sales_flat_order_payment AS c
+--          ON a.order_id = c.parent_id
+--        LEFT JOIN magento.sales_flat_order AS d
+--          ON a.order_id = d.entity_id
+--        UNION ALL
+--        SELECT CASE WHEN [order-transactions-kind] = 'refund' THEN 'credit' ELSE [order-transactions-kind] END, 'TheVan.ca', CAST([order-order_number] AS nvarchar(10)), [order-transactions-created_at], CAST([order-order_number] AS nvarchar(10)), NULL, NULL, [order-transactions-authorization], NULL, NULL, NULL, NULL, NULL, NULL, [order-transactions-gateway], [order-payment_method], NULL, NULL, NULL, NULL
+--        FROM shopify.transactions
+--        WHERE [order-transactions-status] = 'success'
+--        UNION ALL
         SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL, NULL, NULL, NULL, NULL, grand_total, subtotal, tax_amount, shipping_amount, 'Amazon', NULL, NULL, NULL, NULL, NULL
         FROM magento.sales_flat_order
         WHERE marketplace_order_id IS NOT NULL
       ) AS a
        ;;
-    indexes: ["storefront", "entity_id", "credit_memo_id","transaction_id"]
+    indexes: ["type","storefront", "entity_id", "credit_memo_id","transaction_id"]
     sql_trigger_value: SELECT CAST(DATEADD(hh,-5,GETDATE()) AS date)
       ;;
   }
@@ -68,7 +69,7 @@ view: transactions {
 
   dimension: transaction_id {
     type: string
-    hidden: yes
+    hidden: no
     sql: ${TABLE}.transaction_id ;;
   }
 
@@ -94,7 +95,7 @@ view: transactions {
 
   dimension_group: settlement {
     type: time
-    sql: COALESCE(${TABLE}.available_on,${sales.order_created_date}) ;;
+    sql: ${TABLE}.available_on ;;
   }
 
   measure: collected {

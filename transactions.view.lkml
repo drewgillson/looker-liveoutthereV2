@@ -25,7 +25,7 @@ view: transactions {
 --        UNION ALL
         SELECT 'sale', 'Amazon', entity_id, created_at, increment_id, NULL, NULL, NULL, NULL, NULL, grand_total, subtotal, tax_amount, shipping_amount, 'Amazon', NULL, NULL, NULL, NULL, NULL
         FROM magento.sales_flat_order
-        WHERE marketplace_order_id IS NOT NULL
+        WHERE marketplace_order_id IS NOT NULL AND 1=1
       ) AS a
        ;;
     indexes: ["type","storefront", "entity_id", "credit_memo_id","transaction_id"]

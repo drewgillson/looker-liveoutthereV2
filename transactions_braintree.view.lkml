@@ -10,7 +10,6 @@ view: transactions_braintree {
     type: string
     label: "Braintree Txn ID"
     primary_key: yes
-    label: "Transaction ID"
     sql: ${TABLE}."Transaction ID" ;;
 
     link: {
@@ -105,7 +104,6 @@ view: transactions_braintree {
     type: sum
     label: "Braintree Tax $"
     value_format: "$#,##0.00;($#,##0.00)"
-    label: "Tax Amount"
     sql: ${TABLE}."Tax Amount" ;;
   }
 
